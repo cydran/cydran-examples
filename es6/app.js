@@ -5,11 +5,15 @@ class App extends Component {
 
 	constructor() {
 		super('app', () => document.querySelector('#appComponent').innerHTML);
-		this.text = '';
+		this.text = 'No button has been clicked';
 	}
 
-	handleClick() {
-		this.text = 'I was clicked';
+	handleClickFirst() {
+		this.text = 'The first button was clicked';
+	}
+
+	handleClickSecond() {
+		this.text = 'The second button was clicked';
 	}
 
 }
