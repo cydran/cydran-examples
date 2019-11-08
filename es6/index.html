@@ -13,10 +13,12 @@
 		<div id="app"></div>
 	</body>
 	<template id="appComponent">
-		<h1>Cydran ES6 Example</h1>
-		<button data-c-click="this.handleClickFirst()">First</button>
-		<button data-c-click="this.handleClickSecond()">Second</button>
-		<p data-c-model="this.text"></p>
+		<div>
+			<h1>Cydran ES6 Example</h1>
+			<button c:onclick="this.handleClickFirst()">First</button>
+			<button c:onclick="this.handleClickSecond()">Second</button><p/>
+			{{this.text}}
+		</div>
 	</template>
 
 </html>
