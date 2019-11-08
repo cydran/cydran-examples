@@ -5,18 +5,20 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		<title>Cydran Hello World</title>
-		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
 		<script src="cydran.min.js"></script>
 		<script src="app.js"></script>
 	</head>
 	<body>
 		<div id="app"></div>
 	</body>
+
 	<template id="appComponent">
-		<h1>Cydran ES6 Example</h1>
-		<button data-c-click="this.handleClickFirst()">First</button>
-		<button data-c-click="this.handleClickSecond()">Second</button>
-		<p data-c-model="this.text"></p>
+		<div>
+			<h1>Cydran ES6 Example</h1>
+			<button c:onclick="this.handleClickFirst()">First</button>
+			<button c:onclick="this.handleClickSecond()">Second</button><p/>
+			{{this.text}}
+		</div>
 	</template>
 
 </html>

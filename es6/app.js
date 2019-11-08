@@ -4,7 +4,7 @@ const Component = cydran.Component;
 class App extends Component {
 
 	constructor() {
-		super('app', () => document.querySelector('#appComponent').innerHTML);
+		super('app', document.querySelector('#appComponent').innerHTML);
 		this.text = 'No button has been clicked';
 	}
 
@@ -18,7 +18,7 @@ class App extends Component {
 
 }
 
-let stage = new Stage('app');
+let stage = new Stage('#app');
 stage.getConfig().useDebug();
 
 stage.withInitializer(function() {
