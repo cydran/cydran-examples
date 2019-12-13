@@ -1,23 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 	<head>
+		<title>Pure HTML - Cydran</title>
 		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<title>Cydran Hello World</title>
-		<script src="cydran.min.js"></script>
-		<script src="app.js"></script>
+		<meta name="author" content="Burk Price <webigrator@gmail.com>">
+		<meta name="description" content="Testing some things">
+		<meta name="keywords" content="playarea">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="theme-color" content="#254665" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script data-main="js/index.js" src="js/require.min-2.3.6.js"></script>
 	</head>
-	<body>
-		<div id="app"></div>
-	</body>
+
+	<body></body>
 
 	<template id="appComponent">
 		<div>
 			<h1>Cydran ES6 Example</h1>
-			<button c:onclick="m().handleClickFirst()">First</button>
-			<button c:onclick="m().handleClickSecond()">Second</button><p/>
+			<button c:onclick="model().handleClickFirst()">First</button>
+			<button c:onclick="m().handleClickSecond()">Second</button>
+			<button c:onclick="m().resetOrig()">Reset</button>
+			<p />
 			{{m().text}}
+		</div>
+	</template>
+
+	<template id="chooseComponent">
+		<div>
+			Min: {{m().mincount}} - Max: {{m().countArray.length}}<p/>
+			<input type="number" c:model="m().selectedCount" min="{{m().mincount}}" max="{{m().countArray.length}}"/>&nbsp;:&nbsp;{{m().countArray[m().selectedCount].label}}
 		</div>
 	</template>
 
