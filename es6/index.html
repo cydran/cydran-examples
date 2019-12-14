@@ -11,14 +11,36 @@
 		<meta name="theme-color" content="#254665" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script src="js/cydran.min.js"></script>
+		<style type="text/css">
+			div.listitem:hover {
+				background-color: yellow; cursor: pointer; padding: 2px; border: solid red 1px;
+			}
+
+			span.extremes:hover {
+				font-weight: bolder; color: orangered; cursor: pointer;
+			}
+
+			div.listbox {
+				width: 50%; height: 200px; overflow: hidden; overflow-y:scroll;
+			}
+
+			.loud {
+				color: red;
+			}
+		</style>
 		<script src="js/app.js"></script>
 	</head>
 
-	<body></body>
+	<body id="pgpart">
+	</body>
 
 	<template id="appComponent">
 		<div>
-			<h1>Cydran ES6 Example</h1>
+			<h2>{{m().pgLabel}} {{m().view}}</h2><br/>
+			Current Page: <div class="loud">{{m().curPag}}</div><p />
+			<button c:onclick="m().goView(2)">Go To View 2</button>&nbsp;<button c:onclick="m().goInitialView()">Go Initial Page</button><p />
+			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" /><br/>
+			Offset: <input type="number" c:model="m().offset" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" /><p />
 			<button c:onclick="model().handleClickFirst()">First</button>
 			<button c:onclick="m().handleClickSecond()">Second</button>
 			<button c:onclick="m().resetOrig()">Reset</button>
@@ -29,8 +51,23 @@
 
 	<template id="chooseComponent">
 		<div>
-			Min: {{m().mincount}} - Max: {{m().countArray.length}}<p/>
-			<input type="number" c:model="m().selectedCount" min="{{m().mincount}}" max="{{m().countArray.length}}"/>&nbsp;:&nbsp;{{m().countArray[m().selectedCount].label}}
+			<h2>{{m().pgLabel}} {{m().view}}</h2><br/>
+			Current Page: <div class="loud">{{m().curPag}}</div><p />
+			<button c:onclick="m().goView(1)">Go To View 1</button>&nbsp;<button c:onclick="m().goInitialView()">Go Initial Page</button><p />
+			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" />&nbsp;<button c:onclick="m().populateBuffer()">Update List</button>&nbsp;<button c:onclick="m().clearBuffer()">Clear</button><br/>
+			Offset: {{m().offset}}<br/>
+			Total: {{m().countArray.length}}
+			<p/>
+			{{m().selectedLabel}}<p />
+			<div class="listbox" c:repeat="{items: m().bufferArray}">
+				<template type="item">
+					<div class="listitem" c:content="i().id" c:onclick="p().setSelectedLabel(i().id)"></div>
+				</template>
+			</div><br/>
+			<span class="extremes" c:onclick="m().toTheBeginning()">&lt;&lt;&nbsp;</span>
+			<button c:onclick="m().previousBuffer()" c:enabled="m().allowPrior">Previous</button>
+			<button c:onclick="m().nextBuffer()" c:enabled="m().allowNext">Next</button>
+			<span class="extremes" c:onclick="m().toTheEnd()">&nbsp;&gt;&gt;</span>
 		</div>
 	</template>
 

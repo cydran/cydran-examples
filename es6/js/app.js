@@ -2,24 +2,51 @@ window.onload = function() {
 	const Stage = cydran.Stage;
 	const Component = cydran.Component;
 
-	const T1 = document.querySelector('#appComponent').innerHTML.trim();
-	const T2 = document.querySelector('#chooseComponent').innerHTML.trim();
-
 	const urlParams = new URL(window.location).searchParams;
-	const wkview = urlParams.get('v') && urlParams.get('v').toUpperCase() == 'T2' ? T2 : T1;
-	const iCnt = urlParams.get('c') && !isNaN(urlParams.get('c')) ? urlParams.get('c') : 10;
+	const vMap = {"t1": "#appComponent", "t2": "#chooseComponent"};
+
+	function getView(v) {
+		const base = "t1";
+		let vp = (urlParams.get(v) || base).toLowerCase();
+		if(!vMap[vp]) {
+			vp = base;
+		}
+		const sv = vMap[vp] || vMap[base];
+		return {"template": document.querySelector(sv).innerHTML.trim(), "name": vp};
+	};
+
+	function getConstantValue(c) {
+		return Number(urlParams.get(c));
+	}
+
+	const D_C = { COUNT: 1000, OFFSET: 100, IDX: 0 };
+	const DIR = { UP: 1, DOWN: -1 };
+
+	const wkview = getView("v");
+	const iCnt = getConstantValue("c") || D_C.COUNT;
+	const offset = getConstantValue("o") || D_C.OFFSET;
+	const idx = getConstantValue("i") || D_C.IDX;
+	const msg = urlParams.get('m') || "nothing";
 
 	class App extends Component {
 		constructor() {
-			super('app', wkview);
+			super('app', wkview.template);
+			this.pgLabel = "Cydran ES6 Example - Page";
 			this.origMsg = 'No button has been clicked';
 			this.text = this.origMsg;
-			this.selectedCount = 0;
-			this.countArray = [];
+			this.selectedLabel = this.createLabel(msg);
+			this.max = iCnt;
+			this.countArray;
+			this.bufferArray = [];
+			this.arrayIdx = idx;
 			this.mincount = 0;
-			for (let x = this.mincount; x < iCnt; x++) {
-				this.countArray.push({ id: x, label: 'label - ' + x });
-			}
+			this.offset = offset <= this.max ? offset : this.max;
+			this.allowPrior = false;
+			this.allowNext = true;
+			this.curPg = "";
+			this.view = wkview.name;
+
+			this.populateBuffer();
 		}
 
 		handleClickFirst() {
@@ -33,13 +60,89 @@ window.onload = function() {
 		resetOrig() {
 			this.text = this.origMsg;
 		}
+
+		setSelectedLabel(c) {
+			this.selectedLabel = this.createLabel(c);
+		}
+
+		createLabel(c) {
+			return "label: #" + c;
+		}
+
+		updateBuffer(dir) {
+			let p1 = this.arrayIdx;
+			let p2 = this.arrayIdx + this.offset;
+			const a = this.countArray;
+			if(dir === DIR.DOWN) {
+				p1 = this.arrayIdx - this.offset;
+				p2 = p1 - this.offset;
+				p2 = (p2 < 0) ? 0 : p2;
+				this.bufferArray = a.slice(p2, p1);
+				this.arrayIdx = p1;
+			} else {
+				this.bufferArray = a.slice(p1, p2);
+				this.arrayIdx = p2;
+			}
+			this.allowPrior = this.arrayIdx > this.offset;
+			this.allowNext = this.arrayIdx < this.countArray.length;
+		}
+
+		toTheBeginning() {
+			this.arrayIdx = 0;
+			this.updateBuffer(DIR.UP);
+		}
+
+		toTheEnd() {
+			this.arrayIdx = this.countArray.length - this.offset;
+			this.updateBuffer(DIR.UP);
+		}
+
+		nextBuffer() {
+			this.updateBuffer(DIR.UP);
+		}
+
+		previousBuffer() {
+			this.updateBuffer(DIR.DOWN);
+		}
+
+		populateBuffer() {
+			this.countArray = [];
+			for (let i = 0; i < this.max; i++) {
+				this.countArray.push({ id: i });
+			}
+			this.toTheBeginning();
+		}
+
+		clearBuffer() {
+			this.bufferArray = [];
+			this.arrayIdx = 0;
+			this.setSelectedLabel(msg);
+		}
+
+		updatePageLoc() {
+			const cloc = window.location;
+			this.curPg = cloc.origin + cloc.pathname + "?v=" + this.view + "&c=" + this.max + "&o=" + this.offset;
+		}
+
+		goView(v) {
+			this.view = ((v === 1) ? "t1" : "t2");
+			this.updatePageLoc();
+			window.location = this.curPg;
+		}
+
+		goInitialView() {
+			const cloc = window.location;
+			window.location = cloc.origin + cloc.pathname;
+		}
 	}
 
-	let stage = new Stage('body');
+	let stage = new Stage('#pgpart');
 	stage.getConfig().useDebug();
 
 	stage.withInitializer(function() {
-		this.setComponent(new App());
+		const app = new App();
+		app.curPag = window.location.href;
+		this.setComponent(app);
 	});
 
 	stage.start();
