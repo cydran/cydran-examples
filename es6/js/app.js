@@ -3,17 +3,17 @@ window.onload = function() {
 	const Component = cydran.Component;
 
 	const urlParams = new URL(window.location).searchParams;
-	const vMap = {"t1": "#appComponent", "t2": "#chooseComponent"};
+	const vMap = { t1: '#appComponent', t2: '#chooseComponent' };
 
 	function getView(v) {
-		const base = "t1";
+		const base = 't1';
 		let vp = (urlParams.get(v) || base).toLowerCase();
-		if(!vMap[vp]) {
+		if (!vMap[vp]) {
 			vp = base;
 		}
 		const sv = vMap[vp] || vMap[base];
-		return {"template": document.querySelector(sv).innerHTML.trim(), "name": vp};
-	};
+		return { template: document.querySelector(sv).innerHTML.trim(), name: vp };
+	}
 
 	function getConstantValue(c) {
 		return Number(urlParams.get(c));
@@ -22,28 +22,28 @@ window.onload = function() {
 	const D_C = { COUNT: 10000, OFFSET: 250, IDX: 0 };
 	const DIR = { UP: 1, DOWN: -1 };
 
-	const wkview = getView("v");
-	const iCnt = getConstantValue("c") || D_C.COUNT;
-	const offset = getConstantValue("o") || D_C.OFFSET;
-	const idx = getConstantValue("i") || D_C.IDX;
-	const msg = urlParams.get('m') || "nothing";
+	const wkview = getView('v');
+	const iCnt = getConstantValue('c') || D_C.COUNT;
+	const offset = getConstantValue('o') || D_C.OFFSET;
+	const idx = getConstantValue('i') || D_C.IDX;
+	const msg = urlParams.get('m') || 'nothing';
 
 	class App extends Component {
 		constructor() {
 			super('app', wkview.template);
-			this.pgLabel = "Cydran ES6 Example - Page";
+			this.pgLabel = 'Cydran ES6 Example - Page';
 			this.origMsg = 'No button has been clicked';
 			this.text = this.origMsg;
 			this.selectedLabel = this.createLabel(msg);
 			this.max = iCnt;
-			this.countArray;
-			this.bufferArray = [];
+			this.fullData = null;
+			this.buffData = [];
 			this.arrayIdx = idx;
 			this.mincount = 0;
 			this.offset = offset <= this.max ? offset : this.max;
 			this.allowPrior = false;
 			this.allowNext = true;
-			this.curPg = "";
+			this.curPg = '';
 			this.view = wkview.name;
 
 			this.populateBuffer();
@@ -66,25 +66,25 @@ window.onload = function() {
 		}
 
 		createLabel(c) {
-			return "label: #" + c;
+			return 'label: #' + c;
 		}
 
 		updateBuffer(dir) {
 			let p1 = this.arrayIdx;
 			let p2 = this.arrayIdx + this.offset;
-			const a = this.countArray;
-			if(dir === DIR.DOWN) {
+			const a = this.fullData;
+			if (dir === DIR.DOWN) {
 				p1 = this.arrayIdx - this.offset;
 				p2 = p1 - this.offset;
-				p2 = (p2 < 0) ? 0 : p2;
-				this.bufferArray = a.slice(p2, p1);
+				p2 = p2 < 0 ? 0 : p2;
+				this.buffData = a.slice(p2, p1);
 				this.arrayIdx = p1;
 			} else {
-				this.bufferArray = a.slice(p1, p2);
+				this.buffData = a.slice(p1, p2);
 				this.arrayIdx = p2;
 			}
 			this.allowPrior = this.arrayIdx > this.offset;
-			this.allowNext = this.arrayIdx < this.countArray.length;
+			this.allowNext = this.arrayIdx < this.fullData.length;
 		}
 
 		toTheBeginning() {
@@ -93,7 +93,7 @@ window.onload = function() {
 		}
 
 		toTheEnd() {
-			this.arrayIdx = this.countArray.length - this.offset;
+			this.arrayIdx = this.fullData.length - this.offset;
 			this.updateBuffer(DIR.UP);
 		}
 
@@ -106,15 +106,15 @@ window.onload = function() {
 		}
 
 		populateBuffer() {
-			this.countArray = [];
+			this.fullData = [];
 			for (let i = 0; i < this.max; i++) {
-				this.countArray.push({ id: i });
+				this.fullData.push({ id: i });
 			}
 			this.toTheBeginning();
 		}
 
 		clearBuffer() {
-			this.bufferArray = [];
+			this.buffData = [];
 			this.arrayIdx = 0;
 			this.setSelectedLabel(msg);
 		}
@@ -122,15 +122,15 @@ window.onload = function() {
 		updatePageLoc() {
 			const l = new URL(window.location);
 			const p = l.searchParams;
-			p.set("v", this.view);
-			p.set("c", this.max);
-			p.set("o", this.offset);
+			p.set('v', this.view);
+			p.set('c', this.max);
+			p.set('o', this.offset);
 			this.curPg = l.href;
-			console.log("this.curPg:", this.curPg);
+			console.log('this.curPg:', this.curPg);
 		}
 
 		goView(v) {
-			this.view = ((v === 1) ? "t1" : "t2");
+			this.view = v === 1 ? 't1' : 't2';
 			this.updatePageLoc();
 			window.location = this.curPg;
 		}
