@@ -131,8 +131,8 @@ window.onload = function() {
 		}
 
 		goInitialView() {
-			const cloc = window.location;
-			window.location = cloc.origin + cloc.pathname;
+			const l = new URL(window.location);
+			window.location = l.origin + l.pathname;
 		}
 	}
 
