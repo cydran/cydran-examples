@@ -19,7 +19,7 @@ window.onload = function() {
 		return Number(urlParams.get(c));
 	}
 
-	const D_C = { COUNT: 1000, OFFSET: 100, IDX: 0 };
+	const D_C = { COUNT: 10000, OFFSET: 250, IDX: 0 };
 	const DIR = { UP: 1, DOWN: -1 };
 
 	const wkview = getView("v");
