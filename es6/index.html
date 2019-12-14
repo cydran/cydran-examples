@@ -56,10 +56,10 @@
 			<button c:onclick="m().goView(1)">Go To View 1</button>&nbsp;<button c:onclick="m().goInitialView()">Go Initial Page</button><p />
 			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" />&nbsp;<button c:onclick="m().populateBuffer()">Update List</button>&nbsp;<button c:onclick="m().clearBuffer()">Clear</button><br/>
 			Offset: {{m().offset}}<br/>
-			Total: {{m().countArray.length}}
+			Total: {{m().fullData.length}}
 			<p/>
 			{{m().selectedLabel}}<p />
-			<div class="listbox" c:repeat="{items: m().bufferArray}">
+			<div class="listbox" c:repeat="{items: m().buffData}">
 				<template type="item">
 					<div class="listitem" c:content="i().id" c:onclick="p().setSelectedLabel(i().id)"></div>
 				</template>
