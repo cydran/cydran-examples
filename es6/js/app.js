@@ -120,8 +120,13 @@ window.onload = function() {
 		}
 
 		updatePageLoc() {
-			const cloc = window.location;
-			this.curPg = cloc.origin + cloc.pathname + "?v=" + this.view + "&c=" + this.max + "&o=" + this.offset;
+			const l = new URL(window.location);
+			const p = l.searchParams;
+			p.set("v", this.view);
+			p.set("c", this.max);
+			p.set("o", this.offset);
+			this.curPg = l.href;
+			console.log("this.curPg:", this.curPg);
 		}
 
 		goView(v) {
