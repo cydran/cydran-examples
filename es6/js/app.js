@@ -30,7 +30,10 @@ window.onload = function() {
 
 	class App extends Component {
 		constructor() {
-			super('app', wkview.template);
+			super(wkview.template);
+		}
+
+		init() {
 			this.pgLabel = 'Cydran ES6 Example - Page';
 			this.origMsg = 'No button has been clicked';
 			this.text = this.origMsg;
