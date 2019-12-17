@@ -15,6 +15,22 @@
 			
 		</style>
 		<script src="js/app2.js"></script>
+		<style type="text/css">
+			div.listbox > div:hover {
+				background-color: yellow;
+				cursor: pointer; 
+				padding: 2px;
+				border: solid red 1px;
+			}
+
+			.listbox {
+				width: 350px; height: 200px; overflow: hidden; overflow-y:scroll;
+			}
+
+			.loud {
+				color: red;
+			}
+		</style>
 	</head>
 
 	<body id="pgpart">
@@ -23,15 +39,12 @@
 	<template id="myComponent">
 		<div>
 			<h2>{{m().pgLabel}}</h2><p/>
-			<select c:repeat="{items: m().buffData}" c:model="m().selectedItem">
-				<template type="first">
-					<option disabled selected>Select One...</option>
-				</template>
+			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud" c:content="m().selectedItem"></span><p/>
+			<div c:repeat="{items: m().buffData}" class="listbox" >
 				<template type="item">
-					<option value="{{i().id}}" c:content="i().name"></option>
+					<div c:content="i().name" c:onmouseover="p().updateItem(i().id)" c:onclick="p().logTheItem()"></div>
 				</template>
-			</select><p />
-			{{m().selectedItem}}
+			</div>
 		</div>
 	</template>
 
