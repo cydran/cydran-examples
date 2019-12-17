@@ -17,7 +17,7 @@ window.onload = function() {
 		init() {
 			this.pgLabel = 'Cydran ES6 Example - Data';
 			this.buffData = [];
-			this.selectedItem = "";
+			this.selectedItem = "Nothing yet...";
 			this.loadBuffer();
 		}
 
@@ -32,7 +32,6 @@ window.onload = function() {
 				});
 		}
 
-
 		dataError(error) {
 			this.getLogger().error(error);
 		}
@@ -40,14 +39,25 @@ window.onload = function() {
 		dataUpdate(data) {
 			this.buffData = data;
 		}
+
+		updateItem(value) {
+			this.selectedItem = value;
+		}
+
+		logTheItem() {
+			//alert("License Abbrev: " + this.selectedItem);
+			this.getLogger().info("value: " + this.selectedItem);
+		}
+
+		doReset() {
+			this.reset();
+		}
 	}
 
 	let stage = new Stage('#pgpart');
 	stage.getConfig().useDebug();
-
-	let app = new App2();
 	stage.withInitializer(function() {
-		this.setComponent(app);
+		this.setComponent(new App2());
 	});
 
 	stage.start();
