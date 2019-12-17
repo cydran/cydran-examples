@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="Testing some things">
+		<meta name="keywords" content="playarea">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="theme-color" content="#254665" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script src="js/axios.min.js"></script>
+		<script src="js/cydran.min.js"></script>
+		<style type="text/css">
+			
+		</style>
+		<script src="js/app2.js"></script>
+	</head>
+
+	<body id="pgpart">
+	</body>
+
+	<template id="myComponent">
+		<div>
+			<h2>{{m().pgLabel}}</h2><p/>
+			<select c:repeat="{items: m().buffData}" c:model="m().selectedItem">
+				<template type="first">
+					<option disabled selected>Select One...</option>
+				</template>
+				<template type="item">
+					<option value="{{i().id}}" c:content="i().name"></option>
+				</template>
+			</select><p />
+			{{m().selectedItem}}
+		</div>
+	</template>
+
+</html>
