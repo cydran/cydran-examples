@@ -1,12 +1,15 @@
-declare class Config {
+export interface ComponentConfig {
+	getMetadata(key: string): any;
+	getPrefix(): string;
+	getAttributes(): string[];
+}
+export declare class ComponentConfigBuilder {
+	private instance;
 	constructor();
-	useTrace(): void;
-	useDebug(): void;
-	useInfo(): void;
-	useWarn(): void;
-	useError(): void;
-	useFatal(): void;
-	useDisable(): void;
+	withMetadata(name: string, value: any): ComponentConfigBuilder;
+	withAttribute(name: string): ComponentConfigBuilder;
+	withPrefix(prefix: string): ComponentConfigBuilder;
+	build(): ComponentConfig;
 }
 export interface OnContinuation {
 	invoke(target: (payload: any) => void): void;
@@ -25,11 +28,17 @@ export interface Disposable {
 export interface Logger {
 	getName(): string;
 	trace(payload: any, error?: Error): void;
+	ifTrace(payloadFn: () => any, error?: Error): void;
 	debug(payload: any, error?: Error): void;
+	ifDebug(payloadFn: () => any, error?: Error): void;
 	info(payload: any, error?: Error): void;
+	ifInfo(payloadFn: () => any, error?: Error): void;
 	warn(payload: any, error?: Error): void;
+	ifWarn(payloadFn: () => any, error?: Error): void;
 	error(payload: any, error?: Error): void;
+	ifError(payloadFn: () => any, error?: Error): void;
 	fatal(payload: any, error?: Error): void;
+	ifFatal(payloadFn: () => any, error?: Error): void;
 	isTrace(): boolean;
 	isDebug(): boolean;
 	isInfo(): boolean;
@@ -103,12 +112,15 @@ export declare class Modules {
 	private static logger;
 	private static modules;
 }
+export interface MetadataContinuation {
+	has: (name: string) => boolean;
+	get: (name: string) => any;
+}
 export declare class Component {
 	private ____internal$$cydran____;
 	private ____internal$$cydran$$module____;
-	constructor(componentName: string, template: string, attributePrefix?: string);
-	hasMetadata(name: string): boolean;
-	getMetadata(name: string): any;
+	constructor(template: string, config?: ComponentConfig);
+	metadata(): MetadataContinuation;
 	hasRegion(name: string): boolean;
 	setChild(name: string, component: Component): void;
 	setChildFromRegistry(name: string, componentName: string, defaultComponentName?: string): void;
@@ -117,25 +129,25 @@ export declare class Component {
 	getParent(): Component;
 	getEl(): HTMLElement;
 	get<T>(id: string): T;
-	protected getItem(): any;
+	scope(): Scope;
+	reset(): void;
+	protected init(): void;
+	protected getItem<T>(): T;
+	protected getExternals<T>(): T;
 	protected broadcast(channelName: string, messageName: string, payload: any): void;
 	protected broadcastGlobally(channelName: string, messageName: string, payload: any): void;
 	protected $apply(fn: Function, args: any[]): void;
-	protected scope(): Scope;
 	protected watch(expression: string, target: (previous: any, current: any) => void): void;
-	protected withMetadata(name: string, value: any): void;
 	protected on(messageName: string): OnContinuation;
 	protected getLogger(): Logger;
+	protected ____internal$$cydran$$init____(template: string, config: ComponentConfig): void;
 }
 export declare abstract class ElementMediator<M, E extends HTMLElement> implements Disposable {
 	private logger;
 	private ____internal$$cydran____;
-	private previous;
-	private value;
 	private moduleInstance;
 	private mediator;
 	private pubSub;
-	private params;
 	private domListeners;
 	constructor(dependencies: any);
 	dispose(): void;
@@ -154,12 +166,22 @@ export declare abstract class ElementMediator<M, E extends HTMLElement> implemen
 	protected getModel(): any;
 	protected getParent(): Component;
 	protected getModelMediator(): ModelMediator<M>;
-	protected notifyModelInteraction(): void;
+	protected $apply(fn: Function, args: any[], guard?: Guard): any;
 	protected getExpression(): string;
 	protected getLogger(): Logger;
 	protected abstract wire(): void;
 	protected abstract unwire(): void;
 	private removeDomListeners;
+}
+declare class CydranConfig {
+	constructor();
+	useTrace(): void;
+	useDebug(): void;
+	useInfo(): void;
+	useWarn(): void;
+	useError(): void;
+	useFatal(): void;
+	useDisable(): void;
 }
 export declare class LoggerFactory {
 	static getLogger(name: string): Logger;
@@ -191,7 +213,7 @@ export declare class Stage {
 	start(): void;
 	setComponent(component: Component): Stage;
 	get<T>(id: string): T;
-	getConfig(): Config;
+	getConfig(): CydranConfig;
 	private domReady;
 }
 export declare function noConflict(): any;
