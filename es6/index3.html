@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="Testing some things">
+		<meta name="keywords" content="playarea">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="theme-color" content="#254665" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+			integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+			crossorigin="anonymous"></script>
+		<script src="js/cydran.min.js"></script>
+		<style type="text/css">
+
+		</style>
+		<script src="js/app3.js"></script>
+		<style type="text/css">
+			div.listbox>div:hover {
+				background-color: yellow;
+				cursor: pointer;
+				padding: 2px;
+				border: solid red 1px;
+			}
+
+			.listbox {
+				width: 350px;
+				height: 200px;
+				overflow: hidden;
+				overflow-y: scroll;
+			}
+
+			.loud {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="pgpart"></div>
+
+		<div id="myModal" class="modal fade" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Confirmation</h5>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<p>Do you want to save changes to this document before closing?</p>
+						<p class="text-secondary"><small>If you don't save, your changes will be lost.</small></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary">Save changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<template id="myComponent">
+		<main role="main" class="container">
+
+			<div class="starter-template">
+				<h2>{{m().pgLabel}}</h2>
+				<p />
+				<button class="btn btn-lg btn-primary" c:onclick="m().toggleModal()">Trigger Modal</a>
+			</div>
+		</main>
+	</template>
+
+</html>
