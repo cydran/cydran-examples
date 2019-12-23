@@ -48,6 +48,8 @@ window.onload = function() {
 			this.allowNext = true;
 			this.curPg = '';
 			this.view = wkview.name;
+			this.color = "#97c024";
+			this.hideImage = false;
 
 			this.populateBuffer();
 		}
@@ -141,6 +143,10 @@ window.onload = function() {
 		goInitialView() {
 			const l = new URL(window.location);
 			window.location = l.origin + l.pathname;
+		}
+
+		toggleImage() {
+			this.hideImage = !this.hideImage;
 		}
 	}
 
