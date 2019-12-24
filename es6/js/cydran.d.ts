@@ -45,7 +45,7 @@ export interface Logger {
 	isWarn(): boolean;
 	isError(): boolean;
 	isFatal(): boolean;
-	isDisable(): boolean;
+	isDisabled(): boolean;
 }
 export interface ModelMediator<T> extends Disposable {
 	invoke(...args: any[]): void;
@@ -181,7 +181,7 @@ declare class CydranConfig {
 	useWarn(): void;
 	useError(): void;
 	useFatal(): void;
-	useDisable(): void;
+	useDisabled(): void;
 }
 export declare class LoggerFactory {
 	static getLogger(name: string): Logger;
