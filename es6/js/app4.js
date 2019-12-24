@@ -88,6 +88,7 @@ window.onload = function() {
 		}
 
 		closeModal() {
+			this.getLogger().info('Modal closing');
 			this.visible = false;
 			this.setChild('body', null);
 		}
