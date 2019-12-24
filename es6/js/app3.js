@@ -2,11 +2,10 @@ window.onload = function() {
 	const Stage = cydran.Stage;
 	const Component = cydran.Component;
 	const PubSub = cydran.PubSub;
-	const $ = jQuery;
 
 	const T = document.querySelector('#myComponent').innerHTML.trim();
 
-	class App2 extends Component {
+	class App3 extends Component {
 		constructor() {
 			super(T);
 		}
@@ -21,7 +20,7 @@ window.onload = function() {
 		}
 
 		toggleModal() {
-			window.$("#myModal").modal('show');
+			window.$("#myModal").modal("show");
 			this.getLogger().info("Toggle-time!");
 		}
 	}
@@ -29,7 +28,7 @@ window.onload = function() {
 	let stage = new Stage('#pgpart');
 	stage.getConfig().useDebug();
 	stage.withInitializer(function() {
-		this.setComponent(new App2());
+		this.setComponent(new App3());
 	});
 
 	stage.start();
