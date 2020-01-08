@@ -1,9 +1,11 @@
-/*!
+/*
+ * v0.0.43
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
  * Based on Lodash 4.17.15 <https://lodash.com/license>
  * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+ *
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -98,7 +100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -124,25 +126,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var DigestLoopError_1 = __importDefault(__webpack_require__(16));
-var ComponentConfig_1 = __webpack_require__(5);
-var MalformedOnEventError_1 = __importDefault(__webpack_require__(17));
-var SelectorError_1 = __importDefault(__webpack_require__(18));
-var SetComponentError_1 = __importDefault(__webpack_require__(19));
-var TemplateError_1 = __importDefault(__webpack_require__(20));
-var UnknownRegionError_1 = __importDefault(__webpack_require__(21));
-var ExternalMediator_1 = __importDefault(__webpack_require__(22));
-var GuardGenerator_1 = __importDefault(__webpack_require__(25));
-var GuardImpl_1 = __importDefault(__webpack_require__(26));
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var PubSub_1 = __importDefault(__webpack_require__(12));
-var ModelMediatorImpl_1 = __importDefault(__webpack_require__(28));
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
-var Properties_1 = __importDefault(__webpack_require__(30));
+var ComponentConfig_1 = __webpack_require__(6);
+var DigestLoopError_1 = __importDefault(__webpack_require__(18));
+var MalformedOnEventError_1 = __importDefault(__webpack_require__(19));
+var SelectorError_1 = __importDefault(__webpack_require__(20));
+var SetComponentError_1 = __importDefault(__webpack_require__(21));
+var TemplateError_1 = __importDefault(__webpack_require__(22));
+var UnknownRegionError_1 = __importDefault(__webpack_require__(23));
+var ExternalMediator_1 = __importDefault(__webpack_require__(24));
+var GuardGenerator_1 = __importDefault(__webpack_require__(27));
+var GuardImpl_1 = __importDefault(__webpack_require__(28));
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var PubSub_1 = __importDefault(__webpack_require__(13));
+var ModelMediatorImpl_1 = __importDefault(__webpack_require__(30));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var Properties_1 = __importDefault(__webpack_require__(32));
 exports.Properties = Properties_1.default;
-var Registry_1 = __webpack_require__(31);
-var ScopeImpl_1 = __importDefault(__webpack_require__(33));
-var SequenceGenerator_1 = __importDefault(__webpack_require__(35));
+var Registry_1 = __webpack_require__(33);
+var ScopeImpl_1 = __importDefault(__webpack_require__(35));
+var SequenceGenerator_1 = __importDefault(__webpack_require__(37));
+var ValidationRegExp_1 = __webpack_require__(5);
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
+var requireValid = ObjectUtils_1.default.requireValid;
 var MAX_EVALUATIONS = 10000;
 var INTERNAL_DIRECT_CHANNEL_NAME = "Cydran$$Direct$$Internal$$Channel";
 exports.INTERNAL_DIRECT_CHANNEL_NAME = INTERNAL_DIRECT_CHANNEL_NAME;
@@ -165,21 +170,26 @@ var Events = {
     BEFORE_PARENT_ADDED: "BEFORE_PARENT_ADDED",
     BEFORE_PARENT_CHANGED: "BEFORE_PARENT_CHANGED",
     BEFORE_PARENT_REMOVED: "BEFORE_PARENT_REMOVED",
+    COMPONENT_NESTING_CHANGED: "COMPONENT_NESTING_CHANGED"
 };
 exports.Events = Events;
 var NOOP_FN = function () {
+    // Intentionally do nothing
 };
 var DEFAULT_COMPONENT_CONFIG = new ComponentConfig_1.ComponentConfigBuilder().build();
-var BrokerImpl = (function () {
+var BrokerImpl = /** @class */ (function () {
     function BrokerImpl() {
         this.logger = LoggerFactory_1.default.getLogger("Broker");
         this.listeners = {};
     }
     BrokerImpl.prototype.broadcast = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
         this.logger.trace({
             channelName: channelName,
             messageName: messageName,
-            payload: payload,
+            payload: actualPayload
         });
         if (!this.listeners[channelName]) {
             this.logger.trace("no listeners for channel, returning");
@@ -188,7 +198,7 @@ var BrokerImpl = (function () {
         var listeners = this.listeners[channelName];
         for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
             var listener = listeners_1[_i];
-            listener.receive(messageName, payload);
+            listener.receive(messageName, actualPayload);
         }
     };
     BrokerImpl.prototype.addListener = function (listener) {
@@ -236,7 +246,7 @@ var BrokerImpl = (function () {
     return BrokerImpl;
 }());
 var ALIASES = {};
-var ModuleImpl = (function () {
+var ModuleImpl = /** @class */ (function () {
     function ModuleImpl(name, scope) {
         this.name = name;
         this.registry = new Registry_1.RegistryImpl();
@@ -259,6 +269,7 @@ var ModuleImpl = (function () {
             componentClasses[_i] = arguments[_i];
         }
         componentClasses.forEach(function (componentClass) {
+            requireNotNull(componentClass, "componentClass");
             componentClass["prototype"][MODULE_FIELD_NAME] = _this;
         });
         return this;
@@ -270,6 +281,7 @@ var ModuleImpl = (function () {
             componentClasses[_i] = arguments[_i];
         }
         componentClasses.forEach(function (componentClass) {
+            requireNotNull(componentClass, "componentClass");
             componentClass["prototype"][MODULE_FIELD_NAME] = _this;
         });
         return this;
@@ -278,19 +290,25 @@ var ModuleImpl = (function () {
         return this;
     };
     ModuleImpl.prototype.broadcast = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
         this.broker.broadcast(channelName, messageName, payload);
     };
     ModuleImpl.prototype.message = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
         if (channelName === INTERNAL_DIRECT_CHANNEL_NAME) {
             if (messageName === "addListener") {
-                this.addListener(payload);
+                this.addListener(actualPayload);
             }
             else if (messageName === "removeListener") {
-                this.removeListener(payload);
+                this.removeListener(actualPayload);
             }
         }
     };
     ModuleImpl.prototype.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         var result = this.registry.get(id);
         if (!result) {
             result = Modules.get(id);
@@ -298,43 +316,37 @@ var ModuleImpl = (function () {
         return result;
     };
     ModuleImpl.prototype.getLocal = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         return this.registry.get(id);
     };
     ModuleImpl.prototype.getScope = function () {
         return this.scope;
     };
     ModuleImpl.prototype.registerConstant = function (id, instance) {
-        try {
-            this.registry.registerConstant(id, instance);
-        }
-        catch (e) {
-            this.logError(e);
-        }
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(instance, "instance");
+        this.registry.registerConstant(id, instance);
         return this;
     };
     ModuleImpl.prototype.registerPrototype = function (id, classInstance) {
-        try {
-            this.registry.registerPrototype(id, classInstance);
-        }
-        catch (e) {
-            this.logError(e);
-        }
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(classInstance, "classInstance");
+        this.registry.registerPrototype(id, classInstance);
         return this;
     };
     ModuleImpl.prototype.registerSingleton = function (id, classInstance) {
-        try {
-            this.registry.registerSingleton(id, classInstance);
-        }
-        catch (e) {
-            this.logError(e);
-        }
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(classInstance, "classInstance");
+        this.registry.registerSingleton(id, classInstance);
         return this;
     };
     ModuleImpl.prototype.addStrategy = function (strategy) {
+        requireNotNull(strategy, "strategy");
         this.registry.addStrategy(strategy);
         return this;
     };
     ModuleImpl.prototype.expose = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         ALIASES[id] = this.name;
         return this;
     };
@@ -352,10 +364,11 @@ var ModuleImpl = (function () {
 exports.ModuleImpl = ModuleImpl;
 var DEF_KEY = "DEFAULT";
 var DEFAULT_MODULE = new ModuleImpl(DEF_KEY);
-var Modules = (function () {
+var Modules = /** @class */ (function () {
     function Modules() {
     }
     Modules.getModule = function (name) {
+        requireNotNull(name, "name");
         if (!Modules.modules[name]) {
             Modules.modules[name] = new ModuleImpl(name, DEFAULT_MODULE.getScope());
         }
@@ -365,6 +378,7 @@ var Modules = (function () {
         return this.getModule(DEF_KEY);
     };
     Modules.forEach = function (fn) {
+        requireNotNull(fn, "fn");
         for (var name_1 in Modules.modules) {
             if (!Modules.modules.hasOwnProperty(name_1)) {
                 continue;
@@ -386,17 +400,13 @@ var Modules = (function () {
         this.getDefaultModule().registerSingleton(id, classInstance);
     };
     Modules.registerElementMediator = function (name, supportedTags, elementMediatorClass) {
-        try {
-            Mvvm.register(name, supportedTags, elementMediatorClass);
-        }
-        catch (e) {
-            this.logger.error(e.message);
-        }
+        Mvvm.register(name, supportedTags, elementMediatorClass);
     };
     Modules.getScope = function () {
         return this.getDefaultModule().getScope();
     };
     Modules.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         var result = null;
         var moduleId = ALIASES[id];
         if (moduleId) {
@@ -409,37 +419,45 @@ var Modules = (function () {
     };
     Modules.logger = LoggerFactory_1.default.getLogger("Modules:static");
     Modules.modules = {
-        DEFAULT: DEFAULT_MODULE,
+        DEFAULT: DEFAULT_MODULE
     };
     return Modules;
 }());
 exports.Modules = Modules;
-var Deferred = (function () {
-    function Deferred(factory) {
-        this.factory = factory;
-    }
-    Deferred.prototype.get = function (source) {
-        if (!this.instance) {
-            this.instance = this.factory(source);
-        }
-        return this.instance;
-    };
-    return Deferred;
-}());
-var Component = (function () {
+/**
+ * Core class for Cydran
+ */
+var Component = /** @class */ (function () {
+    /**
+     * Constructor
+     * @param template - string value representation of a template
+     * @param config - optional {@link ComponentConfig} argument
+     */
     function Component(template, config) {
         this.____internal$$cydran$$init____(template, config);
     }
+    /**
+     * Get the {@link MetadataContinuation} of the {@link Component}
+     */
     Component.prototype.metadata = function () {
         var internal = this.____internal$$cydran____;
         return {
             get: function (name) { return internal.getMetadata(name); },
-            has: function (name) { return internal.hasMetadata(name); },
+            has: function (name) { return internal.hasMetadata(name); }
         };
     };
+    /**
+     * Component has a {@link Region}
+     * @returns boolean - true | false
+     */
     Component.prototype.hasRegion = function (name) {
         return this.____internal$$cydran____.hasRegion(name);
     };
+    /**
+     * Set a child component
+     * @param name - string name value of the child {@link Component}
+     * @param component - the {@link Component} reference
+     */
     Component.prototype.setChild = function (name, component) {
         this.____internal$$cydran____.setChild(name, component);
     };
@@ -468,6 +486,7 @@ var Component = (function () {
         this.init();
     };
     Component.prototype.init = function () {
+        // Intentionally do nothing by default
     };
     Component.prototype.getItem = function () {
         return this.____internal$$cydran____.getData();
@@ -489,17 +508,21 @@ var Component = (function () {
     };
     Component.prototype.on = function (messageName) {
         var _this = this;
+        requireNotNull(messageName, "messageName");
         return {
-            forChannel: function (channel) {
+            forChannel: function (channelName) {
+                requireNotNull(channelName, "channelName");
                 return {
                     invoke: function (target) {
-                        _this.____internal$$cydran____.on(target, messageName, channel);
-                    },
+                        requireNotNull(target, "target");
+                        _this.____internal$$cydran____.on(target, messageName, channelName);
+                    }
                 };
             },
             invoke: function (target) {
+                requireNotNull(target, "target");
                 _this.____internal$$cydran____.on(target, messageName, INTERNAL_CHANNEL_NAME);
-            },
+            }
         };
     };
     Component.prototype.getLogger = function () {
@@ -513,10 +536,11 @@ var Component = (function () {
 }());
 exports.Component = Component;
 Component["prototype"][MODULE_FIELD_NAME] = DEFAULT_MODULE;
-var ComponentInternals = (function () {
+var ComponentInternals = /** @class */ (function () {
     function ComponentInternals(component, template, config) {
+        requireNotNull(template, "template");
         if (typeof template !== "string") {
-            throw new TemplateError_1.default("Template must be a non-null string");
+            throw new TemplateError_1.default("Template must be a string");
         }
         this.config = config || DEFAULT_COMPONENT_CONFIG;
         this.guard = GuardGenerator_1.default.INSTANCE.generate();
@@ -536,7 +560,7 @@ var ComponentInternals = (function () {
             this.externalize(attribute);
         }
         this.flags = {
-            repeatable: false,
+            repeatable: false
         };
         if (this.getModule()) {
             this.scope.setParent(this.getModule().getScope());
@@ -555,12 +579,16 @@ var ComponentInternals = (function () {
         return this.getMetadata(name) ? true : false;
     };
     ComponentInternals.prototype.getMetadata = function (name) {
+        requireNotNull(name, "name");
         return this.config.getMetadata(name);
     };
     ComponentInternals.prototype.hasRegion = function (name) {
+        requireNotNull(name, "name");
         return ((this.regions[name]) ? true : false);
     };
     ComponentInternals.prototype.$apply = function (fn, args, guard) {
+        requireNotNull(fn, "fn");
+        requireNotNull(args, "args");
         var localGuard = GuardImpl_1.default.down(guard);
         if (localGuard.seen(this.guard)) {
             this.getLogger().trace("Breaking digest loop");
@@ -570,42 +598,49 @@ var ComponentInternals = (function () {
         this.mvvm.$apply(fn, args, localGuard);
     };
     ComponentInternals.prototype.setChild = function (name, component) {
+        requireNotNull(name, "name");
         if (!this.hasRegion(name)) {
-            throw new UnknownRegionError_1.default("Region \'%rName%\' is unkown and must be declared in component template.", { "%rName%": name });
+            throw new UnknownRegionError_1.default("Region \'%rName%\' is unknown and must be declared in component template.", { "%rName%": name });
         }
         var hasComponent = this.getRegion(name).hasComponent();
         var childAdded = !!(component !== null && !hasComponent);
         var childRemoved = !!(component === null && hasComponent);
         if (childAdded) {
             this.message(INTERNAL_CHANNEL_NAME, Events.BEFORE_CHILD_ADDED, {
-                name: name,
+                name: name
             });
         }
         if (childRemoved) {
             this.message(INTERNAL_CHANNEL_NAME, Events.BEFORE_CHILD_REMOVED, {
-                name: name,
+                name: name
             });
         }
         this.message(INTERNAL_CHANNEL_NAME, Events.BEFORE_CHILD_CHANGED, {
-            name: name,
+            name: name
         });
         this.getRegion(name).setComponent(component);
         this.message(INTERNAL_CHANNEL_NAME, Events.AFTER_CHILD_CHANGED, {
-            name: name,
+            name: name
         });
         if (childAdded) {
             this.message(INTERNAL_CHANNEL_NAME, Events.AFTER_CHILD_ADDED, {
-                name: name,
+                name: name
             });
         }
         if (childRemoved) {
             this.message(INTERNAL_CHANNEL_NAME, Events.AFTER_CHILD_REMOVED, {
-                name: name,
+                name: name
             });
         }
+        this.broadcastGlobally(INTERNAL_CHANNEL_NAME, Events.COMPONENT_NESTING_CHANGED);
     };
-    ComponentInternals.prototype.setChildFromRegistry = function (name, componentName, defaultComponentName) {
-        var component = this.get(componentName);
+    ComponentInternals.prototype.setChildFromRegistry = function (name, componentId, defaultComponentName) {
+        requireNotNull(name, "name");
+        requireValid(componentId, "componentId", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        if (!this.hasRegion(name)) {
+            throw new UnknownRegionError_1.default("Region \'%rName%\' is unknown and must be declared in component template.", { "%rName%": name });
+        }
+        var component = this.get(componentId);
         if (!component && defaultComponentName) {
             component = this.get(defaultComponentName);
         }
@@ -613,7 +648,7 @@ var ComponentInternals = (function () {
             this.setChild(name, component);
         }
         else {
-            var error = new SetComponentError_1.default("Unable to set component %cName% on region %name%", { "%cName%": componentName, "%name%": name });
+            var error = new SetComponentError_1.default("Unable to set component %cName% on region %name%", { "%cName%": componentId, "%name%": name });
             this.getLogger().error(error);
         }
     };
@@ -685,6 +720,8 @@ var ComponentInternals = (function () {
         return this.scope;
     };
     ComponentInternals.prototype.watch = function (expression, target) {
+        requireNotNull(expression, "expression");
+        requireNotNull(target, "target");
         this.mvvm.mediate(expression).watch(this, target);
     };
     ComponentInternals.prototype.on = function (target, messageName, channel) {
@@ -763,6 +800,7 @@ var ComponentInternals = (function () {
     ComponentInternals.prototype.externalize = function (name) {
         var key = name.toLowerCase();
         var value = key;
+        // TODO - add guard code
         this.externalFields[key] = value;
     };
     ComponentInternals.prototype.addExternalAttribute = function (detail) {
@@ -776,11 +814,13 @@ var ComponentInternals = (function () {
     };
     ComponentInternals.prototype.setParent = function (parent) {
         if (parent === null) {
-            this.pubSub.message(INTERNAL_DIRECT_CHANNEL_NAME, "disableGlobal", {});
+            this.pubSub.message(INTERNAL_DIRECT_CHANNEL_NAME, "disableGlobal");
+            this.mvvm.disableGlobal();
             this.getLogger().trace("Clearing parent view");
         }
         else {
-            this.pubSub.message(INTERNAL_DIRECT_CHANNEL_NAME, "enableGlobal", {});
+            this.pubSub.message(INTERNAL_DIRECT_CHANNEL_NAME, "enableGlobal");
+            this.mvvm.enableGlobal();
         }
         var parentAdded = !!(parent !== null && this.parent === null);
         var parentRemoved = !!(parent === null && this.parent !== null);
@@ -803,6 +843,7 @@ var ComponentInternals = (function () {
     };
     ComponentInternals.prototype.digest = function (guard) {
         this.$apply(function () {
+            // Intentionally do nothing
         }, [], guard);
     };
     ComponentInternals.prototype.propagateDigest = function (guard) {
@@ -821,7 +862,7 @@ var ComponentInternals = (function () {
     };
     return ComponentInternals;
 }());
-var StageComponentInternals = (function (_super) {
+var StageComponentInternals = /** @class */ (function (_super) {
     __extends(StageComponentInternals, _super);
     function StageComponentInternals() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -847,7 +888,7 @@ var StageComponentInternals = (function (_super) {
     };
     return StageComponentInternals;
 }(ComponentInternals));
-var StageComponent = (function (_super) {
+var StageComponent = /** @class */ (function (_super) {
     __extends(StageComponent, _super);
     function StageComponent(selector) {
         return _super.call(this, selector) || this;
@@ -864,49 +905,118 @@ var StageComponent = (function (_super) {
 }(Component));
 exports.StageComponent = StageComponent;
 StageComponent["prototype"][MODULE_FIELD_NAME] = DEFAULT_MODULE;
-var ElementMediator = (function () {
+/**
+ * The piece of code between the HTMLElement and the Mvvm
+ * @type M {@link ModelMediator}
+ * @type E extends HTMLElement
+ * @implements {@link Disposable}
+ */
+var ElementMediator = /** @class */ (function () {
     function ElementMediator(dependencies) {
+        this.____internal$$cydran____ = requireNotNull(dependencies, "dependencies");
         this.logger = LoggerFactory_1.default.getLogger("ElementMediator: " + dependencies.prefix);
-        this.____internal$$cydran____ = dependencies;
         this.domListeners = {};
         this.pubSub = new PubSub_1.default(this, this.getModule());
     }
+    /**
+     * Dispose of ElementMediator when released.
+     * + All event listeners will be removed.
+     * + This element mediator will be unwired from any other DOM entanglements
+     * + The mediator reference to the model is released/nulled
+     * + Any value representation of this element mediator is released/nulled
+     * + The [[Mvvm|mvvm]] refernce is released/nulled
+     * + The parental reference is released/nulled
+     */
     ElementMediator.prototype.dispose = function () {
         this.removeDomListeners();
         this.unwire();
         this.____internal$$cydran____ = null;
         this.mediator = null;
     };
+    /**
+     * Initialize this element mediator.
+     */
     ElementMediator.prototype.init = function () {
         this.mediator = this.mediate(this.getExpression());
         this.wire();
     };
+    /**
+     * Get the active module instance reference by id
+     * @return U
+     */
     ElementMediator.prototype.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         return this.moduleInstance.get(id);
     };
+    /**
+     * Set the [[Module|module]] instance reference
+     * @param {Module} moduleInstance
+     */
     ElementMediator.prototype.setModule = function (moduleInstance) {
-        this.moduleInstance = moduleInstance;
+        this.moduleInstance = requireNotNull(moduleInstance, "moduleInstance");
     };
+    /**
+     * [message description]
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
     ElementMediator.prototype.message = function (channelName, messageName, payload) {
-        this.pubSub.message(channelName, messageName, payload);
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        this.pubSub.message(channelName, messageName, actualPayload);
     };
+    /**
+     * Broadcast a message
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
     ElementMediator.prototype.broadcast = function (channelName, messageName, payload) {
-        this.getModule().broadcast(channelName, messageName, payload);
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        this.getModule().broadcast(channelName, messageName, actualPayload);
     };
+    /**
+     * Broadcast a message in the Global context
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
     ElementMediator.prototype.broadcastGlobally = function (channelName, messageName, payload) {
-        Modules.broadcast(channelName, messageName, payload);
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        Modules.broadcast(channelName, messageName, actualPayload);
     };
-    ElementMediator.prototype.listenTo = function (channel, messageName, target) {
+    ElementMediator.prototype.on = function (messageName) {
         var _this = this;
-        this.pubSub.on(messageName).forChannel(channel).invoke(function (payload) {
-            target.apply(_this, [payload]);
-        });
-    };
-    ElementMediator.prototype.listenToFramework = function (messageName, target) {
-        this.listenTo(INTERNAL_CHANNEL_NAME, messageName, target);
+        requireNotNull(messageName, "messageName");
+        return {
+            forChannel: function (channelName) {
+                requireNotNull(channelName, "channelName");
+                return {
+                    invoke: function (target) {
+                        requireNotNull(target, "target");
+                        _this.pubSub.on(messageName).forChannel(channelName).invoke(function (payload) {
+                            target.apply(_this, [payload]);
+                        });
+                    }
+                };
+            },
+            invoke: function (target) {
+                requireNotNull(target, "target");
+                _this.pubSub.on(messageName).forChannel(INTERNAL_CHANNEL_NAME).invoke(function (payload) {
+                    target.apply(_this, [payload]);
+                });
+            }
+        };
     };
     ElementMediator.prototype.bridge = function (name) {
         var _this = this;
+        requireNotNull(name, "name");
         var listener = function (event) {
             _this.message("dom", name, event);
         };
@@ -915,32 +1025,68 @@ var ElementMediator = (function () {
             this.getEl().addEventListener(name, listener, false);
         }
     };
+    /**
+     * Get the associated {HTMLElement html element} of this element mediator.
+     * @return {HTMLElement} [description]
+     */
     ElementMediator.prototype.getEl = function () {
         return this.____internal$$cydran____.el;
     };
+    /**
+     * [getModule description]
+     * @return {Module} [description]
+     */
     ElementMediator.prototype.getModule = function () {
         return this["moduleInstance"];
     };
+    /**
+     * [mediate description]
+     * @param  {string}        expression [description]
+     * @return {ModelMediator}            [description]
+     */
     ElementMediator.prototype.mediate = function (expression) {
+        requireNotNull(expression, "expression");
         return this.____internal$$cydran____.mvvm.mediate(expression);
     };
+    /**
+     * [getModel description]
+     * @return {any} [description]
+     */
     ElementMediator.prototype.getModel = function () {
         return this.____internal$$cydran____.model;
     };
+    /**
+     * [getParent description]
+     * @return {Component} [description]
+     */
     ElementMediator.prototype.getParent = function () {
         return this.____internal$$cydran____.parent.getComponent();
     };
+    /**
+     * [getMediator description]
+     * @return {ModelMediator} [description]
+     */
     ElementMediator.prototype.getModelMediator = function () {
         return this.mediator;
     };
     ElementMediator.prototype.$apply = function (fn, args, guard) {
+        requireNotNull(fn, "fn");
+        requireNotNull(args, "args");
         if (this.____internal$$cydran____ && this.____internal$$cydran____.mvvm) {
             this.____internal$$cydran____.mvvm.$apply(fn, args, guard);
         }
     };
+    /**
+     * Get the expression specified
+     * @return {string} [description]
+     */
     ElementMediator.prototype.getExpression = function () {
         return this.____internal$$cydran____.expression;
     };
+    /**
+     * Gets the logger.
+     * @return {Logger} logger instance
+     */
     ElementMediator.prototype.getLogger = function () {
         return this.logger;
     };
@@ -957,7 +1103,7 @@ var ElementMediator = (function () {
     return ElementMediator;
 }());
 exports.ElementMediator = ElementMediator;
-var Region = (function () {
+var Region = /** @class */ (function () {
     function Region(name, parent) {
         this.defaultEl = null;
         this.component = null;
@@ -1008,7 +1154,7 @@ var Region = (function () {
     };
     return Region;
 }());
-var TextElementMediator = (function (_super) {
+var TextElementMediator = /** @class */ (function (_super) {
     __extends(TextElementMediator, _super);
     function TextElementMediator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1017,6 +1163,7 @@ var TextElementMediator = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     TextElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     TextElementMediator.prototype.onTargetChange = function (previous, current) {
         var replacement = ObjectUtils_1.default.encodeHtml(current);
@@ -1024,12 +1171,13 @@ var TextElementMediator = (function (_super) {
     };
     return TextElementMediator;
 }(ElementMediator));
-var EventElementMediator = (function (_super) {
+var EventElementMediator = /** @class */ (function (_super) {
     __extends(EventElementMediator, _super);
     function EventElementMediator() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     EventElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     EventElementMediator.prototype.handleEvent = function (event) {
         var _this = this;
@@ -1039,14 +1187,14 @@ var EventElementMediator = (function (_super) {
     };
     EventElementMediator.prototype.wire = function () {
         this.bridge(this.eventKey);
-        this.listenTo("dom", this.eventKey, this.handleEvent);
+        this.on(this.eventKey).forChannel("dom").invoke(this.handleEvent);
     };
     EventElementMediator.prototype.setEventKey = function (eventKey) {
         this.eventKey = eventKey;
     };
     return EventElementMediator;
 }(ElementMediator));
-var AttributeElementMediator = (function (_super) {
+var AttributeElementMediator = /** @class */ (function (_super) {
     __extends(AttributeElementMediator, _super);
     function AttributeElementMediator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1055,6 +1203,7 @@ var AttributeElementMediator = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     AttributeElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     AttributeElementMediator.prototype.setAttributeName = function (attributeName) {
         this.attributeName = attributeName;
@@ -1064,7 +1213,7 @@ var AttributeElementMediator = (function (_super) {
     };
     return AttributeElementMediator;
 }(ElementMediator));
-var Mvvm = (function () {
+var Mvvm = /** @class */ (function () {
     function Mvvm(model, moduleInstance, prefix, scope) {
         var _this = this;
         this.elementMediatorPrefix = prefix + ":";
@@ -1090,6 +1239,9 @@ var Mvvm = (function () {
         this.scope.add("external", function () { return _this.parent.getExternalCache(); });
     }
     Mvvm.register = function (name, supportedTags, elementMediatorClass) {
+        requireNotNull(name, "name");
+        requireNotNull(supportedTags, "supportedTags");
+        requireNotNull(elementMediatorClass, "elementMediatorClass");
         if (!Mvvm.factories[name]) {
             Mvvm.factories[name] = {};
         }
@@ -1103,6 +1255,18 @@ var Mvvm = (function () {
         this.parent = parent;
         this.regionLookupFn = regionLookupFn;
         this.populateElementMediators();
+    };
+    Mvvm.prototype.enableGlobal = function () {
+        for (var _i = 0, _a = this.elementMediators; _i < _a.length; _i++) {
+            var elementMediator = _a[_i];
+            elementMediator.message(INTERNAL_DIRECT_CHANNEL_NAME, "enableGlobal");
+        }
+    };
+    Mvvm.prototype.disableGlobal = function () {
+        for (var _i = 0, _a = this.elementMediators; _i < _a.length; _i++) {
+            var elementMediator = _a[_i];
+            elementMediator.message(INTERNAL_DIRECT_CHANNEL_NAME, "disableGlobal");
+        }
     };
     Mvvm.prototype.dispose = function () {
         for (var _i = 0, _a = this.elementMediators; _i < _a.length; _i++) {
@@ -1146,6 +1310,7 @@ var Mvvm = (function () {
             }
         }
         if (remainingEvaluations === 0) {
+            // TODO - Make this error handling better
             throw new DigestLoopError_1.default("Loop detected in digest cycle.");
         }
         for (var _c = 0, _d = this.mediators; _c < _d.length; _c++) {
@@ -1201,7 +1366,7 @@ var Mvvm = (function () {
                     var propertyName = attributeName.substr(this.externalAttributePrefix.length);
                     var detail = {
                         attributeName: propertyName,
-                        expression: attributeValue,
+                        expression: attributeValue
                     };
                     component.message(INTERNAL_DIRECT_CHANNEL_NAME, "addExternalAttribute", detail);
                 }
@@ -1212,12 +1377,19 @@ var Mvvm = (function () {
             this.components.push(component);
             return;
         }
+        // tslint:disable-next-line
         for (var i = 0; i < el.children.length; i++) {
             queue.push(el.children[i]);
         }
         this.processTextChildren(el.childNodes);
-        for (var _i = 0, _a = el.getAttributeNames(); _i < _a.length; _i++) {
-            var name_3 = _a[_i];
+        var attributes = el.attributes;
+        var length = attributes.length;
+        var names = [];
+        for (var i = 0; i < length; i++) {
+            names.push(attributes[i].name);
+        }
+        for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
+            var name_3 = names_1[_i];
             var expression = el.getAttribute(name_3);
             if (name_3.indexOf(this.eventElementMediatorPrefix) === 0) {
                 var eventName = name_3.substr(this.eventElementMediatorPrefix.length);
@@ -1240,6 +1412,7 @@ var Mvvm = (function () {
     };
     Mvvm.prototype.processTextChildren = function (children) {
         var discoveredNodes = [];
+        // tslint:disable-next-line
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
             if (TEXT_NODE_TYPE === child.nodeType) {
@@ -1316,7 +1489,7 @@ var Mvvm = (function () {
     };
     Mvvm.prototype.addElementMediator = function (tag, elementMediatorType, attributeValue, el) {
         var tags = Mvvm.factories[elementMediatorType];
-        var prefix = "data-p-" + elementMediatorType + "-";
+        var prefix = "data-p-" + elementMediatorType + "-"; // TODO - Determine if this is still correct
         var elementMediator = null;
         if (!tags) {
             this.logger.error("Unsupported elementMediator type: " + elementMediatorType + ".");
@@ -1362,8 +1535,15 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var CydranError = (function (_super) {
+var CydranError = /** @class */ (function (_super) {
     __extends(CydranError, _super);
+    /**
+     * Constructor
+     *
+     * @param msg string object specific to context
+     * @param reps optional {key:value, <n^1>} object of named substitution values
+     * @returns string filled in values in the mesage
+     */
     function CydranError(msg, reps) {
         var _newTarget = this.constructor;
         var _this = _super.call(this) || this;
@@ -1377,35 +1557,10 @@ var CydranError = (function (_super) {
     return CydranError;
 }(Error));
 exports.CydranError = CydranError;
-var NEWI = " needs to be instantiated with 'new'";
-exports.NEWI = NEWI;
 
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var LoggerImpl_1 = __importDefault(__webpack_require__(9));
-var LoggerServiceImpl_1 = __importDefault(__webpack_require__(10));
-var LoggerFactory = (function () {
-    function LoggerFactory() {
-    }
-    LoggerFactory.getLogger = function (name) {
-        return new LoggerImpl_1.default(name, LoggerServiceImpl_1.default.INSTANCE);
-    };
-    return LoggerFactory;
-}());
-exports.default = LoggerFactory;
-
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1414,7 +1569,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var NullValueError_1 = __importDefault(__webpack_require__(7));
+var NullValueError_1 = __importDefault(__webpack_require__(8));
+var ValidationError_1 = __importDefault(__webpack_require__(17));
+/* tslint:disable */
 var LARGE_ARRAY_SIZE = 200;
 var FUNC_ERROR_TEXT = "Expected a function";
 var HASH_UNDEFINED = "__lodash_hash_undefined__";
@@ -1610,6 +1767,7 @@ var symbolProto = Symbol ? Symbol.prototype : undefined;
 var symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
 var baseCreate = (function () {
     function object() {
+        // Intentionally do nothing
     }
     return function (proto) {
         if (!isObject(proto)) {
@@ -1624,7 +1782,7 @@ var baseCreate = (function () {
         return result;
     };
 }());
-var Hash = (function () {
+var Hash = /** @class */ (function () {
     function Hash(entries) {
         var index = -1;
         var length = entries == null ? 0 : entries.length;
@@ -1663,7 +1821,7 @@ var Hash = (function () {
     };
     return Hash;
 }());
-var ListCache = (function () {
+var ListCache = /** @class */ (function () {
     function ListCache(entries) {
         var index = -1;
         var length = entries == null ? 0 : entries.length;
@@ -1715,7 +1873,7 @@ var ListCache = (function () {
     };
     return ListCache;
 }());
-var MapCache = (function () {
+var MapCache = /** @class */ (function () {
     function MapCache(entries) {
         var index = -1;
         var length = entries == null ? 0 : entries.length;
@@ -1753,7 +1911,7 @@ var MapCache = (function () {
     };
     return MapCache;
 }());
-var SetCache = (function () {
+var SetCache = /** @class */ (function () {
     function SetCache(values) {
         var index = -1;
         var length = values == null ? 0 : values.length;
@@ -1774,7 +1932,7 @@ var SetCache = (function () {
     };
     return SetCache;
 }());
-var Stack = (function () {
+var Stack = /** @class */ (function () {
     function Stack(entries) {
         var data = this.__DATA__ = new ListCache(entries);
         this.size = data.size;
@@ -1822,9 +1980,14 @@ function arrayLikeKeys(value, inherited) {
     var length = result.length;
     for (var key in value) {
         if ((inherited || hasOwnProperty.call(value, key)) &&
-            !(skipIndexes && (key == "length" ||
+            !(skipIndexes && (
+            // Safari 9 has enumerable `arguments.length` in strict mode.
+            key == "length" ||
+                // Node.js 0.10 has enumerable non-index properties on buffers.
                 (isBuff && (key == "offset" || key == "parent")) ||
+                // PhantomJS 2 has enumerable non-index properties on typed arrays.
                 (isType && (key == "buffer" || key == "byteLength" || key == "byteOffset")) ||
+                // Skip index properties.
                 isIndex(key, length)))) {
             result.push(key);
         }
@@ -1908,6 +2071,7 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
             result = initCloneByTag(value, tag, !!isDeep);
         }
     }
+    // Check for circular references and return its corresponding clone.
     stack = (!stack) ? new Stack() : stack;
     var stacked = stack.get(value);
     if (stacked) {
@@ -1931,6 +2095,7 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
             key = subValue;
             subValue = value[key];
         }
+        // Recursively populate clone (susceptible to call stack limits).
         assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack));
     });
     return result;
@@ -2045,7 +2210,8 @@ function cloneBuffer(buffer, isDeep) {
         return buffer.slice();
     }
     var length = buffer.length;
-    var result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+    var ctor = buffer.constructor;
+    var result = allocUnsafe ? allocUnsafe(length) : new ctor(length);
     buffer.copy(result);
     return result;
 }
@@ -2115,6 +2281,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
     if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
         return false;
     }
+    // Assume cyclic values are equal.
     var stacked = stack.get(array);
     if (stacked && stack.get(other)) {
         return stacked == other;
@@ -2140,6 +2307,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
             result = false;
             return "break";
         }
+        // Recursively compare arrays (susceptible to call stack limits).
         if (seen) {
             if (!arraySome(other, function (othValue, othIndex) {
                 if (!cacheHas(seen, othIndex) &&
@@ -2157,6 +2325,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
             return "break";
         }
     };
+    // Ignore non-index properties.
     while (++index < arrLength) {
         var state_1 = _loop_1();
         if (state_1 === "break")
@@ -2184,11 +2353,16 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
         case boolTag:
         case dateTag:
         case numberTag:
+            // Coerce booleans to `1` or `0` and dates to milliseconds.
+            // Invalid dates are coerced to `NaN`.
             return eq(+object, +other);
         case errorTag:
             return object.name == other.name && object.message == other.message;
         case regexpTag:
         case stringTag:
+            // Coerce regexes to strings and treat strings, primitives and objects,
+            // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
+            // for more details.
             return object == (other + "");
         case mapTag:
             var convert = mapToArray;
@@ -2198,11 +2372,13 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
             if (object.size != other.size && !isPartial) {
                 return false;
             }
+            // Assume cyclic values are equal.
             var stacked = stack.get(object);
             if (stacked) {
                 return stacked == other;
             }
             bitmask |= COMPARE_UNORDERED_FLAG;
+            // Recursively compare objects (susceptible to call stack limits).
             stack.set(object, other);
             var result = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
             stack["delete"](object);
@@ -2230,6 +2406,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
             return false;
         }
     }
+    // Assume cyclic values are equal.
     var stacked = stack.get(object);
     if (stacked && stack.get(other)) {
         return stacked == other;
@@ -2248,6 +2425,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
                 ? customizer(othValue, objValue, key, other, object, stack)
                 : customizer(objValue, othValue, key, object, other, stack);
         }
+        // Recursively compare objects (susceptible to call stack limits).
         if (!(compared === undefined
             ? (objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack))
             : compared)) {
@@ -2259,6 +2437,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
     if (result && !skipCtor) {
         var objCtor = object.constructor;
         var othCtor = other.constructor;
+        // Non `Object` object instances with different constructors are not equal.
         if (objCtor != othCtor &&
             ("constructor" in object && "constructor" in other) &&
             !(typeof objCtor == "function" && objCtor instanceof objCtor &&
@@ -2294,6 +2473,7 @@ function getRawTag(value) {
         unmasked = true;
     }
     catch (e) {
+        // Intentionally do nothing
     }
     var result = nativeObjectToString.call(value);
     if (unmasked) {
@@ -2324,6 +2504,7 @@ var getSymbolsIn = !nativeGetSymbols ? stubArray : function (object) {
     return result;
 };
 var getTag = baseGetTag;
+// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
 if ((DataView && getTag(new DataView(new ArrayBuffer(1))) !== dataViewTag) ||
     (Map && getTag(new Map()) !== mapTag) ||
     (Promise && getTag(Promise.resolve()) !== promiseTag) ||
@@ -2348,6 +2529,7 @@ if ((DataView && getTag(new DataView(new ArrayBuffer(1))) !== dataViewTag) ||
 function initCloneArray(array) {
     var length = array.length;
     var result = new array.constructor(length);
+    // Add properties assigned by `RegExp#exec`.
     if (length && typeof array[0] === "string" && hasOwnProperty.call(array, "index")) {
         result.index = array.index;
         result.input = array.input;
@@ -2417,6 +2599,7 @@ function isPrototype(value) {
 function nativeKeysIn(object) {
     var result = [];
     if (object != null) {
+        /* tslint:disable-next-line */
         for (var key in Object(object)) {
             result.push(key);
         }
@@ -2432,11 +2615,13 @@ function toSource(func) {
             return funcToString.call(func);
         }
         catch (e) {
+            // Intentionally do nothing
         }
         try {
             return (func + "");
         }
         catch (e) {
+            // Intentionally do nothing
         }
     }
     return "";
@@ -2459,6 +2644,7 @@ function memoize(func, resolver) {
     memoized["cache"] = new (memoize.Cache || MapCache)();
     return memoized;
 }
+// Expose `MapCache`.
 memoize.Cache = MapCache;
 function cloneDeep(value) {
     return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG);
@@ -2535,10 +2721,46 @@ exports.default = {
         }
         return value;
     },
+    requireValid: function (value, name, regex) {
+        if (value === null || value === undefined) {
+            throw new NullValueError_1.default(name + " shall not be null");
+        }
+        if (!regex.test(value)) {
+            throw new ValidationError_1.default(name + " must be valid");
+        }
+        return value;
+    },
     encodeHtml: encodeHtml
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(6), __webpack_require__(15)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(7), __webpack_require__(16)(module)))
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var LoggerImpl_1 = __importDefault(__webpack_require__(10));
+var LoggerServiceImpl_1 = __importDefault(__webpack_require__(11));
+var LoggerFactory = /** @class */ (function () {
+    function LoggerFactory() {
+    }
+    /**
+     * Get the named logger
+     * @param name of the associated logger
+     */
+    LoggerFactory.getLogger = function (name) {
+        return new LoggerImpl_1.default(name, LoggerServiceImpl_1.default.INSTANCE);
+    };
+    return LoggerFactory;
+}());
+exports.default = LoggerFactory;
+
 
 /***/ }),
 /* 4 */
@@ -2566,13 +2788,24 @@ exports.default = Level;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var VALID_SERVICE_LOCATOR_ID = /^[a-zA-Z][a-zA-Z0-9\.\:\\\/]*$/;
+exports.VALID_SERVICE_LOCATOR_ID = VALID_SERVICE_LOCATOR_ID;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
-var ComponentConfigImpl = (function () {
+var ComponentConfigImpl = /** @class */ (function () {
     function ComponentConfigImpl() {
         this.metadata = {};
         this.attributes = [];
@@ -2598,7 +2831,7 @@ var ComponentConfigImpl = (function () {
     };
     return ComponentConfigImpl;
 }());
-var ComponentConfigBuilder = (function () {
+var ComponentConfigBuilder = /** @class */ (function () {
     function ComponentConfigBuilder() {
         this.instance = new ComponentConfigImpl();
     }
@@ -2627,7 +2860,7 @@ exports.ComponentConfigBuilder = ComponentConfigBuilder;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;
@@ -2653,7 +2886,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2673,7 +2906,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var NullValueError = (function (_super) {
+var NullValueError = /** @class */ (function (_super) {
     __extends(NullValueError, _super);
     function NullValueError(msg, reps) {
         return _super.call(this, msg, reps) || this;
@@ -2684,7 +2917,7 @@ exports.default = NullValueError;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2693,8 +2926,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var Getter = (function () {
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var Getter = /** @class */ (function () {
     function Getter(expression) {
         this.expression = expression;
         this.logger = LoggerFactory_1.default.getLogger("Getter: " + expression);
@@ -2720,7 +2953,7 @@ exports.default = Getter;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2730,9 +2963,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(4));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var LOGGER_NAME_LENGTH = 20;
-var LoggerImpl = (function () {
+var LoggerImpl = /** @class */ (function () {
     function LoggerImpl(name, loggerService) {
+        requireNotNull(name, "name");
         if (name.length < LOGGER_NAME_LENGTH) {
             var count = LOGGER_NAME_LENGTH - name.length;
             while (count > 0) {
@@ -2821,7 +3057,7 @@ exports.default = LoggerImpl;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2830,11 +3066,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ConsoleOutputStrategy_1 = __importDefault(__webpack_require__(23));
+var ConsoleOutputStrategy_1 = __importDefault(__webpack_require__(25));
 var Level_1 = __importDefault(__webpack_require__(4));
-var LevelUtils_1 = __importDefault(__webpack_require__(24));
-var LoggerImpl_1 = __importDefault(__webpack_require__(9));
-var LoggerServiceImpl = (function () {
+var LevelUtils_1 = __importDefault(__webpack_require__(26));
+var LoggerImpl_1 = __importDefault(__webpack_require__(10));
+var LoggerServiceImpl = /** @class */ (function () {
     function LoggerServiceImpl() {
         this.level = Level_1.default.INFO;
         this.outputStrategy = new ConsoleOutputStrategy_1.default();
@@ -2877,7 +3113,7 @@ exports.default = LoggerServiceImpl;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2886,8 +3122,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var Setter = (function () {
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var Setter = /** @class */ (function () {
     function Setter(expression) {
         this.expression = expression;
         this.logger = LoggerFactory_1.default.getLogger("Setter: " + expression);
@@ -2911,7 +3147,7 @@ exports.default = Setter;
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2921,17 +3157,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var ListenerImpl_1 = __importDefault(__webpack_require__(27));
+var ListenerImpl_1 = __importDefault(__webpack_require__(29));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
+// TODO - Refactor into common constants
 var INTERNAL_DIRECT_CHANNEL_NAME = "Cydran$$Direct$$Internal$$Channel";
-var PubSub = (function () {
+var PubSub = /** @class */ (function () {
     function PubSub(context, moduleInstance) {
+        this.context = requireNotNull(context, "context");
         this.globalEnabled = false;
         this.listeners = [];
         this.listenersByChannel = {};
-        this.context = context;
         this.moduleInstance = (moduleInstance) ? moduleInstance : Core_1.Modules.getModule("DEFAULT");
     }
     PubSub.prototype.message = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
         if (INTERNAL_DIRECT_CHANNEL_NAME === channelName) {
             if (messageName === "enableGlobal") {
                 this.enableGlobal();
@@ -2943,13 +3185,16 @@ var PubSub = (function () {
         else {
             this.listeners.forEach(function (listener) {
                 if (channelName === listener.getChannelName()) {
-                    listener.receive(messageName, payload);
+                    listener.receive(messageName, actualPayload);
                 }
             });
         }
     };
     PubSub.prototype.broadcast = function (channelName, messageName, payload) {
-        this.moduleInstance.broadcast(channelName, messageName, payload);
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        this.moduleInstance.broadcast(channelName, messageName, actualPayload);
     };
     PubSub.prototype.broadcastGlobally = function (channelName, messageName, payload) {
         Core_1.Modules.broadcast(channelName, messageName, payload);
@@ -2960,18 +3205,22 @@ var PubSub = (function () {
         this.listenersByChannel = {};
     };
     PubSub.prototype.on = function (messageName) {
+        requireNotNull(messageName, "messageName");
         var mine = this;
         return {
-            forChannel: function (channel) {
+            forChannel: function (channelName) {
+                requireNotNull(channelName, "channelName");
                 return {
                     invoke: function (target) {
-                        mine.listenTo(channel, messageName, target);
-                    },
+                        requireNotNull(target, "target");
+                        mine.listenTo(channelName, messageName, target);
+                    }
                 };
             },
             invoke: function (target) {
+                requireNotNull(target, "target");
                 mine.listenTo(Core_1.INTERNAL_CHANNEL_NAME, messageName, target);
-            },
+            }
         };
     };
     PubSub.prototype.listenTo = function (channel, messageName, target) {
@@ -3011,7 +3260,7 @@ exports.default = PubSub;
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3021,8 +3270,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(4));
-var LoggerServiceImpl_1 = __importDefault(__webpack_require__(10));
-var CydranConfig = (function () {
+var LoggerServiceImpl_1 = __importDefault(__webpack_require__(11));
+var CydranConfig = /** @class */ (function () {
     function CydranConfig() {
         var _newTarget = this.constructor;
         if (!(this instanceof CydranConfig)) {
@@ -3056,7 +3305,7 @@ exports.default = CydranConfig;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3072,22 +3321,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ComponentConfig_1 = __webpack_require__(5);
+var ComponentConfig_1 = __webpack_require__(6);
 exports.ComponentConfigBuilder = ComponentConfig_1.ComponentConfigBuilder;
 var Core_1 = __webpack_require__(0);
 exports.Component = Core_1.Component;
 exports.ElementMediator = Core_1.ElementMediator;
 exports.Events = Core_1.Events;
 exports.Modules = Core_1.Modules;
-var CydranConfig = __importStar(__webpack_require__(13));
+var CydranConfig = __importStar(__webpack_require__(14));
 exports.CydranConfig = CydranConfig;
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 exports.LoggerFactory = LoggerFactory_1.default;
-__webpack_require__(36);
-__webpack_require__(49);
-var PubSub_1 = __importDefault(__webpack_require__(12));
+__webpack_require__(38);
+__webpack_require__(51);
+var PubSub_1 = __importDefault(__webpack_require__(13));
 exports.PubSub = PubSub_1.default;
-var Stage_1 = __importDefault(__webpack_require__(50));
+var Stage_1 = __importDefault(__webpack_require__(52));
 exports.Stage = Stage_1.default;
 var CYDRAN_KEY = "cydran";
 var ORIGINAL_CYDRAN = window[CYDRAN_KEY];
@@ -3100,7 +3349,7 @@ exports.noConflict = noConflict;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -3128,37 +3377,6 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractCydranError_1 = __webpack_require__(1);
-var DigestLoopError = (function (_super) {
-    __extends(DigestLoopError, _super);
-    function DigestLoopError(msg, reps) {
-        return _super.call(this, msg, reps) || this;
-    }
-    return DigestLoopError;
-}(AbstractCydranError_1.CydranError));
-exports.default = DigestLoopError;
-
-
-/***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3179,14 +3397,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var MalformedOnEventError = (function (_super) {
-    __extends(MalformedOnEventError, _super);
-    function MalformedOnEventError(msg, reps) {
+var ValidationError = /** @class */ (function (_super) {
+    __extends(ValidationError, _super);
+    function ValidationError(msg, reps) {
         return _super.call(this, msg, reps) || this;
     }
-    return MalformedOnEventError;
+    return ValidationError;
 }(AbstractCydranError_1.CydranError));
-exports.default = MalformedOnEventError;
+exports.default = ValidationError;
 
 
 /***/ }),
@@ -3210,14 +3428,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var SelectorError = (function (_super) {
-    __extends(SelectorError, _super);
-    function SelectorError(msg, reps) {
+var DigestLoopError = /** @class */ (function (_super) {
+    __extends(DigestLoopError, _super);
+    function DigestLoopError(msg, reps) {
         return _super.call(this, msg, reps) || this;
     }
-    return SelectorError;
+    return DigestLoopError;
 }(AbstractCydranError_1.CydranError));
-exports.default = SelectorError;
+exports.default = DigestLoopError;
 
 
 /***/ }),
@@ -3241,14 +3459,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var SetComponentError = (function (_super) {
-    __extends(SetComponentError, _super);
-    function SetComponentError(msg, reps) {
+var MalformedOnEventError = /** @class */ (function (_super) {
+    __extends(MalformedOnEventError, _super);
+    function MalformedOnEventError(msg, reps) {
         return _super.call(this, msg, reps) || this;
     }
-    return SetComponentError;
+    return MalformedOnEventError;
 }(AbstractCydranError_1.CydranError));
-exports.default = SetComponentError;
+exports.default = MalformedOnEventError;
 
 
 /***/ }),
@@ -3272,14 +3490,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var TemplateError = (function (_super) {
-    __extends(TemplateError, _super);
-    function TemplateError(msg, reps) {
+var SelectorError = /** @class */ (function (_super) {
+    __extends(SelectorError, _super);
+    function SelectorError(msg, reps) {
         return _super.call(this, msg, reps) || this;
     }
-    return TemplateError;
+    return SelectorError;
 }(AbstractCydranError_1.CydranError));
-exports.default = TemplateError;
+exports.default = SelectorError;
 
 
 /***/ }),
@@ -3303,7 +3521,69 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var UnknownRegionError = (function (_super) {
+var SetComponentError = /** @class */ (function (_super) {
+    __extends(SetComponentError, _super);
+    function SetComponentError(msg, reps) {
+        return _super.call(this, msg, reps) || this;
+    }
+    return SetComponentError;
+}(AbstractCydranError_1.CydranError));
+exports.default = SetComponentError;
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractCydranError_1 = __webpack_require__(1);
+var TemplateError = /** @class */ (function (_super) {
+    __extends(TemplateError, _super);
+    function TemplateError(msg, reps) {
+        return _super.call(this, msg, reps) || this;
+    }
+    return TemplateError;
+}(AbstractCydranError_1.CydranError));
+exports.default = TemplateError;
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractCydranError_1 = __webpack_require__(1);
+var UnknownRegionError = /** @class */ (function (_super) {
     __extends(UnknownRegionError, _super);
     function UnknownRegionError(msg, reps) {
         return _super.call(this, msg, reps) || this;
@@ -3314,7 +3594,7 @@ exports.default = UnknownRegionError;
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3323,9 +3603,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Getter_1 = __importDefault(__webpack_require__(8));
-var Setter_1 = __importDefault(__webpack_require__(11));
-var ExternalMediator = (function () {
+var Getter_1 = __importDefault(__webpack_require__(9));
+var Setter_1 = __importDefault(__webpack_require__(12));
+var ExternalMediator = /** @class */ (function () {
     function ExternalMediator(expression) {
         this.getter = new Getter_1.default(expression);
         this.setter = new Setter_1.default(expression);
@@ -3342,7 +3622,7 @@ exports.default = ExternalMediator;
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3352,7 +3632,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(4));
-var ConsoleOutputStrategy = (function () {
+var ConsoleOutputStrategy = /** @class */ (function () {
     function ConsoleOutputStrategy() {
     }
     ConsoleOutputStrategy.getNow = function () {
@@ -3389,11 +3669,13 @@ var ConsoleOutputStrategy = (function () {
                 var secondPreamble = (shortArgs ? "" : ((stacked) ? " - %s" : ""));
                 switch (level) {
                     case Level_1.default.WARN:
+                        // tslint:disable-next-line
                         console.warn("%c" + preamble + secondPreamble, "color:#ff9400;", logMsg, errMsg);
                         break;
                     case Level_1.default.ERROR:
                     case Level_1.default.FATAL:
                     default:
+                        // tslint:disable-next-line
                         console.error(preamble + secondPreamble, logMsg, errMsg);
                         break;
                 }
@@ -3402,19 +3684,24 @@ var ConsoleOutputStrategy = (function () {
                 switch (level) {
                     case Level_1.default.TRACE:
                         if (printFullStack) {
+                            // tslint:disable-next-line
                             console.trace("%c" + preamble, "color:#00752d;", payload);
                         }
                         else {
+                            // tslint:disable-next-line
                             console.info("%c" + preamble, "color:#ff9400;", payload);
                         }
                         break;
                     case Level_1.default.DEBUG:
+                        // tslint:disable-next-line
                         console.debug("%c" + preamble, "color:#00752d;", payload);
                         break;
                     case Level_1.default.INFO:
+                        // tslint:disable-next-line
                         console.info("%c" + preamble, "color:#2d57ca;", payload);
                         break;
                     default:
+                        // tslint:disable-next-line
                         console.log(preamble, payload);
                         break;
                 }
@@ -3427,7 +3714,7 @@ exports.default = ConsoleOutputStrategy;
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3437,7 +3724,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(4));
-var LevelUtils = (function () {
+var LevelUtils = /** @class */ (function () {
     function LevelUtils() {
     }
     LevelUtils.valueOf = function (lvl) {
@@ -3471,13 +3758,13 @@ exports.default = LevelUtils;
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var GuardGenerator = (function () {
+var GuardGenerator = /** @class */ (function () {
     function GuardGenerator() {
         this.major = 0;
         this.minor = 0;
@@ -3504,13 +3791,13 @@ exports.default = GuardGenerator;
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var GuardImpl = (function () {
+var GuardImpl = /** @class */ (function () {
     function GuardImpl(propagateUp) {
         this.state = {};
         this.propagateUp = !!propagateUp;
@@ -3541,13 +3828,13 @@ exports.default = GuardImpl;
 
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var ListenerImpl = (function () {
+var ListenerImpl = /** @class */ (function () {
     function ListenerImpl(channelName, context) {
         this.mappings = {};
         this.channelName = channelName;
@@ -3582,7 +3869,7 @@ exports.default = ListenerImpl;
 
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3591,19 +3878,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Getter_1 = __importDefault(__webpack_require__(8));
-var Invoker_1 = __importDefault(__webpack_require__(29));
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
-var Setter_1 = __importDefault(__webpack_require__(11));
+var Getter_1 = __importDefault(__webpack_require__(9));
+var Invoker_1 = __importDefault(__webpack_require__(31));
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var Setter_1 = __importDefault(__webpack_require__(12));
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var DEFAULT_REDUCER = function (input) { return input; };
-var ModelMediatorImpl = (function () {
+var ModelMediatorImpl = /** @class */ (function () {
     function ModelMediatorImpl(model, expression, scope) {
         this.digested = false;
+        this.model = requireNotNull(model, "model");
+        this.expression = requireNotNull(expression, "expression");
+        this.scope = requireNotNull(scope, "scope");
         this.logger = LoggerFactory_1.default.getLogger("ModelMediator: " + expression);
-        this.model = model;
-        this.expression = expression;
-        this.scope = scope;
         this.previous = null;
         this.context = {};
         this.digestCallbackContext = {};
@@ -3632,6 +3920,7 @@ var ModelMediatorImpl = (function () {
         if (!this.target) {
             return false;
         }
+        // Check for opts out of digestion
         var changed = false;
         var value = this.get();
         var valueFragment = this.reducerFn(value);
@@ -3662,12 +3951,12 @@ var ModelMediatorImpl = (function () {
         }
     };
     ModelMediatorImpl.prototype.watch = function (context, target) {
-        this.context = context;
-        this.target = target;
+        this.context = requireNotNull(context, "context");
+        this.target = requireNotNull(target, "target");
     };
     ModelMediatorImpl.prototype.onDigest = function (context, digestCallback) {
-        this.digestCallbackContext = context;
-        this.digestCallback = digestCallback;
+        this.digestCallbackContext = requireNotNull(context, "context");
+        this.digestCallback = requireNotNull(digestCallback, "digestCallback");
     };
     ModelMediatorImpl.prototype.dispose = function () {
         this.model = null;
@@ -3700,17 +3989,13 @@ var ModelMediatorImpl = (function () {
         this.previous = newPrevious;
         this.previousFragment = newPreviousFragment;
     };
-    ModelMediatorImpl.prototype.logInvocationError = function (code, e) {
-        this.logger.error("\nAn exception (" + e.name + ") was thrown invoking the element mediator expression: " + this.expression
-            + "\n\nIn context:\n" + code + "\n\nException message: " + e.message + "\n\n", e);
-    };
     return ModelMediatorImpl;
 }());
 exports.default = ModelMediatorImpl;
 
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3719,8 +4004,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var Invoker = (function () {
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var Invoker = /** @class */ (function () {
     function Invoker(expression) {
         this.expression = expression;
         this.logger = LoggerFactory_1.default.getLogger("Invoker: " + expression);
@@ -3748,13 +4033,13 @@ exports.default = Invoker;
 
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
-var Properties = (function () {
+var Properties = /** @class */ (function () {
     function Properties() {
     }
     Properties.setWindow = function (window) {
@@ -3768,10 +4053,10 @@ var Properties = (function () {
 Properties.setWindow(global["window"]);
 exports.default = Properties;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(7)))
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3780,12 +4065,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var RegistrationError_1 = __importDefault(__webpack_require__(32));
-var DefaultRegistryStrategyImpl = (function () {
+var RegistrationError_1 = __importDefault(__webpack_require__(34));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var ValidationRegExp_1 = __webpack_require__(5);
+var requireValid = ObjectUtils_1.default.requireValid;
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
+var DefaultRegistryStrategyImpl = /** @class */ (function () {
     function DefaultRegistryStrategyImpl() {
         this.factories = {};
     }
     DefaultRegistryStrategyImpl.prototype.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         var instance = null;
         if (this.factories[id]) {
             instance = this.factories[id].get();
@@ -3802,6 +4092,7 @@ var DefaultRegistryStrategyImpl = (function () {
         this.registerFactory(id, new SingletonFactory(classInstance));
     };
     DefaultRegistryStrategyImpl.prototype.registerFactory = function (id, factory) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         if (id && factory) {
             if (this.factories[id]) {
                 throw new RegistrationError_1.default("'%id%' key is considered unique and already exists", { "%id%": id });
@@ -3811,12 +4102,13 @@ var DefaultRegistryStrategyImpl = (function () {
     };
     return DefaultRegistryStrategyImpl;
 }());
-var RegistryImpl = (function () {
+var RegistryImpl = /** @class */ (function () {
     function RegistryImpl() {
         this.defaultStrategy = new DefaultRegistryStrategyImpl();
         this.strategies = [this.defaultStrategy];
     }
     RegistryImpl.prototype.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         var i = 0;
         var instance = null;
         while (!instance && i < this.strategies.length) {
@@ -3826,27 +4118,32 @@ var RegistryImpl = (function () {
         return instance;
     };
     RegistryImpl.prototype.registerConstant = function (id, instance) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(instance, "instance");
         this.defaultStrategy.registerConstant(id, instance);
         return this;
     };
     RegistryImpl.prototype.registerPrototype = function (id, classInstance) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(classInstance, "classInstance");
         this.defaultStrategy.registerPrototype(id, classInstance);
         return this;
     };
     RegistryImpl.prototype.registerSingleton = function (id, classInstance) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireNotNull(classInstance, "classInstance");
         this.defaultStrategy.registerSingleton(id, classInstance);
         return this;
     };
     RegistryImpl.prototype.addStrategy = function (strategy) {
-        if (strategy) {
-            this.strategies.push(strategy);
-        }
+        requireNotNull(strategy, "strategy");
+        this.strategies.push(strategy);
     };
     RegistryImpl.INSTANCE = new RegistryImpl();
     return RegistryImpl;
 }());
 exports.RegistryImpl = RegistryImpl;
-var ConstantFactory = (function () {
+var ConstantFactory = /** @class */ (function () {
     function ConstantFactory(instance) {
         this.instance = instance;
     }
@@ -3855,7 +4152,7 @@ var ConstantFactory = (function () {
     };
     return ConstantFactory;
 }());
-var PrototypeFactory = (function () {
+var PrototypeFactory = /** @class */ (function () {
     function PrototypeFactory(classInstance) {
         this.classInstance = classInstance;
     }
@@ -3864,7 +4161,7 @@ var PrototypeFactory = (function () {
     };
     return PrototypeFactory;
 }());
-var SingletonFactory = (function () {
+var SingletonFactory = /** @class */ (function () {
     function SingletonFactory(classInstance) {
         this.classInstance = classInstance;
     }
@@ -3879,7 +4176,7 @@ var SingletonFactory = (function () {
 
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3899,7 +4196,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var RegistrationError = (function (_super) {
+var RegistrationError = /** @class */ (function (_super) {
     __extends(RegistrationError, _super);
     function RegistrationError(msg, reps) {
         return _super.call(this, msg, reps) || this;
@@ -3910,7 +4207,7 @@ exports.default = RegistrationError;
 
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3919,8 +4216,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var NullValueError_1 = __importDefault(__webpack_require__(7));
-var ScopeError_1 = __importDefault(__webpack_require__(34));
+var NullValueError_1 = __importDefault(__webpack_require__(8));
+var ScopeError_1 = __importDefault(__webpack_require__(36));
 var EXCLUSIONS = {
     e: "e",
     external: "external",
@@ -3929,17 +4226,17 @@ var EXCLUSIONS = {
     m: "m",
     model: "model",
     p: "p",
-    parent: "parent",
+    parent: "parent"
 };
 var VALID_KEY_REGEX = new RegExp(/^[a-zA-Z\$\_][a-zA-Z0-9\$\_]*$/);
-var ScopeImpl = (function () {
+var ScopeImpl = /** @class */ (function () {
     function ScopeImpl(restricted) {
         this.children = [];
         this.localItems = {};
         this.items = {};
         this.code = "";
         this.parent = null;
-        this.restricted = (restricted === null || restricted === undefined) ? true : restricted;
+        this.restricted = (restricted === null || restricted === undefined) || restricted;
     }
     ScopeImpl.prototype.setParent = function (parent) {
         if (!parent) {
@@ -4030,7 +4327,7 @@ exports.default = ScopeImpl;
 
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4050,7 +4347,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var AbstractCydranError_1 = __webpack_require__(1);
-var ScopeError = (function (_super) {
+var ScopeError = /** @class */ (function (_super) {
     __extends(ScopeError, _super);
     function ScopeError(msg, reps) {
         return _super.call(this, msg, reps) || this;
@@ -4061,14 +4358,14 @@ exports.default = ScopeError;
 
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var MAX_SAFE_INTEGER = 9007199254740989;
-var SequenceGenerator = (function () {
+var SequenceGenerator = /** @class */ (function () {
     function SequenceGenerator() {
         this.value = 0;
     }
@@ -4086,7 +4383,7 @@ exports.default = SequenceGenerator;
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4096,34 +4393,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Checked_1 = __importDefault(__webpack_require__(37));
+var Checked_1 = __importDefault(__webpack_require__(39));
 Core_1.Mvvm.register(Checked_1.default.KEY, ["input"], Checked_1.default);
-var CSSClass_1 = __importDefault(__webpack_require__(38));
+var CSSClass_1 = __importDefault(__webpack_require__(40));
 Core_1.Mvvm.register(CSSClass_1.default.KEY, ["*"], CSSClass_1.default);
-var Content_1 = __importDefault(__webpack_require__(39));
+var Content_1 = __importDefault(__webpack_require__(41));
 Core_1.Mvvm.register(Content_1.default.KEY, ["*"], Content_1.default);
-var Enabled_1 = __importDefault(__webpack_require__(40));
+var Enabled_1 = __importDefault(__webpack_require__(42));
 Core_1.Mvvm.register(Enabled_1.default.KEY, ["*"], Enabled_1.default);
-var ReadOnly_1 = __importDefault(__webpack_require__(41));
+var ReadOnly_1 = __importDefault(__webpack_require__(43));
 Core_1.Mvvm.register(ReadOnly_1.default.KEY, ["*"], ReadOnly_1.default);
-var Style_1 = __importDefault(__webpack_require__(42));
+var Style_1 = __importDefault(__webpack_require__(44));
 Core_1.Mvvm.register(Style_1.default.KEY, ["*"], Style_1.default);
-var ForceFocus_1 = __importDefault(__webpack_require__(43));
+var ForceFocus_1 = __importDefault(__webpack_require__(45));
 Core_1.Mvvm.register(ForceFocus_1.default.KEY, ["*"], ForceFocus_1.default);
-var MultiSelectValueModel_1 = __importDefault(__webpack_require__(44));
+var MultiSelectValueModel_1 = __importDefault(__webpack_require__(46));
 Core_1.Mvvm.register(MultiSelectValueModel_1.default.KEY, ["select"], MultiSelectValueModel_1.default);
-var ValuedModel_1 = __importDefault(__webpack_require__(45));
+var ValuedModel_1 = __importDefault(__webpack_require__(47));
 Core_1.Mvvm.register(ValuedModel_1.default.KEY, ["textarea"], ValuedModel_1.default);
-var InputValueModel_1 = __importDefault(__webpack_require__(46));
+var InputValueModel_1 = __importDefault(__webpack_require__(48));
 Core_1.Mvvm.register(InputValueModel_1.default.KEY, ["input"], InputValueModel_1.default);
-var Visible_1 = __importDefault(__webpack_require__(47));
+var Visible_1 = __importDefault(__webpack_require__(49));
 Core_1.Mvvm.register(Visible_1.default.KEY, ["*"], Visible_1.default);
-var Repeat_1 = __importDefault(__webpack_require__(48));
+var Repeat_1 = __importDefault(__webpack_require__(50));
 Core_1.Mvvm.register("repeat", ["*"], Repeat_1.default);
 
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4143,7 +4440,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Checked = (function (_super) {
+/**
+ *
+ */
+var Checked = /** @class */ (function (_super) {
     __extends(Checked, _super);
     function Checked() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -4152,6 +4452,7 @@ var Checked = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     Checked.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     Checked.prototype.onTargetChange = function (previous, current) {
         this.getEl().checked = !current;
@@ -4163,7 +4464,7 @@ exports.default = Checked;
 
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4183,7 +4484,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var CSSClass = (function (_super) {
+var CSSClass = /** @class */ (function (_super) {
     __extends(CSSClass, _super);
     function CSSClass() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -4192,6 +4493,7 @@ var CSSClass = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     CSSClass.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     CSSClass.prototype.onTargetChange = function (previous, current) {
         var oldClasses = (this.getEl().className || "").trim().split(" ");
@@ -4217,7 +4519,7 @@ exports.default = CSSClass;
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4240,8 +4542,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
-var Content = (function (_super) {
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var Content = /** @class */ (function (_super) {
     __extends(Content, _super);
     function Content() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -4250,6 +4552,7 @@ var Content = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     Content.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     Content.prototype.onTargetChange = function (previous, current) {
         this.getEl().innerHTML = ObjectUtils_1.default.encodeHtml(current);
@@ -4258,86 +4561,6 @@ var Content = (function (_super) {
     return Content;
 }(Core_1.ElementMediator));
 exports.default = Content;
-
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var Core_1 = __webpack_require__(0);
-var Enabled = (function (_super) {
-    __extends(Enabled, _super);
-    function Enabled() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Enabled.prototype.wire = function () {
-        this.getModelMediator().watch(this, this.onTargetChange);
-    };
-    Enabled.prototype.unwire = function () {
-    };
-    Enabled.prototype.onTargetChange = function (previous, current) {
-        this.getEl().disabled = !current;
-    };
-    Enabled.KEY = "enabled";
-    return Enabled;
-}(Core_1.ElementMediator));
-exports.default = Enabled;
-
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var Core_1 = __webpack_require__(0);
-var ReadOnly = (function (_super) {
-    __extends(ReadOnly, _super);
-    function ReadOnly() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    ReadOnly.prototype.wire = function () {
-        this.getModelMediator().watch(this, this.onTargetChange);
-    };
-    ReadOnly.prototype.unwire = function () {
-    };
-    ReadOnly.prototype.onTargetChange = function (previous, current) {
-        this.getEl().readOnly = current;
-    };
-    ReadOnly.KEY = "readonly";
-    return ReadOnly;
-}(Core_1.ElementMediator));
-exports.default = ReadOnly;
 
 
 /***/ }),
@@ -4361,31 +4584,24 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Style = (function (_super) {
-    __extends(Style, _super);
-    function Style() {
+var Enabled = /** @class */ (function (_super) {
+    __extends(Enabled, _super);
+    function Enabled() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Style.prototype.wire = function () {
+    Enabled.prototype.wire = function () {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
-    Style.prototype.unwire = function () {
+    Enabled.prototype.unwire = function () {
+        // Intentionally do nothing
     };
-    Style.prototype.onTargetChange = function (previous, current) {
-        if (current === null) {
-            return;
-        }
-        for (var key in current) {
-            if (!current.hasOwnProperty(key)) {
-                continue;
-            }
-            this.getEl().style[key] = current[key];
-        }
+    Enabled.prototype.onTargetChange = function (previous, current) {
+        this.getEl().disabled = !current;
     };
-    Style.KEY = "style";
-    return Style;
+    Enabled.KEY = "enabled";
+    return Enabled;
 }(Core_1.ElementMediator));
-exports.default = Style;
+exports.default = Enabled;
 
 
 /***/ }),
@@ -4409,31 +4625,24 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var ForceFocus = (function (_super) {
-    __extends(ForceFocus, _super);
-    function ForceFocus() {
+var ReadOnly = /** @class */ (function (_super) {
+    __extends(ReadOnly, _super);
+    function ReadOnly() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ForceFocus.prototype.wire = function () {
-        this.bridge("focusout");
-        this.listenTo("dom", "focusout", this.handleFocusout);
-        this.shouldFocus = false;
+    ReadOnly.prototype.wire = function () {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
-    ForceFocus.prototype.unwire = function () {
+    ReadOnly.prototype.unwire = function () {
+        // Intentionally do nothing
     };
-    ForceFocus.prototype.handleFocusout = function (event) {
-        if (this.shouldFocus) {
-            this.getEl().focus();
-        }
+    ReadOnly.prototype.onTargetChange = function (previous, current) {
+        this.getEl().readOnly = current;
     };
-    ForceFocus.prototype.onTargetChange = function (previous, current) {
-        this.shouldFocus = current;
-    };
-    ForceFocus.KEY = "force-focus";
-    return ForceFocus;
+    ReadOnly.KEY = "readonly";
+    return ReadOnly;
 }(Core_1.ElementMediator));
-exports.default = ForceFocus;
+exports.default = ReadOnly;
 
 
 /***/ }),
@@ -4457,17 +4666,123 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var MultiSelectValueModel = (function (_super) {
+var Style = /** @class */ (function (_super) {
+    __extends(Style, _super);
+    function Style() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Style.prototype.wire = function () {
+        this.getModelMediator().watch(this, this.onTargetChange);
+    };
+    Style.prototype.unwire = function () {
+        // Intentionally do nothing
+    };
+    Style.prototype.onTargetChange = function (previous, current) {
+        if (current === null) {
+            return;
+        }
+        for (var key in current) {
+            if (!current.hasOwnProperty(key)) {
+                continue;
+            }
+            this.getEl().style[key] = current[key];
+        }
+    };
+    Style.KEY = "style";
+    return Style;
+}(Core_1.ElementMediator));
+exports.default = Style;
+
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Core_1 = __webpack_require__(0);
+var INTERNAL_CHANNEL_NAME = "Cydran$$Internal$$Channel";
+var ForceFocus = /** @class */ (function (_super) {
+    __extends(ForceFocus, _super);
+    function ForceFocus() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ForceFocus.prototype.wire = function () {
+        this.bridge("focusout");
+        this.on("focusout").forChannel("dom").invoke(this.handleFocus);
+        this.on(Core_1.Events.COMPONENT_NESTING_CHANGED).forChannel(INTERNAL_CHANNEL_NAME).invoke(this.handleFocus);
+        this.shouldFocus = this.getModelMediator().get();
+        this.getModelMediator().watch(this, this.onTargetChange);
+        this.handleFocus();
+    };
+    ForceFocus.prototype.unwire = function () {
+        // Intentionally do nothing
+    };
+    ForceFocus.prototype.handleFocus = function () {
+        if (this.shouldFocus) {
+            this.getEl().focus();
+        }
+    };
+    ForceFocus.prototype.onTargetChange = function (previous, current) {
+        this.shouldFocus = current;
+        this.handleFocus();
+    };
+    ForceFocus.KEY = "force-focus";
+    return ForceFocus;
+}(Core_1.ElementMediator));
+exports.default = ForceFocus;
+
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Core_1 = __webpack_require__(0);
+/**
+ *
+ */
+var MultiSelectValueModel = /** @class */ (function (_super) {
     __extends(MultiSelectValueModel, _super);
     function MultiSelectValueModel() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MultiSelectValueModel.prototype.wire = function () {
         this.bridge("input");
-        this.listenTo("dom", "input", this.handleInput);
+        this.on("input").forChannel("dom").invoke(this.handleInput);
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     MultiSelectValueModel.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     MultiSelectValueModel.prototype.handleInput = function (event) {
         var _this = this;
@@ -4506,7 +4821,7 @@ exports.default = MultiSelectValueModel;
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4526,17 +4841,21 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var ValuedModel = (function (_super) {
+/**
+ *
+ */
+var ValuedModel = /** @class */ (function (_super) {
     __extends(ValuedModel, _super);
     function ValuedModel() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ValuedModel.prototype.wire = function () {
         this.bridge("input");
-        this.listenTo("dom", "input", this.handleInput);
+        this.on("input").forChannel("dom").invoke(this.handleInput);
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     ValuedModel.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     ValuedModel.prototype.handleInput = function (event) {
         var _this = this;
@@ -4554,7 +4873,7 @@ exports.default = ValuedModel;
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4574,7 +4893,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var InputValueModel = (function (_super) {
+/**
+ *
+ */
+var InputValueModel = /** @class */ (function (_super) {
     __extends(InputValueModel, _super);
     function InputValueModel() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -4582,10 +4904,11 @@ var InputValueModel = (function (_super) {
     InputValueModel.prototype.wire = function () {
         this.bridge("input");
         var isRadio = this.getEl().type.toLowerCase() === "radio";
-        this.listenTo("dom", "input", (isRadio ? this.handleRadioInput : this.handleInput));
+        this.on("input").forChannel("dom").invoke(isRadio ? this.handleRadioInput : this.handleInput);
         this.getModelMediator().watch(this, (isRadio ? this.onRadioTargetChange : this.onTargetChange));
     };
     InputValueModel.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     InputValueModel.prototype.handleInput = function (event) {
         var _this = this;
@@ -4616,7 +4939,7 @@ exports.default = InputValueModel;
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4636,7 +4959,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Visible = (function (_super) {
+/**
+ *
+ */
+var Visible = /** @class */ (function (_super) {
     __extends(Visible, _super);
     function Visible() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -4645,6 +4971,7 @@ var Visible = (function (_super) {
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     Visible.prototype.unwire = function () {
+        // Intentionally do nothing
     };
     Visible.prototype.onTargetChange = function (previous, current) {
         this.getEl().hidden = !current;
@@ -4656,7 +4983,7 @@ exports.default = Visible;
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4679,12 +5006,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var LOGGER = LoggerFactory_1.default.getLogger("RepeatElementMediator");
 var DEFAULT_ID_KEY = "id";
 var DOCUMENT = Core_1.Properties.getWindow().document;
-var Repeat = (function (_super) {
+/**
+ *
+ */
+var Repeat = /** @class */ (function (_super) {
     __extends(Repeat, _super);
     function Repeat() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -4733,6 +5063,7 @@ var Repeat = (function (_super) {
     Repeat.prototype.onTargetChange = function (previous, current, guard) {
         if (!this.initialized) {
             var children = this.getEl().children;
+            // tslint:disable-next-line
             for (var i = 0; i < children.length; i++) {
                 var child = children[i];
                 if ("template" === child.nodeName.toLowerCase()) {
@@ -4859,7 +5190,7 @@ exports.default = Repeat;
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4867,7 +5198,7 @@ exports.default = Repeat;
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4877,12 +5208,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var CydranConfig_1 = __importDefault(__webpack_require__(13));
-var DomUtils_1 = __importDefault(__webpack_require__(51));
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(3));
+var CydranConfig_1 = __importDefault(__webpack_require__(14));
+var DomUtils_1 = __importDefault(__webpack_require__(53));
+var LoggerFactory_1 = __importDefault(__webpack_require__(3));
+var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var ValidationRegExp_1 = __webpack_require__(5);
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
-var Stage = (function () {
+var requireValid = ObjectUtils_1.default.requireValid;
+var Stage = /** @class */ (function () {
     function Stage(rootSelector) {
         this.rootSelector = requireNotNull(rootSelector, "rootSelector");
         this.logger = LoggerFactory_1.default.getLogger("Stage");
@@ -4903,14 +5236,19 @@ var Stage = (function () {
             return;
         }
         this.logger.debug("Cydran Starting");
+        Core_1.Modules.registerConstant("stage", this);
         DomUtils_1.default.domReady(function () { return _this.domReady(); });
     };
     Stage.prototype.setComponent = function (component) {
         this.root.setChild("body", component);
         return this;
     };
+    Stage.prototype.setComponentFromRegistry = function (componentName, defaultComponentName) {
+        requireNotNull(componentName, "componentName");
+        this.root.setChildFromRegistry("body", componentName, defaultComponentName);
+    };
     Stage.prototype.get = function (id) {
-        requireNotNull(id, "id");
+        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
         return this.root.get(id);
     };
     Stage.prototype.getConfig = function () {
@@ -4934,13 +5272,14 @@ exports.default = Stage;
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
+// TODO - Refactor this
 var domReady = function (callback) {
     var ready = false;
     var WIN = Core_1.Properties.getWindow();
@@ -4977,6 +5316,7 @@ var domReady = function (callback) {
             top_1 = (WIN.frameElement == null && DOC.documentElement) ? true : false;
         }
         catch (e) {
+            // Intentionally do nothing
         }
         if (top_1 && top_1["doScroll"]) {
             (function scrollCheck() {
@@ -4997,7 +5337,7 @@ var domReady = function (callback) {
     }
 };
 var result = {
-    domReady: domReady,
+    domReady: domReady
 };
 exports.default = result;
 
