@@ -1,11 +1,11 @@
-/*
- * v0.0.43
+/*!
+ * v0.0.44
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
  * Based on Lodash 4.17.15 <https://lodash.com/license>
  * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
- *
+ * 
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
