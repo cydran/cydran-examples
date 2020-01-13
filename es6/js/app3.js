@@ -1,5 +1,5 @@
 window.onload = function() {
-	const Stage = cydran.Stage;
+	const builder = cydran.builder;
 	const Component = cydran.Component;
 	const PubSub = cydran.PubSub;
 
@@ -25,11 +25,12 @@ window.onload = function() {
 		}
 	}
 
-	let stage = new Stage('#pgpart');
-	stage.getConfig().useDebug();
-	stage.withInitializer(function() {
-		this.setComponent(new App3());
-	});
-
-	stage.start();
+	builder('#pgpart')
+		.withDebugLogging()
+		.withInitializer(function() {
+			const app = new App3();
+			this.setComponent(app);
+		})
+		.build()
+		.start();
 };

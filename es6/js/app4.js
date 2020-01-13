@@ -1,4 +1,4 @@
-const Stage = cydran.Stage;
+const builder = cydran.builder;
 const Component = cydran.Component;
 const Modules = cydran.Modules;
 
@@ -91,10 +91,12 @@ Modules.registerPrototype('modal', Modal);
 Modules.registerPrototype('modalbody1', ModalBody1);
 Modules.registerPrototype('modalbody2', ModalBody2);
 
-let stage = new Stage('#pgpart');
-stage.getConfig().useDebug();
-stage.withInitializer(function() {
-	this.setComponent(new App4());
-});
 
-stage.start();
+builder('#pgpart')
+	.withDebugLogging()
+	.withInitializer(function() {
+		const app = new App4();
+		this.setComponent(app);
+	})
+	.build()
+	.start();

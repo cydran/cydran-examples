@@ -1,5 +1,5 @@
 window.onload = function() {
-	const Stage = cydran.Stage;
+	const builder = cydran.builder;
 	const Component = cydran.Component;
 
 	const urlParams = new URL(window.location).searchParams;
@@ -150,14 +150,13 @@ window.onload = function() {
 		}
 	}
 
-	let stage = new Stage('#pgpart');
-	stage.getConfig().useDebug();
-
-	stage.withInitializer(function() {
-		const app = new App();
-		app.curPag = window.location.href;
-		this.setComponent(app);
-	});
-
-	stage.start();
+	builder('#pgpart')
+		.withDebugLogging()
+		.withInitializer(function() {
+			const app = new App();
+			app.curPag = window.location.href;
+			this.setComponent(app);
+		})
+		.build()
+		.start();
 };
