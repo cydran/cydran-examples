@@ -39,10 +39,10 @@
 	<template id="myComponent">
 		<div>
 			<h2>{{m().pgLabel}}</h2><p/>
-			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud" c:content="m().selectedItem"></span><p/>
+			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud">{{m().selectedItem}}</span><p/>
 			<div c:repeat="{items: m().buffData}" class="listbox" >
 				<template type="item">
-					<div c:content="i().name" c:onmouseover="p().updateItem(i().id)" c:onclick="p().logTheItem()"></div>
+					<div c:onmouseover="p().updateItem(i().id)" c:onclick="p().logTheItem()">{{i().name}}</div>
 				</template>
 			</div>
 		</div>

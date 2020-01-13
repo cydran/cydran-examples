@@ -57,7 +57,7 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" c:content="model().title"></h5>
+						<h5 class="modal-title">{{m().title}}</h5>
 						<button type="button" class="close" c:onclick="m().closeModal()" c:visible="m().closeable">&times;</button>
 					</div>
 					<c:region name="body"></c:region>
