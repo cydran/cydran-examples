@@ -1,22 +1,12 @@
 /// <reference types="node" />
 
-declare class CydranConfig {
-	constructor();
-	useTrace(): void;
-	useDebug(): void;
-	useInfo(): void;
-	useWarn(): void;
-	useError(): void;
-	useFatal(): void;
-	useDisabled(): void;
-}
 /**
  * The piece of code between the HTMLElement and the Mvvm
  * @type M {@link ModelMediator}
  * @type E extends HTMLElement
  * @implements {@link Disposable}
  */
-export declare abstract class ElementMediator<M, E extends HTMLElement> implements Disposable {
+export declare abstract class ElementMediator<M, E extends HTMLElement | Text> implements Disposable {
 	private logger;
 	private ____internal$$cydran____;
 	private moduleInstance;
@@ -214,21 +204,6 @@ export declare class PubSub implements Disposable {
 	private enableGlobal;
 	private disableGlobal;
 }
-export declare class Stage {
-	private started;
-	private rootSelector;
-	private logger;
-	private initializers;
-	private root;
-	constructor(rootSelector: string);
-	withInitializer(callback: () => void): Stage;
-	start(): void;
-	setComponent(component: Component): Stage;
-	setComponentFromRegistry(componentName: string, defaultComponentName?: string): void;
-	get<T>(id: string): T;
-	getConfig(): CydranConfig;
-	private domReady;
-}
 export declare const Events: {
 	AFTER_CHILD_ADDED: string;
 	AFTER_CHILD_CHANGED: string;
@@ -245,6 +220,7 @@ export declare const Events: {
 	BEFORE_PARENT_REMOVED: string;
 	COMPONENT_NESTING_CHANGED: string;
 };
+export declare const builder: (rootSelector: string) => StageBuilder;
 export declare function noConflict(): any;
 export interface ComponentConfig {
 	getMetadata(key: string): any;
@@ -326,6 +302,26 @@ export interface RegistryStrategy {
 export interface Scope {
 	add(name: string, item: any): void;
 	remove(name: string): void;
+}
+export interface Stage {
+	setComponent(component: Component): Stage;
+	setComponentFromRegistry(componentName: string, defaultComponentName?: string): void;
+	get<T>(id: string): T;
+	start(): void;
+}
+export interface StageBuilder {
+	withComponentBefore(id: string, moduleName?: string): StageBuilder;
+	withComponentAfter(id: string, moduleName?: string): StageBuilder;
+	withComponent(id: string): StageBuilder;
+	withInitializer(callback: () => void): StageBuilder;
+	withTraceLogging(): StageBuilder;
+	withDebugLogging(): StageBuilder;
+	withInfoLogging(): StageBuilder;
+	withWarnLogging(): StageBuilder;
+	withErrorLogging(): StageBuilder;
+	withFatalLogging(): StageBuilder;
+	withLoggingDisabled(): StageBuilder;
+	build(): Stage;
 }
 
 export as namespace cydran;
