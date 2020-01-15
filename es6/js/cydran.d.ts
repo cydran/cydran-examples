@@ -72,6 +72,11 @@ export declare abstract class ElementMediator<M, E extends HTMLElement | Text> i
 	 */
 	protected getModule(): Module;
 	/**
+	 * Gets the prefix.
+	 * @return the prefix
+	 */
+	protected getPrefix(): string;
+	/**
 	 * [mediate description]
 	 * @param  {string}        expression [description]
 	 * @return {ModelMediator}            [description]

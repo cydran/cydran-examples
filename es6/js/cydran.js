@@ -1,5 +1,5 @@
 /*!
- * v0.0.46
+ * v0.0.47
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -157,6 +157,7 @@ var INTERNAL_CHANNEL_NAME = "Cydran$$Internal$$Channel";
 exports.INTERNAL_CHANNEL_NAME = INTERNAL_CHANNEL_NAME;
 var TEXT_NODE_TYPE = 3;
 var COMPONENT_INTERNALS_FIELD_NAME = "____internal$$cydran____";
+exports.COMPONENT_INTERNALS_FIELD_NAME = COMPONENT_INTERNALS_FIELD_NAME;
 var MODULE_FIELD_NAME = "____internal$$cydran$$module____";
 var Events = {
     AFTER_CHILD_ADDED: "AFTER_CHILD_ADDED",
@@ -530,7 +531,7 @@ var Component = /** @class */ (function () {
         return this.____internal$$cydran____.getLogger();
     };
     Component.prototype.____internal$$cydran$$init____ = function (template, config) {
-        this.____internal$$cydran____ = new ComponentInternals(this, template, config);
+        this.____internal$$cydran____ = new ComponentInternals(this, template, config, false);
         this.____internal$$cydran____.init();
     };
     return Component;
@@ -538,7 +539,8 @@ var Component = /** @class */ (function () {
 exports.Component = Component;
 Component["prototype"][MODULE_FIELD_NAME] = DEFAULT_MODULE;
 var ComponentInternals = /** @class */ (function () {
-    function ComponentInternals(component, template, config) {
+    function ComponentInternals(component, template, config, referenceParent) {
+        this.referenceParent = referenceParent;
         requireNotNull(template, "template");
         if (typeof template !== "string") {
             throw new TemplateError_1.default("Template must be a string");
@@ -572,7 +574,7 @@ var ComponentInternals = /** @class */ (function () {
     ComponentInternals.prototype.init = function () {
         var _this = this;
         this.component.reset();
-        this.mvvm = new Mvvm(this.component, this.getModule(), this.prefix, this.scope);
+        this.mvvm = new Mvvm(this.component, this.getModule(), this.prefix, this.scope, this.referenceParent);
         this.render();
         this.mvvm.init(this.el, this, function (name) { return _this.getRegion(name); });
     };
@@ -866,6 +868,7 @@ var ComponentInternals = /** @class */ (function () {
     };
     return ComponentInternals;
 }());
+exports.ComponentInternals = ComponentInternals;
 var StageComponentInternals = /** @class */ (function (_super) {
     __extends(StageComponentInternals, _super);
     function StageComponentInternals() {
@@ -923,7 +926,7 @@ var StageComponent = /** @class */ (function (_super) {
         return this;
     };
     StageComponent.prototype.____internal$$cydran$$init____ = function (template, config) {
-        this[COMPONENT_INTERNALS_FIELD_NAME] = new StageComponentInternals(this, template, config);
+        this[COMPONENT_INTERNALS_FIELD_NAME] = new StageComponentInternals(this, template, config, false);
         this[COMPONENT_INTERNALS_FIELD_NAME]["init"]();
     };
     return StageComponent;
@@ -1063,6 +1066,13 @@ var ElementMediator = /** @class */ (function () {
      */
     ElementMediator.prototype.getModule = function () {
         return this["moduleInstance"];
+    };
+    /**
+     * Gets the prefix.
+     * @return the prefix
+     */
+    ElementMediator.prototype.getPrefix = function () {
+        return this.____internal$$cydran____.prefix;
     };
     /**
      * [mediate description]
@@ -1239,7 +1249,7 @@ var AttributeElementMediator = /** @class */ (function (_super) {
     return AttributeElementMediator;
 }(ElementMediator));
 var Mvvm = /** @class */ (function () {
-    function Mvvm(model, moduleInstance, prefix, scope) {
+    function Mvvm(model, moduleInstance, prefix, scope, referenceParent) {
         var _this = this;
         this.elementMediatorPrefix = prefix + ":";
         this.eventElementMediatorPrefix = prefix + ":on";
@@ -1254,14 +1264,17 @@ var Mvvm = /** @class */ (function () {
         this.model = model;
         this.moduleInstance = moduleInstance;
         this.components = [];
-        this.scope.add("m", function () { return _this.model; });
-        this.scope.add("model", function () { return _this.model; });
-        this.scope.add("i", function () { return _this.parent.getData(); });
-        this.scope.add("item", function () { return _this.parent.getData(); });
-        this.scope.add("p", function () { return _this.parent.getComponent().getParent(); });
-        this.scope.add("parent", function () { return _this.parent.getComponent().getParent(); });
-        this.scope.add("e", function () { return _this.parent.getExternalCache(); });
-        this.scope.add("external", function () { return _this.parent.getExternalCache(); });
+        var parentModelFn = function () { return _this.parent.getComponent().getParent(); };
+        var localModelFn = function () { return _this.model; };
+        var modelFn = referenceParent ? parentModelFn : localModelFn;
+        var itemFn = function () { return _this.parent.getData(); };
+        var externalFn = function () { return _this.parent.getExternalCache(); };
+        this.scope.add("m", modelFn);
+        this.scope.add("model", modelFn);
+        this.scope.add("i", itemFn);
+        this.scope.add("item", itemFn);
+        this.scope.add("e", externalFn);
+        this.scope.add("external", externalFn);
     }
     Mvvm.register = function (name, supportedTags, elementMediatorClass) {
         requireNotNull(name, "name");
@@ -3377,10 +3390,10 @@ exports.CydranConfig = CydranConfig;
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 exports.LoggerFactory = LoggerFactory_1.default;
 __webpack_require__(38);
-__webpack_require__(51);
+__webpack_require__(52);
 var PubSub_1 = __importDefault(__webpack_require__(13));
 exports.PubSub = PubSub_1.default;
-var Stage_1 = __webpack_require__(52);
+var Stage_1 = __webpack_require__(53);
 exports.builder = Stage_1.builder;
 var CYDRAN_KEY = "cydran";
 var ORIGINAL_CYDRAN = window[CYDRAN_KEY];
@@ -5062,26 +5075,53 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
+var ParamUtils_1 = __webpack_require__(51);
 var DEFAULT_ID_KEY = "id";
 var DOCUMENT = Core_1.Properties.getWindow().document;
+var UtilityComponent = /** @class */ (function (_super) {
+    __extends(UtilityComponent, _super);
+    function UtilityComponent(template, parent) {
+        var _this = _super.call(this, template) || this;
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setMode", "repeatable");
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", parent);
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setMode", "repeatable");
+        return _this;
+    }
+    return UtilityComponent;
+}(Core_1.Component));
+var ItemComponent = /** @class */ (function (_super) {
+    __extends(ItemComponent, _super);
+    function ItemComponent(template, parent, data) {
+        var _this = _super.call(this, template) || this;
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setMode", "repeatable");
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setData", data);
+        _this.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", parent);
+        return _this;
+    }
+    ItemComponent.prototype.____internal$$cydran$$init____ = function (template, config) {
+        this[Core_1.COMPONENT_INTERNALS_FIELD_NAME] = new Core_1.ComponentInternals(this, template, config, true);
+        this[Core_1.COMPONENT_INTERNALS_FIELD_NAME]["init"]();
+    };
+    return ItemComponent;
+}(Core_1.Component));
 /**
  *
  */
 var Repeat = /** @class */ (function (_super) {
     __extends(Repeat, _super);
     function Repeat() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.initialized = false;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Repeat.prototype.wire = function () {
         this.map = {};
         this.empty = null;
         this.ids = [];
         this.itemTemplate = null;
-        this.getModelMediator().setReducer(function (input) { return input.items; });
         this.getModelMediator().watch(this, this.onTargetChange);
         this.getModelMediator().onDigest(this, this.onDigest);
+        var paramTagName = this.getPrefix() + "param";
+        var params = ParamUtils_1.extractParams(paramTagName, this.getEl());
+        this.idKey = params.idKey || DEFAULT_ID_KEY;
         var children = this.getEl().children;
         // tslint:disable-next-line
         for (var i = 0; i < children.length; i++) {
@@ -5092,16 +5132,13 @@ var Repeat = /** @class */ (function (_super) {
                     var markup = template.innerHTML.trim();
                     var type = template.getAttribute("type");
                     if ("empty" === type) {
-                        this.empty = new Core_1.Component(markup);
-                        this.empty.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
+                        this.empty = new UtilityComponent(markup, this.getParent());
                     }
                     if ("first" === type) {
-                        this.first = new Core_1.Component(markup);
-                        this.first.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
+                        this.first = new UtilityComponent(markup, this.getParent());
                     }
                     if ("after" === type) {
-                        this.last = new Core_1.Component(markup);
-                        this.last.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
+                        this.last = new UtilityComponent(markup, this.getParent());
                     }
                     if ("item" === type) {
                         this.itemTemplate = markup;
@@ -5112,6 +5149,9 @@ var Repeat = /** @class */ (function (_super) {
         var el = this.getEl();
         while (el.firstChild) {
             el.removeChild(el.firstChild);
+        }
+        if (this.empty) {
+            el.appendChild(this.empty.getEl());
         }
     };
     Repeat.prototype.unwire = function () {
@@ -5145,45 +5185,19 @@ var Repeat = /** @class */ (function (_super) {
         }
     };
     Repeat.prototype.onTargetChange = function (previous, current, guard) {
-        if (!this.initialized) {
-            this.idKey = current.idKey || DEFAULT_ID_KEY;
-            this.itemComponentName = current.item;
-            if (current.empty && !this.empty) {
-                this.empty = this.getComponent(current.empty);
-                this.empty.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
-            }
-            if (current.first && !this.first) {
-                this.first = this.getComponent(current.first);
-                this.first.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
-            }
-            if (current.last && !this.last) {
-                this.last = this.getComponent(current.last);
-                this.last.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
-            }
-            if (this.empty) {
-                this.initAsRepeatable(this.empty);
-            }
-            if (this.first) {
-                this.initAsRepeatable(this.first);
-            }
-            if (this.last) {
-                this.initAsRepeatable(this.last);
-            }
-            this.initialized = true;
-        }
         var newIds = [];
-        for (var _i = 0, _a = current.items; _i < _a.length; _i++) {
-            var item = _a[_i];
+        for (var _i = 0, current_1 = current; _i < current_1.length; _i++) {
+            var item = current_1[_i];
             var id = item[this.idKey] + "";
             newIds.push(id);
         }
         if (!ObjectUtils_1.default.equals(this.ids, newIds)) {
             var newMap = {};
             var components = [];
-            for (var _b = 0, _c = current.items; _b < _c.length; _b++) {
-                var item = _c[_b];
+            for (var _a = 0, current_2 = current; _a < current_2.length; _a++) {
+                var item = current_2[_a];
                 var id = item[this.idKey] + "";
-                var component = this.map[id] ? this.map[id] : this.create(item);
+                var component = this.map[id] ? this.map[id] : new ItemComponent(this.itemTemplate, this.getParent(), item);
                 newMap[id] = component;
                 components.push(component);
                 delete this.map[id];
@@ -5210,8 +5224,8 @@ var Repeat = /** @class */ (function (_super) {
                 if (this.first) {
                     fragment.appendChild(this.first.getEl());
                 }
-                for (var _d = 0, components_1 = components; _d < components_1.length; _d++) {
-                    var component = components_1[_d];
+                for (var _b = 0, components_1 = components; _b < components_1.length; _b++) {
+                    var component = components_1[_b];
                     fragment.appendChild(component.getEl());
                 }
                 if (this.last) {
@@ -5220,26 +5234,11 @@ var Repeat = /** @class */ (function (_super) {
                 el.appendChild(fragment);
             }
         }
-        for (var _e = 0, newIds_1 = newIds; _e < newIds_1.length; _e++) {
-            var id = newIds_1[_e];
+        for (var _c = 0, newIds_1 = newIds; _c < newIds_1.length; _c++) {
+            var id = newIds_1[_c];
             this.map[id].message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "digest", guard);
         }
         this.ids = newIds;
-    };
-    Repeat.prototype.getComponent = function (name) {
-        return this.getParent().get(name);
-    };
-    Repeat.prototype.create = function (data) {
-        var component = (this.itemTemplate === null)
-            ? this.getComponent(this.itemComponentName)
-            : new Core_1.Component(this.itemTemplate);
-        this.initAsRepeatable(component);
-        component.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setData", data);
-        component.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.getParent());
-        return component;
-    };
-    Repeat.prototype.initAsRepeatable = function (component) {
-        component.message(Core_1.INTERNAL_DIRECT_CHANNEL_NAME, "setMode", "repeatable");
     };
     return Repeat;
 }(Core_1.ElementMediator));
@@ -5252,10 +5251,33 @@ exports.default = Repeat;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+function extractParams(tagName, el) {
+    var result = {};
+    // tslint:disable-next-line
+    for (var i = 0; i < el.children.length; i++) {
+        var child = el.children[i];
+        if (child.tagName.toLowerCase() === tagName.toLowerCase()) {
+            var paramName = child.getAttribute("name");
+            var paramValue = child.getAttribute("value");
+            result[paramName] = paramValue;
+        }
+    }
+    return result;
+}
+exports.extractParams = extractParams;
 
 
 /***/ }),
 /* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+
+/***/ }),
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5266,7 +5288,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
 var CydranConfig_1 = __importDefault(__webpack_require__(14));
-var DomUtils_1 = __importDefault(__webpack_require__(53));
+var DomUtils_1 = __importDefault(__webpack_require__(54));
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var ValidationRegExp_1 = __webpack_require__(5);
@@ -5400,7 +5422,7 @@ exports.builder = builder;
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
