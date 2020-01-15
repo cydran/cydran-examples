@@ -40,9 +40,9 @@
 		<div>
 			<h2>{{m().pgLabel}}</h2><p/>
 			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud">{{m().selectedItem}}</span><p/>
-			<div c:repeat="{items: m().buffData}" class="listbox" >
+			<div c:repeat="m().buffData" class="listbox" >
 				<template type="item">
-					<div c:onmouseover="p().updateItem(i().id)" c:onclick="p().logTheItem()">{{i().name}}</div>
+					<div c:onmouseover="m().updateItem(i().id)" c:onclick="m().logTheItem()">{{i().name}}</div>
 				</template>
 			</div>
 		</div>
