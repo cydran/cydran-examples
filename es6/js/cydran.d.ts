@@ -179,20 +179,6 @@ export declare class LoggerFactory {
 	 */
 	static getLogger(name: string): Logger;
 }
-export declare class Modules {
-	static getModule(name: string): Module;
-	static getDefaultModule(): Module;
-	static forEach(fn: (instace: Module) => void): void;
-	static broadcast(channelName: string, messageName: string, payload?: any): void;
-	static registerConstant(id: string, instance: any): void;
-	static registerPrototype(id: string, classInstance: any): void;
-	static registerSingleton(id: string, classInstance: any): void;
-	static registerElementMediator(name: string, supportedTags: string[], elementMediatorClass: any): void;
-	static getScope(): Scope;
-	static get<T>(id: string): T;
-	private static logger;
-	private static modules;
-}
 export declare class PubSub implements Disposable {
 	private listeners;
 	private listenersByChannel;
@@ -313,8 +299,19 @@ export interface Stage {
 	setComponentFromRegistry(componentName: string, defaultComponentName?: string): void;
 	get<T>(id: string): T;
 	start(): void;
+	getModule(name: string): Module;
+	getDefaultModule(): Module;
+	forEach(fn: (instace: Module) => void): void;
+	broadcast(channelName: string, messageName: string, payload?: any): void;
+	registerConstant(id: string, instance: any): void;
+	registerPrototype(id: string, classInstance: any): void;
+	registerSingleton(id: string, classInstance: any): void;
+	getScope(): Scope;
 }
 export interface StageBuilder {
+	getModule(name: string): Module;
+	getDefaultModule(): Module;
+	forEach(fn: (instace: Module) => void): StageBuilder;
 	withComponentBefore(id: string, moduleName?: string): StageBuilder;
 	withComponentAfter(id: string, moduleName?: string): StageBuilder;
 	withComponent(id: string): StageBuilder;
@@ -326,6 +323,12 @@ export interface StageBuilder {
 	withErrorLogging(): StageBuilder;
 	withFatalLogging(): StageBuilder;
 	withLoggingDisabled(): StageBuilder;
+	withElementMediator(name: string, supportedTags: string[], elementMediatorClass: any): StageBuilder;
+	withConstant(id: string, instance: any): StageBuilder;
+	withPrototype(id: string, classInstance: any): StageBuilder;
+	withSingleton(id: string, classInstance: any): StageBuilder;
+	withCapability(capability: (builder: StageBuilder) => void): StageBuilder;
+	withScopeItem(name: string, item: any): StageBuilder;
 	build(): Stage;
 }
 

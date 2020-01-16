@@ -1,5 +1,5 @@
 /*!
- * v0.0.47
+ * v0.0.48
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -311,7 +311,7 @@ var ModuleImpl = /** @class */ (function () {
         }
     };
     ModuleImpl.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         var result = this.registry.get(id);
         if (!result) {
             result = Modules.get(id);
@@ -319,26 +319,26 @@ var ModuleImpl = /** @class */ (function () {
         return result;
     };
     ModuleImpl.prototype.getLocal = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         return this.registry.get(id);
     };
     ModuleImpl.prototype.getScope = function () {
         return this.scope;
     };
     ModuleImpl.prototype.registerConstant = function (id, instance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(instance, "instance");
         this.registry.registerConstant(id, instance);
         return this;
     };
     ModuleImpl.prototype.registerPrototype = function (id, classInstance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
         this.registry.registerPrototype(id, classInstance);
         return this;
     };
     ModuleImpl.prototype.registerSingleton = function (id, classInstance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
         this.registry.registerSingleton(id, classInstance);
         return this;
@@ -349,7 +349,7 @@ var ModuleImpl = /** @class */ (function () {
         return this;
     };
     ModuleImpl.prototype.expose = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         ALIASES[id] = this.name;
         return this;
     };
@@ -370,7 +370,7 @@ var Modules = /** @class */ (function () {
     function Modules() {
     }
     Modules.getModule = function (name) {
-        requireNotNull(name, "name");
+        requireValid(name, "name", ValidationRegExp_1.VALID_ID);
         if (!Modules.modules[name]) {
             Modules.modules[name] = new ModuleImpl(name, DEFAULT_MODULE.getScope());
         }
@@ -408,7 +408,7 @@ var Modules = /** @class */ (function () {
         return this.getDefaultModule().getScope();
     };
     Modules.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         var result = null;
         var moduleId = ALIASES[id];
         if (moduleId) {
@@ -419,7 +419,6 @@ var Modules = /** @class */ (function () {
         }
         return result;
     };
-    Modules.logger = LoggerFactory_1.default.getLogger("Modules:static");
     Modules.modules = {
         DEFAULT: DEFAULT_MODULE
     };
@@ -639,7 +638,7 @@ var ComponentInternals = /** @class */ (function () {
     };
     ComponentInternals.prototype.setChildFromRegistry = function (name, componentId, defaultComponentName) {
         requireNotNull(name, "name");
-        requireValid(componentId, "componentId", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(componentId, "componentId", ValidationRegExp_1.VALID_ID);
         if (!this.hasRegion(name)) {
             throw new UnknownRegionError_1.default("Region \'%rName%\' is unknown and must be declared in component template.", { "%rName%": name });
         }
@@ -973,7 +972,7 @@ var ElementMediator = /** @class */ (function () {
      * @return U
      */
     ElementMediator.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         return this.moduleInstance.get(id);
     };
     /**
@@ -2831,8 +2830,8 @@ exports.default = Level;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var VALID_SERVICE_LOCATOR_ID = /^[a-zA-Z][a-zA-Z0-9\$\@\-\_\.\:\\\/]*$/m;
-exports.VALID_SERVICE_LOCATOR_ID = VALID_SERVICE_LOCATOR_ID;
+var VALID_ID = /^[a-zA-Z][a-zA-Z0-9\$\@\-\_\.\:\\\/]*$/m;
+exports.VALID_ID = VALID_ID;
 
 
 /***/ }),
@@ -3384,7 +3383,6 @@ var Core_1 = __webpack_require__(0);
 exports.Component = Core_1.Component;
 exports.ElementMediator = Core_1.ElementMediator;
 exports.Events = Core_1.Events;
-exports.Modules = Core_1.Modules;
 var CydranConfig = __importStar(__webpack_require__(14));
 exports.CydranConfig = CydranConfig;
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
@@ -4132,7 +4130,7 @@ var DefaultRegistryStrategyImpl = /** @class */ (function () {
         this.factories = {};
     }
     DefaultRegistryStrategyImpl.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         var instance = null;
         if (this.factories[id]) {
             instance = this.factories[id].get();
@@ -4149,7 +4147,7 @@ var DefaultRegistryStrategyImpl = /** @class */ (function () {
         this.registerFactory(id, new SingletonFactory(classInstance));
     };
     DefaultRegistryStrategyImpl.prototype.registerFactory = function (id, factory) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         if (id && factory) {
             if (this.factories[id]) {
                 throw new RegistrationError_1.default("'%id%' key is considered unique and already exists", { "%id%": id });
@@ -4165,7 +4163,7 @@ var RegistryImpl = /** @class */ (function () {
         this.strategies = [this.defaultStrategy];
     }
     RegistryImpl.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         var i = 0;
         var instance = null;
         while (!instance && i < this.strategies.length) {
@@ -4175,19 +4173,19 @@ var RegistryImpl = /** @class */ (function () {
         return instance;
     };
     RegistryImpl.prototype.registerConstant = function (id, instance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(instance, "instance");
         this.defaultStrategy.registerConstant(id, instance);
         return this;
     };
     RegistryImpl.prototype.registerPrototype = function (id, classInstance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
         this.defaultStrategy.registerPrototype(id, classInstance);
         return this;
     };
     RegistryImpl.prototype.registerSingleton = function (id, classInstance) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
         this.defaultStrategy.registerSingleton(id, classInstance);
         return this;
@@ -5342,6 +5340,40 @@ var StageBuilderImpl = /** @class */ (function () {
         this.config.useDisabled();
         return this;
     };
+    StageBuilderImpl.prototype.getModule = function (name) {
+        return Core_1.Modules.getModule(name);
+    };
+    StageBuilderImpl.prototype.getDefaultModule = function () {
+        return Core_1.Modules.getDefaultModule();
+    };
+    StageBuilderImpl.prototype.forEach = function (fn) {
+        Core_1.Modules.forEach(fn);
+        return this;
+    };
+    StageBuilderImpl.prototype.withElementMediator = function (name, supportedTags, elementMediatorClass) {
+        Core_1.Modules.registerElementMediator(name, supportedTags, elementMediatorClass);
+        return this;
+    };
+    StageBuilderImpl.prototype.withConstant = function (id, instance) {
+        Core_1.Modules.registerConstant(id, instance);
+        return this;
+    };
+    StageBuilderImpl.prototype.withPrototype = function (id, classInstance) {
+        Core_1.Modules.registerPrototype(id, classInstance);
+        return this;
+    };
+    StageBuilderImpl.prototype.withSingleton = function (id, classInstance) {
+        Core_1.Modules.registerSingleton(id, classInstance);
+        return this;
+    };
+    StageBuilderImpl.prototype.withCapability = function (capability) {
+        requireNotNull(capability, "capability")(this);
+        return this;
+    };
+    StageBuilderImpl.prototype.withScopeItem = function (name, item) {
+        Core_1.Modules.getScope().add(name, item);
+        return this;
+    };
     StageBuilderImpl.prototype.build = function () {
         return this.instance;
     };
@@ -5363,14 +5395,14 @@ var StageImpl = /** @class */ (function () {
         return this;
     };
     StageImpl.prototype.withComponentBefore = function (id, moduleName) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         this.topComponentIds.push({
             componentId: id,
             moduleId: moduleName || Core_1.DEFAULT_MODULE_KEY
         });
     };
     StageImpl.prototype.withComponentAfter = function (id, moduleName) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         this.bottomComponentIds.push({
             componentId: id,
             moduleId: moduleName || Core_1.DEFAULT_MODULE_KEY
@@ -5397,8 +5429,32 @@ var StageImpl = /** @class */ (function () {
         return this;
     };
     StageImpl.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_SERVICE_LOCATOR_ID);
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         return this.root.get(id);
+    };
+    StageImpl.prototype.getModule = function (name) {
+        return Core_1.Modules.getModule(name);
+    };
+    StageImpl.prototype.getDefaultModule = function () {
+        return Core_1.Modules.getDefaultModule();
+    };
+    StageImpl.prototype.forEach = function (fn) {
+        Core_1.Modules.forEach(fn);
+    };
+    StageImpl.prototype.broadcast = function (channelName, messageName, payload) {
+        Core_1.Modules.broadcast(channelName, messageName, payload);
+    };
+    StageImpl.prototype.registerConstant = function (id, instance) {
+        Core_1.Modules.registerConstant(id, instance);
+    };
+    StageImpl.prototype.registerPrototype = function (id, classInstance) {
+        Core_1.Modules.registerPrototype(id, classInstance);
+    };
+    StageImpl.prototype.registerSingleton = function (id, classInstance) {
+        Core_1.Modules.registerSingleton(id, classInstance);
+    };
+    StageImpl.prototype.getScope = function () {
+        return Core_1.Modules.getScope();
     };
     StageImpl.prototype.domReady = function () {
         this.logger.debug("DOM Ready");
