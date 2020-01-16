@@ -86,10 +86,6 @@ class Modal extends Component {
   }
 }
 
-function coreAppCapacity(builder) {
-  builder.withPrototype("app4", App4);
-}
-
 function modalCapacity(builder) {
   builder
     .withPrototype("modal", Modal)
@@ -99,8 +95,10 @@ function modalCapacity(builder) {
 
 builder("#pgpart")
   .withDebugLogging()
-  .withCapability(coreAppCapacity)
   .withCapability(modalCapacity)
+	.withCapability((builder) => {
+  	builder.withPrototype("app4", App4);
+	})
   .withInitializer(function() {
     this.setComponentFromRegistry("app4");
   })
