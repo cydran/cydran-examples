@@ -1,102 +1,108 @@
 const builder = cydran.builder;
 const Component = cydran.Component;
-const Modules = cydran.Modules;
 
 class App4 extends Component {
-	constructor() {
-		super(document.querySelector('#myComponent').innerHTML.trim());
-	}
+  constructor() {
+    super(document.querySelector("#myComponent").innerHTML.trim());
+  }
 
-	init() {
-		this.pgLabel = 'Cydran ES6 Example - Stuff';
-	}
+  init() {
+    this.pgLabel = "Cydran ES6 Example - Stuff";
+  }
 
-	cydranM1() {
-		this.broadcastGlobally('modal', 'show', {
-			title: 'Confirmation 1',
-			name: 'modalbody1',
-			closeable: true
-		});
-	}
+  cydranM1() {
+    this.broadcastGlobally("modal", "show", {
+      title: "Confirmation 1",
+      name: "modalbody1",
+      closeable: true,
+    });
+  }
 
-	cydranM2() {
-		this.broadcastGlobally('modal', 'show', {
-			title: 'Confirmation 2',
-			name: 'modalbody2'
-		});
-	}
+  cydranM2() {
+    this.broadcastGlobally("modal", "show", {
+      title: "Confirmation 2",
+      name: "modalbody2",
+    });
+  }
 }
 
 class AbstractBody extends Component {
-	constructor(template) {
-		super(template);
-	}
+  constructor(template) {
+    super(template);
+  }
 
-	handleClose() {
-		this.broadcastGlobally("modal", "close", {});
-	}
+  handleClose() {
+    this.broadcastGlobally("modal", "close", {});
+  }
 
-	pushSaveButton() {
-		let msg = "I've saved something... and it isn't a piece of candy!";
-		if(confirm(msg)) {
-			this.getLogger().info(msg);
-		} else {
-			this.getLogger().info("Someone is going to die!");
-		}
-	}
+  pushSaveButton() {
+    let msg = "I've saved something... and it isn't a piece of candy!";
+    if (confirm(msg)) {
+      this.getLogger().info(msg);
+    } else {
+      this.getLogger().info("Someone is going to die!");
+    }
+  }
 }
 
 class ModalBody1 extends AbstractBody {
-	constructor() {
-		super($('#modalBody1').html().trim());
-	}
+  constructor() {
+    super($("#modalBody1").html().trim());
+  }
 }
 
 class ModalBody2 extends AbstractBody {
-	constructor() {
-		super(document.querySelector('#modalBody2').innerHTML.trim());
-	}
+  constructor() {
+    super(document.querySelector("#modalBody2").innerHTML.trim());
+  }
 }
 
 class Modal extends Component {
-	constructor() {
-		super(document.querySelector('#modalBox').innerHTML.trim());
+  constructor() {
+    super(document.querySelector("#modalBox").innerHTML.trim());
 
-		this.on('show').forChannel('modal').invoke(this.showModal);
-		this.on('close').forChannel('modal').invoke(this.closeModal);
-	}
+    this.on("show").forChannel("modal").invoke(this.showModal);
+    this.on("close").forChannel("modal").invoke(this.closeModal);
+  }
 
-	init() {
-		this.title = 'Modal Dialog';
-		this.visible = false;
-		this.closeable = false;
-	}
+  init() {
+    this.title = "Modal Dialog";
+    this.visible = false;
+    this.closeable = false;
+  }
 
-	showModal(payload) {
-		this.getLogger().info('Modal opening');
-		this.setChildFromRegistry('body', payload.name);
-		this.title = payload.title;
-		this.closeable = payload.closeable;
-		this.visible = true;
-	}
+  showModal(payload) {
+    this.getLogger().info("Modal opening");
+    this.setChildFromRegistry("body", payload.name);
+    this.title = payload.title;
+    this.closeable = payload.closeable;
+    this.visible = true;
+  }
 
-	closeModal() {
-		this.getLogger().info('Modal closing');
-		this.visible = false;
-		this.setChild('body', null);
-	}
+  closeModal() {
+    this.getLogger().info("Modal closing");
+    this.visible = false;
+    this.setChild("body", null);
+  }
 }
 
-Modules.registerPrototype('modal', Modal);
-Modules.registerPrototype('modalbody1', ModalBody1);
-Modules.registerPrototype('modalbody2', ModalBody2);
+function coreAppCapacity(builder) {
+  builder.withPrototype("app4", App4);
+}
 
+function modalCapacity(builder) {
+  builder
+    .withPrototype("modal", Modal)
+    .withPrototype("modalbody1", ModalBody1)
+    .withPrototype("modalbody2", ModalBody2);
+}
 
-builder('#pgpart')
-	.withDebugLogging()
-	.withInitializer(function() {
-		const app = new App4();
-		this.setComponent(app);
-	})
-	.build()
-	.start();
+builder("#pgpart")
+  .withDebugLogging()
+  .withCapability(coreAppCapacity)
+  .withCapability(modalCapacity)
+  .withInitializer(function() {
+    this.setComponentFromRegistry("app4");
+  })
+  .build()
+  .start();
