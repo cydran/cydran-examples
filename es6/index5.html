@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran</title>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="js/cydran.min.js"></script>
+	</head>
+
+	<body>
+		<div>
+			<button type="button" onclick="callIn()">Outside Tweak!</button><span id="pgpart"></span>
+		</div>
+	</body>
+
+	<script>
+		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().reset()\">Reset</button></span>";
+
+		const comms = new cydran.PubSub("App");
+
+		function callIn() {
+			comms.broadcast("App", "doUpdate", {name: 'outside'});
+		}
+
+		class App extends cydran.Component {
+			constructor() {
+				super(T);
+				this.on("doUpdate").forChannel("App").invoke(this.tweak);
+				setInterval(() => {this.id++}, 1000);
+			}
+
+			init() {
+				this.id = 0;
+				this.msg = "";
+			}
+
+			tweak(payload) {
+				console.log("Who called:", payload.name);
+				console.log("App Before:", this.id);
+				console.log("App After:", ++this.id);
+			}
+		}
+
+		cydran.builder('#pgpart')
+			.withDebugLogging()
+			.withInitializer(function () {
+				window.appStage = new App();
+				this.setComponent(window.appStage);
+			})
+			.build()
+			.start();
+	</script>
+
+</html>
