@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+		<script src="js/cydran.min.js"></script>
+		<style type="text/css">
+
+		</style>
+
+		<script>
+			window.onload = function () {
+
+				const channelName = "App";
+				const msgType = "doUpdate";
+				const comms = new cydran.PubSub(channelName);
+				let seq = 0;
+
+				const builder = cydran.builder;
+				const Component = cydran.Component
+
+				const appTemplate = document.querySelector("#main").innerHTML;
+				const registerTemplate = document.querySelector("#register").innerHTML;
+
+				const Reg = {
+					A: "Registry A",
+					B: "B Registry"
+				}
+
+				class App extends Component {
+					constructor() {
+						super(appTemplate);
+						this.watch("m().selectedItem", () => this.doR());
+						this.watch("m().curReg", () => this.doR());
+						this.log = this.getLogger();
+					}
+
+					init() {
+						this.mylist = [];
+						this.curReg = Reg.A;
+						for (let i = 0; i < 10; i++) {
+							this.mylist.push(this.genNewItem(i));
+						}
+						this.selectedItem = 0;
+					}
+
+					genNewItem(idx) {
+						const _self = this;
+
+						function getRegister(name, idx) {
+							let kvp = {};
+							"ABC".split('').forEach(l => { _self.genAndAppendNewEntryTo(kvp, l) });
+							return {"name": name, "values": kvp};
+						};
+
+						return {
+							id: seq,
+							name: "Name:" + seq++,
+							[Reg.A]: getRegister(Reg.A, idx),
+							[Reg.B]: getRegister(Reg.B, idx)
+						}
+					}
+
+					genAndAppendNewEntryTo(wkObj, key) {
+						wkObj[key] = Math.floor(Math.random() * 500) + 1;
+					};
+
+					doRegistryA() {
+						this.curReg = Reg.A;
+					}
+
+					doRegistryB() {
+						this.curReg = Reg.B;
+					}
+
+					removeItem() {
+						this.log.info(this.mylist.length);
+						this.mylist = this.mylist.filter((item) => item.id !== this.selectedItem);
+						this.log.info(this.mylist.length);
+					}
+
+					modifyRegister() {
+						const citemreg = this.mylist[this.selectedItem][this.curReg].values;
+						this.genAndAppendNewEntryTo(citemreg, "Z");
+						this.doR();
+					}
+					
+					doR() {
+						this.setChildFromRegistry("register", "wkRegister");
+						this.broadcastGlobally("register", "update", this.mylist[this.selectedItem][this.curReg]);
+					}
+				}
+
+				class Register extends Component {
+					constructor() {
+						super(registerTemplate);
+					}
+
+					init() {
+						this.on("update").forChannel("register").invoke(this.doUpdate);
+						this.keyPairs = {};
+						this.rname = null;
+					}
+
+					doUpdate(payload) {
+						if(this.rname === null || this.rname === payload.name) {
+							this.rname = payload.name;
+							this.keyPairs = payload.values;
+						}
+					}
+
+					get(key) {
+						return this.keyPairs[key];
+					}
+
+					entries() {
+						return Object.entries(this.keyPairs);
+					}
+				}
+
+				builder("body")
+					.withDebugLogging()
+					.withPrototype("mainapp", App)
+					.withPrototype("wkRegister", Register)
+					.withInitializer(function () {
+						this.setComponentFromRegistry("mainapp");
+					})
+					.build()
+					.start();
+
+			}
+		</script>
+	</head>
+
+	<body></body>
+
+	<template id="main">
+		<section class="section">
+			<div class="container">
+				<h1 class="title is-smaller">
+					Nested Structures
+				</h1>
+				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
+				<br />
+				<br />
+				<div c:if="m().mylist.length === 0">
+					Nothing to show...
+				</div>
+				<div c:if="m().mylist.length > 0">
+					<select c:repeat="m().mylist" c:model="m().selectedItem" size="{{m().mylist.length/2}}" c:force-focus="true">
+						<template type="item">
+							<option value="{{i().id}}" style="width: 75px;">{{i().name}}</option>
+						</template>
+					</select> <span class="is-size-1 has-text-danger">: {{m().selectedItem}}</span><p />
+					<button class="button is-primary" c:onclick="m().doRegistryA()">Registry A</button>
+					<button class="button is-warning" c:onclick="m().doRegistryB()">Registry B</button>
+					<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
+					<br />
+				</div>
+				<c:region name="register"></c:region>
+				<hr width="80%" />
+			</div>
+		</section>
+	</template>
+
+	<template id="register">
+		<div>
+			<span class="is-size-4">{{m().rname}}</span>
+			<br clear="all" />
+			<div c:repeat="m().entries()">
+				<template type="item">
+					<div>{{"key: " + i()[0] + " / value: " + i()[1]}}</div>
+				</template>
+			</div>
+		</div>
+	</template>
+
+</html>
