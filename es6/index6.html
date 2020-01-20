@@ -41,29 +41,29 @@
 					}
 
 					init() {
+						const _self = this;
+						function genNewItem(idx) {
+	
+							function getRegister(name, idx) {
+								let kvp = {};
+								"ABC".split('').forEach(l => { _self.genAndAppendNewEntryTo(kvp, l) });
+								return {"name": name, "values": kvp};
+							};
+	
+							return {
+								id: seq,
+								name: "Name:" + seq++,
+								[Reg.A]: getRegister(Reg.A, idx),
+								[Reg.B]: getRegister(Reg.B, idx)
+							}
+						}
+
 						this.mylist = [];
 						this.curReg = Reg.A;
 						for (let i = 0; i < 10; i++) {
-							this.mylist.push(this.genNewItem(i));
+							this.mylist.push(genNewItem(i));
 						}
-						this.selectedItem = 0;
-					}
-
-					genNewItem(idx) {
-						const _self = this;
-
-						function getRegister(name, idx) {
-							let kvp = {};
-							"ABC".split('').forEach(l => { _self.genAndAppendNewEntryTo(kvp, l) });
-							return {"name": name, "values": kvp};
-						};
-
-						return {
-							id: seq,
-							name: "Name:" + seq++,
-							[Reg.A]: getRegister(Reg.A, idx),
-							[Reg.B]: getRegister(Reg.B, idx)
-						}
+						this.selectedItem = this.mylist[0].id;
 					}
 
 					genAndAppendNewEntryTo(wkObj, key) {
@@ -79,20 +79,26 @@
 					}
 
 					removeItem() {
-						this.log.info(this.mylist.length);
-						this.mylist = this.mylist.filter((item) => item.id !== this.selectedItem);
-						this.log.info(this.mylist.length);
+						this.mylist.splice(this.getCurrentItemIdx(), 1);
+						this.setChild("register", null);
+						if(this.mylist.length > 0) {
+							this.selectedItem = this.mylist[0].id;
+						}
 					}
 
 					modifyRegister() {
-						const citemreg = this.mylist[this.selectedItem][this.curReg].values;
+						const citemreg = this.mylist[this.getCurrentItemIdx()][this.curReg].values;
 						this.genAndAppendNewEntryTo(citemreg, "Z");
 						this.doR();
+					}
+
+					getCurrentItemIdx() {
+						return this.mylist.findIndex((item) => item.id == this.selectedItem);
 					}
 					
 					doR() {
 						this.setChildFromRegistry("register", "wkRegister");
-						this.broadcastGlobally("register", "update", this.mylist[this.selectedItem][this.curReg]);
+						this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
 					}
 				}
 
@@ -146,13 +152,14 @@
 					Nested Structures
 				</h1>
 				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
+				<button class="button is-success" c:onclick="m().reset()">Reset</button>
 				<br />
 				<br />
 				<div c:if="m().mylist.length === 0">
 					Nothing to show...
 				</div>
 				<div c:if="m().mylist.length > 0">
-					<select c:repeat="m().mylist" c:model="m().selectedItem" size="{{m().mylist.length/2}}" c:force-focus="true">
+					<select c:repeat="m().mylist" c:model="m().selectedItem" size="10" c:force-focus="true">
 						<template type="item">
 							<option value="{{i().id}}" style="width: 75px;">{{i().name}}</option>
 						</template>
