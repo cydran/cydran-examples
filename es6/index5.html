@@ -10,29 +10,32 @@
 
 	<body>
 		<div>
-			<button type="button" onclick="callIn()">Outside Tweak!</button><span id="pgpart"></span>
+			<button id="outside" type="button">Outside Tweak!</button>
+			<span id="pgpart"></span>
 		</div>
 	</body>
 
 	<script>
+		const CName = "App";
+		const ActName = "doUpdate";
+		const comms = new cydran.PubSub(CName);
+		
+		document.querySelector("button#outside")
+			.addEventListener('click', () => {
+				comms.broadcast(CName, ActName, {name: 'outside'});			
+			});
+		
 		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().reset()\">Reset</button></span>";
-
-		const comms = new cydran.PubSub("App");
-
-		function callIn() {
-			comms.broadcast("App", "doUpdate", {name: 'outside'});
-		}
 
 		class App extends cydran.Component {
 			constructor() {
 				super(T);
-				this.on("doUpdate").forChannel("App").invoke(this.tweak);
-				setInterval(() => {this.id++}, 1000);
+				this.on(ActName).forChannel(CName).invoke(this.tweak);
+				setInterval(() => { ++this.id }, 1000);
 			}
 
 			init() {
 				this.id = 0;
-				this.msg = "";
 			}
 
 			tweak(payload) {
