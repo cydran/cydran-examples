@@ -60,6 +60,8 @@ export declare abstract class ElementMediator<M, E extends HTMLElement | Text> i
 	 */
 	broadcastGlobally(channelName: string, messageName: string, payload?: any): void;
 	on(messageName: string): OnContinuation;
+	protected getModelFn(): () => any;
+	protected getExternalFn(): () => any;
 	protected bridge(name: string): void;
 	/**
 	 * Get the associated {HTMLElement html element} of this element mediator.
