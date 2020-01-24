@@ -1,0 +1,5 @@
+http://convertcsv.com/generate-test-data.htm
+keyword:
+	guid,alpha(10),registerA/alpha(6),registerA/values/A/digit(3),registerA/values/B/digit(5),registerA/values/C/digit(7),registerB/alpha(6),registerB/values/A/digit(3),registerB/values/B/digit(5),registerB/values/C/digit(7)
+name:
+	id,name,registerA/name,registerA/values/A,registerA/values/B,registerA/values/C,registerB/name,registerB/values/A,registerB/values/B,registerB/values/C
