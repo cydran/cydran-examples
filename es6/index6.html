@@ -6,8 +6,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-		<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+		<script src="js/axios.min.js"></script>
 		<script src="js/cydran.min.js"></script>
 		<style type="text/css">
 
@@ -22,53 +22,56 @@
 				let seq = 0;
 
 				const builder = cydran.builder;
-				const Component = cydran.Component
+				const Component = cydran.Component;
+				const PubSub = cydran.PubSub;
 
 				const appTemplate = document.querySelector("#main").innerHTML;
 				const registerTemplate = document.querySelector("#register").innerHTML;
 
 				const Reg = {
-					A: "Registry A",
-					B: "B Registry"
+					A: "registerA",
+					B: "registerB"
 				}
-
+				const APP = "App";
 				class App extends Component {
+					
 					constructor() {
 						super(appTemplate);
-						this.watch("m().selectedItem", () => this.doR());
-						this.watch("m().curReg", () => this.doR());
+						this.pubSub = new PubSub(APP);
+						this.on('updated').forChannel(APP).invoke(this.dataUpdate);
+						this.on('error').forChannel(APP).invoke(this.dataError);
 						this.log = this.getLogger();
+						this.watch("m().selectedItemId", () => this.doR());
+						this.watch("m().curReg", () => this.doR());
 					}
 
 					init() {
-						const _self = this;
-						function genNewItem(idx) {
-	
-							function getRegister(name, idx) {
-								let kvp = {};
-								"ABC".split('').forEach(l => { _self.genAndAppendNewEntryTo(kvp, l) });
-								return {"name": name, "values": kvp};
-							};
-	
-							return {
-								id: seq,
-								name: "Name:" + seq++,
-								[Reg.A]: getRegister(Reg.A, idx),
-								[Reg.B]: getRegister(Reg.B, idx)
-							}
-						}
-
-						this.mylist = [];
+						this.foundItemCondition = (item) => item.id == this.selectedItemId;
 						this.curReg = Reg.A;
-						for (let i = 0; i < 10; i++) {
-							this.mylist.push(genNewItem(i));
-						}
-						this.selectedItem = this.mylist[0].id;
+						this.mylist = [];
+						this.loadBuffer();
+						this.selectedItemId = null;
 					}
 
-					genAndAppendNewEntryTo(wkObj, key) {
-						wkObj[key] = Math.floor(Math.random() * 500) + 1;
-					};
+					loadBuffer() {
+						axios
+							.get('./data/register.json')
+							.then(response => {
+								this.pubSub.broadcast(APP, 'updated', response.data);
+							})
+							.catch(error => {
+								this.pubSub.broadcast(APP, 'error', error);
+							});
+					}
+
+					dataError(error) {
+						this.getLogger().error(error);
+					}
+			
+					dataUpdate(data) {
+						this.mylist = data;
+						this.selectedItemId = data[0].id;
+					}
 
 					doRegistryA() {
 						this.curReg = Reg.A;
@@ -81,24 +84,35 @@
 					removeItem() {
 						this.mylist.splice(this.getCurrentItemIdx(), 1);
 						this.setChild("register", null);
-						if(this.mylist.length > 0) {
-							this.selectedItem = this.mylist[0].id;
+						if (this.mylist.length > 0) {
+							this.selectedItemId = this.mylist[0].id;
 						}
 					}
 
 					modifyRegister() {
-						const citemreg = this.mylist[this.getCurrentItemIdx()][this.curReg].values;
-						this.genAndAppendNewEntryTo(citemreg, "Z");
+						const citemreg = this.getCurrentRegister();
+						citemreg.values["Z"] = Math.floor(Math.random() * 500) + 1;
 						this.doR();
 					}
 
 					getCurrentItemIdx() {
-						return this.mylist.findIndex((item) => item.id == this.selectedItem);
+						let cidx = 0;
+						if(null !== this.selectedItemId) {
+							cidx = this.mylist.findIndex(this.foundItemCondition);
+						}
+						return cidx;
 					}
-					
+
+					getCurrentRegister() {
+						const wkItem = this.mylist.find(this.foundItemCondition);
+						return wkItem[this.curReg];
+					} 
+
 					doR() {
-						this.setChildFromRegistry("register", "wkRegister");
-						this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
+						if(this.mylist.length > 0) {
+							this.setChildFromRegistry("register", "wkRegister");
+							this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
+						}
 					}
 				}
 
@@ -114,7 +128,7 @@
 					}
 
 					doUpdate(payload) {
-						if(this.rname === null || this.rname === payload.name) {
+						if (this.rname === null || this.rname === payload.name) {
 							this.rname = payload.name;
 							this.keyPairs = payload.values;
 						}
@@ -152,18 +166,19 @@
 					Nested Structures
 				</h1>
 				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
-				<button class="button is-success" c:onclick="m().reset()">Reset</button>
+				<!--button class="button is-success" c:onclick="m().reset()">Reset</button-->
 				<br />
 				<br />
 				<div c:if="m().mylist.length === 0">
 					Nothing to show...
 				</div>
 				<div c:if="m().mylist.length > 0">
-					<select c:repeat="m().mylist" c:model="m().selectedItem" size="10" c:force-focus="true">
+					<select c:repeat="m().mylist" c:model="m().selectedItemId" size="10" c:force-focus="true">
 						<template type="item">
 							<option value="{{i().id}}" style="width: 75px;">{{i().name}}</option>
 						</template>
-					</select> <span class="is-size-1 has-text-danger">: {{m().selectedItem}}</span><p />
+					</select> <span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
+					<p />
 					<button class="button is-primary" c:onclick="m().doRegistryA()">Registry A</button>
 					<button class="button is-warning" c:onclick="m().doRegistryB()">Registry B</button>
 					<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
