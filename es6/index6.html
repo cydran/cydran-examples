@@ -96,10 +96,7 @@
 					}
 
 					getCurrentItemIdx() {
-						let cidx = 0;
-						if(null !== this.selectedItemId) {
-							cidx = this.mylist.findIndex(this.foundItemCondition);
-						}
+						const cidx = this.mylist.findIndex(this.foundItemCondition);
 						return cidx;
 					}
 
