@@ -24,9 +24,11 @@
 				const builder = cydran.builder;
 				const Component = cydran.Component;
 				const PubSub = cydran.PubSub;
+				const ComponentConfigBuilder = cydran.ComponentConfigBuilder;
 
 				const appTemplate = document.querySelector("#main").innerHTML;
 				const registerTemplate = document.querySelector("#register").innerHTML;
+				const regItemTemplate = document.querySelector("#regItem").innerHTML;
 
 				const Reg = {
 					A: "registerA",
@@ -140,10 +142,28 @@
 					}
 				}
 
+				class Single extends Component {
+
+					constructor() {
+						super(regItemTemplate, new ComponentConfigBuilder().withAttribute("entry").build());
+					}
+
+					getKey() {
+						const entry = this.getExternals()["entry"];
+						return this.entry[0];
+					}
+
+					getValue() {
+						const entry = this.getExternals()["entry"];
+						return this.entry[1];
+					}
+				}
+
 				builder("body")
 					.withDebugLogging()
 					.withPrototype("mainapp", App)
 					.withPrototype("wkRegister", Register)
+					.withPrototype("regItem", Single)
 					.withInitializer(function () {
 						this.setComponentFromRegistry("mainapp");
 					})
@@ -193,10 +213,14 @@
 			<br clear="all" />
 			<div c:repeat="m().entries()">
 				<template type="item">
-					<div>{{"key: " + i()[0] + " / value: " + i()[1]}}</div>
+					<c:component name="regItem" c:property-entry="i()"></c:component>
 				</template>
 			</div>
 		</div>
+	</template>
+
+	<template id="regItem">
+		<div>{{"key: " + m().getKey() + " / value: " + m().getValue()}}</div>
 	</template>
 
 </html>
