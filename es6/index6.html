@@ -129,16 +129,10 @@
 					doUpdate(payload) {
 						if (this.rname === null || this.rname === payload.name) {
 							this.rname = payload.name;
-							this.keyPairs = payload.values;
+							this.entries = Object.entries(payload.values).map((e) => {
+								return {"key": e[0], "value": e[1]};
+							});
 						}
-					}
-
-					get(key) {
-						return this.keyPairs[key];
-					}
-
-					entries() {
-						return Object.entries(this.keyPairs);
 					}
 				}
 
@@ -146,16 +140,20 @@
 
 					constructor() {
 						super(regItemTemplate, new ComponentConfigBuilder().withAttribute("entry").build());
+						this.on("update").forChannel("single").invoke(this.doUpdate);
+					}
+
+					doUpdate(payload) {
+						this.key = payload.key;
+						this.value = payload.value;
 					}
 
 					getKey() {
-						const entry = this.getExternals()["entry"];
-						return this.entry[0];
+						return this.key;
 					}
 
 					getValue() {
-						const entry = this.getExternals()["entry"];
-						return this.entry[1];
+						return this.value;
 					}
 				}
 
@@ -211,9 +209,9 @@
 		<div>
 			<span class="is-size-4">{{m().rname}}</span>
 			<br clear="all" />
-			<div c:repeat="m().entries()">
+			<div c:repeat="m().entries">
 				<template type="item">
-					<c:component name="regItem" c:property-entry="i()"></c:component>
+					<c:component name="regItem" c:property-itemEntry="i()"></c:component>
 				</template>
 			</div>
 		</div>
