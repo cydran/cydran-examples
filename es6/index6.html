@@ -148,7 +148,7 @@
 					}
 
 					changeValue() {
-						this.getExternals()["value"] = Math.floor(Math.random() * 99999) + 1;
+						this.getExternals()["value"] = Math.floor(Math.random() * 99999) + 1;	
 					}
 				}
 
@@ -207,6 +207,7 @@
 			<div c:repeat="m().entries">
 				<template type="item">
 					<div>
+						<hr />
 						<button c:onclick="console.log('i():',i())">i()</button>
 						<c:component name="regItem" c:property-key="i().key" c:property-value="i().value"></c:component>
 					</div>
