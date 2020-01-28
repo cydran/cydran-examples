@@ -147,17 +147,8 @@
 							);
 					}
 
-					doUpdate(payload) {
-						this.key = payload.key;
-						this.value = payload.value;
-					}
-
-					getKey() {
-						return this.key;
-					}
-
-					getValue() {
-						return this.value;
+					changeValue() {
+						this.getExternals()["value"] = Math.floor(Math.random() * 99999) + 1;
 					}
 				}
 
@@ -227,7 +218,7 @@
 	<template id="regItem">
 		<div>
 			<p>
-				Key: {{e().key}} | Value: {{e().value}}
+				Key: {{e().key}} | Value: {{e().value}} : <button c:onclick="m().changeValue()">Change</button>
 			</p>
 			<button c:onclick="console.log('m():',m())">m()</button>
 			<button c:onclick="console.log('e():',e())">e()</button>
