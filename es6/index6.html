@@ -51,7 +51,6 @@
 						this.foundItemCondition = (item) => item.id == this.selectedItemId;
 						this.curReg = Reg.A;
 						this.mylist = [];
-						this.loadBuffer();
 						this.selectedItemId = null;
 					}
 
@@ -81,6 +80,11 @@
 
 					doRegistryB() {
 						this.curReg = Reg.B;
+					}
+
+					doAReset() {
+						this.setChild("register", null);
+						this.reset();
 					}
 
 					removeItem() {
@@ -176,7 +180,8 @@
 					Nested Structures
 				</h1>
 				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
-				<!--button class="button is-success" c:onclick="m().reset()">Reset</button-->
+				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
+				<button class="button is-success" c:onclick="m().doAReset()">Reset</button>
 				<br />
 				<br />
 				<div c:if="m().mylist.length === 0">
