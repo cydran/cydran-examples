@@ -140,8 +140,11 @@
 				class Single extends Component {
 
 					constructor() {
-						super(regItemTemplate, new ComponentConfigBuilder().withAttribute("key").build());
-						this.on("update").forChannel("single").invoke(this.doUpdate);
+						super(regItemTemplate, new ComponentConfigBuilder()
+							.withAttribute("key")
+							.withAttribute("value")
+							.build()
+							);
 					}
 
 					doUpdate(payload) {
@@ -213,9 +216,8 @@
 			<div c:repeat="m().entries">
 				<template type="item">
 					<div>
-						<p>Placeholder</p>
-						<button c:onclick="console.log(i())">Click</button>
-						<c:component name="regItem" c:property-key="i().key"></c:component>
+						<button c:onclick="console.log('i():',i())">i()</button>
+						<c:component name="regItem" c:property-key="i().key" c:property-value="i().value"></c:component>
 					</div>
 				</template>
 			</div>
@@ -225,11 +227,10 @@
 	<template id="regItem">
 		<div>
 			<p>
-				Key: {{e().key}}
+				Key: {{e().key}} | Value: {{e().value}}
 			</p>
-			<button c:onclick="console.log(i())">i()</button>
-			<button c:onclick="console.log(m())">m()</button>
-			<button c:onclick="console.log(e())">e()</button>
+			<button c:onclick="console.log('m():',m())">m()</button>
+			<button c:onclick="console.log('e():',e())">e()</button>
 		</div>
 	</template>
 
