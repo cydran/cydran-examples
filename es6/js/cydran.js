@@ -545,6 +545,7 @@ var ComponentInternals = /** @class */ (function () {
         }
         this.config = (config || DEFAULT_COMPONENT_CONFIG);
         this.parentModelFn = this.config.getParentModelFn();
+        this.data = {};
         this.guard = GuardGenerator_1.default.INSTANCE.generate();
         this.id = SequenceGenerator_1.default.INSTANCE.next();
         this.logger = LoggerFactory_1.default.getLogger(component.constructor.name + " Component " + this.id);
@@ -743,7 +744,7 @@ var ComponentInternals = /** @class */ (function () {
         return this.parent;
     };
     ComponentInternals.prototype.setData = function (data) {
-        this.data = data;
+        this.data = (data === null || data === undefined) ? {} : data;
     };
     ComponentInternals.prototype.getData = function () {
         return this.data;
