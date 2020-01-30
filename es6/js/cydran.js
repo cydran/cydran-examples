@@ -1,5 +1,5 @@
 /*!
- * v0.0.49
+ * v0.0.51
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -140,11 +140,12 @@ var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 var PubSub_1 = __importDefault(__webpack_require__(13));
 var ModelMediatorImpl_1 = __importDefault(__webpack_require__(31));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
-var Properties_1 = __importDefault(__webpack_require__(33));
+var ParamUtils_1 = __webpack_require__(33);
+var Properties_1 = __importDefault(__webpack_require__(34));
 exports.Properties = Properties_1.default;
-var Registry_1 = __webpack_require__(34);
+var Registry_1 = __webpack_require__(35);
 var ScopeImpl_1 = __importDefault(__webpack_require__(14));
-var SequenceGenerator_1 = __importDefault(__webpack_require__(37));
+var SequenceGenerator_1 = __importDefault(__webpack_require__(38));
 var ValidationRegExp_1 = __webpack_require__(6);
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var requireValid = ObjectUtils_1.default.requireValid;
@@ -945,6 +946,7 @@ var ElementMediator = /** @class */ (function () {
         this.logger = LoggerFactory_1.default.getLogger("ElementMediator: " + dependencies.prefix);
         this.domListeners = {};
         this.pubSub = new PubSub_1.default(this, this.getModule());
+        this.params = null;
     }
     /**
      * Dispose of ElementMediator when released.
@@ -1041,6 +1043,12 @@ var ElementMediator = /** @class */ (function () {
                 });
             }
         };
+    };
+    ElementMediator.prototype.getParams = function () {
+        if (this.params === null) {
+            this.params = ParamUtils_1.extractAttributes(this.getPrefix(), this.getEl());
+        }
+        return this.params;
     };
     ElementMediator.prototype.getModelFn = function () {
         return this.____internal$$cydran____.mvvm.getModelFn();
@@ -1545,7 +1553,7 @@ var Mvvm = /** @class */ (function () {
     };
     Mvvm.prototype.addElementMediator = function (tag, elementMediatorType, attributeValue, el) {
         var tags = Mvvm.factories[elementMediatorType];
-        var prefix = "data-p-" + elementMediatorType + "-"; // TODO - Determine if this is still correct
+        var prefix = this.elementMediatorPrefix + elementMediatorType;
         var elementMediator = null;
         if (!tags) {
             this.logger.error("Unsupported elementMediator type: " + elementMediatorType + ".");
@@ -3348,7 +3356,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var NullValueError_1 = __importDefault(__webpack_require__(8));
-var ScopeError_1 = __importDefault(__webpack_require__(36));
+var ScopeError_1 = __importDefault(__webpack_require__(37));
 var EXCLUSIONS = {
     e: "e",
     external: "external",
@@ -3529,7 +3537,7 @@ var CydranConfig = __importStar(__webpack_require__(15));
 exports.CydranConfig = CydranConfig;
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 exports.LoggerFactory = LoggerFactory_1.default;
-__webpack_require__(38);
+__webpack_require__(39);
 __webpack_require__(53);
 var PubSub_1 = __importDefault(__webpack_require__(13));
 exports.PubSub = PubSub_1.default;
@@ -4234,6 +4242,45 @@ exports.default = Invoker;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function extractParams(tagName, el) {
+    var result = {};
+    // tslint:disable-next-line
+    for (var i = 0; i < el.children.length; i++) {
+        var child = el.children[i];
+        if (child.tagName.toLowerCase() === tagName.toLowerCase()) {
+            var paramName = child.getAttribute("name");
+            var paramValue = child.getAttribute("value");
+            result[paramName] = paramValue;
+        }
+    }
+    return result;
+}
+exports.extractParams = extractParams;
+function extractAttributes(prefix, el) {
+    var result = {};
+    var lowerCasePrefix = prefix.toLowerCase() + ":";
+    // tslint:disable-next-line
+    for (var i = 0; i < el.attributes.length; i++) {
+        var attribute = el.attributes[i];
+        var name_1 = attribute.name.toLowerCase();
+        if (name_1.indexOf(lowerCasePrefix) === 0) {
+            var paramName = name_1.slice(lowerCasePrefix.length);
+            var paramValue = attribute.value;
+            result[paramName] = paramValue;
+        }
+    }
+    return result;
+}
+exports.extractAttributes = extractAttributes;
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Properties = /** @class */ (function () {
@@ -4253,7 +4300,7 @@ exports.default = Properties;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(7)))
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4262,7 +4309,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var RegistrationError_1 = __importDefault(__webpack_require__(35));
+var RegistrationError_1 = __importDefault(__webpack_require__(36));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var ValidationRegExp_1 = __webpack_require__(6);
 var requireValid = ObjectUtils_1.default.requireValid;
@@ -4373,7 +4420,7 @@ var SingletonFactory = /** @class */ (function () {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4404,7 +4451,7 @@ exports.default = RegistrationError;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4435,7 +4482,7 @@ exports.default = ScopeError;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4460,7 +4507,7 @@ exports.default = SequenceGenerator;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4470,34 +4517,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Checked_1 = __importDefault(__webpack_require__(39));
+var Checked_1 = __importDefault(__webpack_require__(40));
 Core_1.Mvvm.register(Checked_1.default.KEY, ["input"], Checked_1.default);
-var CSSClass_1 = __importDefault(__webpack_require__(40));
+var CSSClass_1 = __importDefault(__webpack_require__(41));
 Core_1.Mvvm.register(CSSClass_1.default.KEY, ["*"], CSSClass_1.default);
-var Enabled_1 = __importDefault(__webpack_require__(41));
+var Enabled_1 = __importDefault(__webpack_require__(42));
 Core_1.Mvvm.register(Enabled_1.default.KEY, ["*"], Enabled_1.default);
-var ReadOnly_1 = __importDefault(__webpack_require__(42));
+var ReadOnly_1 = __importDefault(__webpack_require__(43));
 Core_1.Mvvm.register(ReadOnly_1.default.KEY, ["*"], ReadOnly_1.default);
-var Style_1 = __importDefault(__webpack_require__(43));
+var Style_1 = __importDefault(__webpack_require__(44));
 Core_1.Mvvm.register(Style_1.default.KEY, ["*"], Style_1.default);
-var ForceFocus_1 = __importDefault(__webpack_require__(44));
+var ForceFocus_1 = __importDefault(__webpack_require__(45));
 Core_1.Mvvm.register(ForceFocus_1.default.KEY, ["*"], ForceFocus_1.default);
-var MultiSelectValueModel_1 = __importDefault(__webpack_require__(45));
+var MultiSelectValueModel_1 = __importDefault(__webpack_require__(46));
 Core_1.Mvvm.register(MultiSelectValueModel_1.default.KEY, ["select"], MultiSelectValueModel_1.default);
-var ValuedModel_1 = __importDefault(__webpack_require__(46));
+var ValuedModel_1 = __importDefault(__webpack_require__(47));
 Core_1.Mvvm.register(ValuedModel_1.default.KEY, ["textarea"], ValuedModel_1.default);
-var InputValueModel_1 = __importDefault(__webpack_require__(47));
+var InputValueModel_1 = __importDefault(__webpack_require__(48));
 Core_1.Mvvm.register(InputValueModel_1.default.KEY, ["input"], InputValueModel_1.default);
-var Visible_1 = __importDefault(__webpack_require__(48));
+var Visible_1 = __importDefault(__webpack_require__(49));
 Core_1.Mvvm.register(Visible_1.default.KEY, ["*"], Visible_1.default);
-var If_1 = __importDefault(__webpack_require__(49));
+var If_1 = __importDefault(__webpack_require__(50));
 Core_1.Mvvm.register(If_1.default.KEY, ["*"], If_1.default);
-var Repeat_1 = __importDefault(__webpack_require__(50));
+var Repeat_1 = __importDefault(__webpack_require__(51));
 Core_1.Mvvm.register("repeat", ["*"], Repeat_1.default);
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4541,7 +4588,7 @@ exports.default = Checked;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4596,7 +4643,7 @@ exports.default = CSSClass;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4637,7 +4684,7 @@ exports.default = Enabled;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4678,7 +4725,7 @@ exports.default = ReadOnly;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4727,7 +4774,7 @@ exports.default = Style;
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4780,7 +4827,7 @@ exports.default = ForceFocus;
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4853,7 +4900,7 @@ exports.default = MultiSelectValueModel;
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4905,7 +4952,7 @@ exports.default = ValuedModel;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4971,7 +5018,7 @@ exports.default = InputValueModel;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5015,7 +5062,7 @@ exports.default = Visible;
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5071,7 +5118,7 @@ exports.default = If;
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5095,9 +5142,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ComponentConfig_1 = __webpack_require__(5);
 var Core_1 = __webpack_require__(0);
-var Evaluator_1 = __importDefault(__webpack_require__(51));
+var Evaluator_1 = __importDefault(__webpack_require__(52));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
-var ParamUtils_1 = __webpack_require__(52);
 var ScopeImpl_1 = __importDefault(__webpack_require__(14));
 var DEFAULT_ID_KEY = "id";
 var DOCUMENT = Core_1.Properties.getWindow().document;
@@ -5157,9 +5203,7 @@ var Repeat = /** @class */ (function (_super) {
         this.localScope.add("item", itemFn);
         this.getModelMediator().watch(this, this.onTargetChange);
         this.getModelMediator().onDigest(this, this.onDigest);
-        var paramTagName = this.getPrefix() + "param";
-        var params = ParamUtils_1.extractParams(paramTagName, this.getEl());
-        this.idKey = params.idKey || DEFAULT_ID_KEY;
+        this.idKey = this.getParams().idkey || DEFAULT_ID_KEY;
         var children = this.getEl().children;
         // tslint:disable-next-line
         for (var i = 0; i < children.length; i++) {
@@ -5312,7 +5356,7 @@ exports.default = Repeat;
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5343,29 +5387,6 @@ var Evaluator = /** @class */ (function () {
     return Evaluator;
 }());
 exports.default = Evaluator;
-
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function extractParams(tagName, el) {
-    var result = {};
-    // tslint:disable-next-line
-    for (var i = 0; i < el.children.length; i++) {
-        var child = el.children[i];
-        if (child.tagName.toLowerCase() === tagName.toLowerCase()) {
-            var paramName = child.getAttribute("name");
-            var paramValue = child.getAttribute("value");
-            result[paramName] = paramValue;
-        }
-    }
-    return result;
-}
-exports.extractParams = extractParams;
 
 
 /***/ }),

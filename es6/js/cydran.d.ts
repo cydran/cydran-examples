@@ -6,13 +6,14 @@
  * @type E extends HTMLElement
  * @implements {@link Disposable}
  */
-export declare abstract class ElementMediator<M, E extends HTMLElement | Text> implements Disposable {
+export declare abstract class ElementMediator<M, E extends HTMLElement | Text, P> implements Disposable {
 	private logger;
 	private ____internal$$cydran____;
 	private moduleInstance;
 	private mediator;
 	private pubSub;
 	private domListeners;
+	private params;
 	constructor(dependencies: any);
 	/**
 	 * Dispose of ElementMediator when released.
@@ -60,6 +61,7 @@ export declare abstract class ElementMediator<M, E extends HTMLElement | Text> i
 	 */
 	broadcastGlobally(channelName: string, messageName: string, payload?: any): void;
 	on(messageName: string): OnContinuation;
+	protected getParams(): P;
 	protected getModelFn(): () => any;
 	protected getExternalFn(): () => any;
 	protected bridge(name: string): void;
