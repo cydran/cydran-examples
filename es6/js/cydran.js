@@ -1,5 +1,5 @@
 /*!
- * v0.0.51
+ * v0.0.53
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -134,18 +134,18 @@ var SetComponentError_1 = __importDefault(__webpack_require__(22));
 var TemplateError_1 = __importDefault(__webpack_require__(23));
 var UnknownRegionError_1 = __importDefault(__webpack_require__(24));
 var ExternalMediator_1 = __importDefault(__webpack_require__(25));
-var GuardGenerator_1 = __importDefault(__webpack_require__(28));
-var GuardImpl_1 = __importDefault(__webpack_require__(29));
+var GuardGenerator_1 = __importDefault(__webpack_require__(27));
+var GuardImpl_1 = __importDefault(__webpack_require__(28));
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 var PubSub_1 = __importDefault(__webpack_require__(13));
-var ModelMediatorImpl_1 = __importDefault(__webpack_require__(31));
+var ModelMediatorImpl_1 = __importDefault(__webpack_require__(30));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
-var ParamUtils_1 = __webpack_require__(33);
-var Properties_1 = __importDefault(__webpack_require__(34));
+var ParamUtils_1 = __webpack_require__(32);
+var Properties_1 = __importDefault(__webpack_require__(33));
 exports.Properties = Properties_1.default;
-var Registry_1 = __webpack_require__(35);
+var Registry_1 = __webpack_require__(34);
 var ScopeImpl_1 = __importDefault(__webpack_require__(14));
-var SequenceGenerator_1 = __importDefault(__webpack_require__(38));
+var SequenceGenerator_1 = __importDefault(__webpack_require__(37));
 var ValidationRegExp_1 = __webpack_require__(6);
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var requireValid = ObjectUtils_1.default.requireValid;
@@ -332,16 +332,16 @@ var ModuleImpl = /** @class */ (function () {
         this.registry.registerConstant(id, instance);
         return this;
     };
-    ModuleImpl.prototype.registerPrototype = function (id, classInstance) {
+    ModuleImpl.prototype.registerPrototype = function (id, classInstance, dependencies) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
-        this.registry.registerPrototype(id, classInstance);
+        this.registry.registerPrototype(id, classInstance, dependencies);
         return this;
     };
-    ModuleImpl.prototype.registerSingleton = function (id, classInstance) {
+    ModuleImpl.prototype.registerSingleton = function (id, classInstance, dependencies) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
-        this.registry.registerSingleton(id, classInstance);
+        this.registry.registerSingleton(id, classInstance, dependencies);
         return this;
     };
     ModuleImpl.prototype.addStrategy = function (strategy) {
@@ -396,11 +396,11 @@ var Modules = /** @class */ (function () {
     Modules.registerConstant = function (id, instance) {
         this.getDefaultModule().registerConstant(id, instance);
     };
-    Modules.registerPrototype = function (id, classInstance) {
-        this.getDefaultModule().registerPrototype(id, classInstance);
+    Modules.registerPrototype = function (id, classInstance, dependencies) {
+        this.getDefaultModule().registerPrototype(id, classInstance, dependencies);
     };
-    Modules.registerSingleton = function (id, classInstance) {
-        this.getDefaultModule().registerSingleton(id, classInstance);
+    Modules.registerSingleton = function (id, classInstance, dependencies) {
+        this.getDefaultModule().registerSingleton(id, classInstance, dependencies);
     };
     Modules.registerElementMediator = function (name, supportedTags, elementMediatorClass) {
         Mvvm.register(name, supportedTags, elementMediatorClass);
@@ -726,7 +726,7 @@ var ComponentInternals = /** @class */ (function () {
     ComponentInternals.prototype.watch = function (expression, target) {
         requireNotNull(expression, "expression");
         requireNotNull(target, "target");
-        this.mvvm.mediate(expression).watch(this, target);
+        this.mvvm.mediate(expression).watch(this.component, target);
     };
     ComponentInternals.prototype.on = function (target, messageName, channel) {
         var _this = this;
@@ -1556,7 +1556,6 @@ var Mvvm = /** @class */ (function () {
         var prefix = this.elementMediatorPrefix + elementMediatorType;
         var elementMediator = null;
         if (!tags) {
-            this.logger.error("Unsupported elementMediator type: " + elementMediatorType + ".");
             return;
         }
         var elementMediatorClass = tags[tag];
@@ -3154,7 +3153,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ConsoleOutputStrategy_1 = __importDefault(__webpack_require__(26));
 var Level_1 = __importDefault(__webpack_require__(4));
-var LevelUtils_1 = __importDefault(__webpack_require__(27));
 var LoggerImpl_1 = __importDefault(__webpack_require__(10));
 var LoggerServiceImpl = /** @class */ (function () {
     function LoggerServiceImpl() {
@@ -3169,7 +3167,6 @@ var LoggerServiceImpl = /** @class */ (function () {
     };
     LoggerServiceImpl.prototype.setLevel = function (level) {
         this.level = level;
-        this.log(this.logger, Level_1.default.DEBUG, "Logging level: " + LevelUtils_1.default.stringValueOf(level));
     };
     LoggerServiceImpl.prototype.isTrace = function () {
         return (Level_1.default.TRACE >= this.level);
@@ -3243,7 +3240,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var ListenerImpl_1 = __importDefault(__webpack_require__(30));
+var ListenerImpl_1 = __importDefault(__webpack_require__(29));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 // TODO - Refactor into common constants
@@ -3309,17 +3306,6 @@ var PubSub = /** @class */ (function () {
             }
         };
     };
-    PubSub.prototype.listenTo = function (channel, messageName, target) {
-        var listener = this.listenersByChannel[channel];
-        if (!listener) {
-            listener = new ListenerImpl_1.default(channel, this.context);
-            if (this.globalEnabled) {
-                this.moduleInstance.message(INTERNAL_DIRECT_CHANNEL_NAME, "addListener", listener);
-            }
-            this.listeners.push(listener);
-        }
-        listener.register(messageName, target);
-    };
     PubSub.prototype.enableGlobal = function () {
         if (this.globalEnabled) {
             return;
@@ -3340,6 +3326,17 @@ var PubSub = /** @class */ (function () {
         }
         this.globalEnabled = false;
     };
+    PubSub.prototype.listenTo = function (channel, messageName, target) {
+        var listener = this.listenersByChannel[channel];
+        if (!listener) {
+            listener = new ListenerImpl_1.default(channel, this.context);
+            if (this.globalEnabled) {
+                this.moduleInstance.message(INTERNAL_DIRECT_CHANNEL_NAME, "addListener", listener);
+            }
+            this.listeners.push(listener);
+        }
+        listener.register(messageName, target);
+    };
     return PubSub;
 }());
 exports.default = PubSub;
@@ -3356,7 +3353,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var NullValueError_1 = __importDefault(__webpack_require__(8));
-var ScopeError_1 = __importDefault(__webpack_require__(37));
+var ScopeError_1 = __importDefault(__webpack_require__(36));
 var EXCLUSIONS = {
     e: "e",
     external: "external",
@@ -3537,11 +3534,11 @@ var CydranConfig = __importStar(__webpack_require__(15));
 exports.CydranConfig = CydranConfig;
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 exports.LoggerFactory = LoggerFactory_1.default;
-__webpack_require__(39);
-__webpack_require__(53);
+__webpack_require__(38);
+__webpack_require__(52);
 var PubSub_1 = __importDefault(__webpack_require__(13));
 exports.PubSub = PubSub_1.default;
-var Stage_1 = __webpack_require__(54);
+var Stage_1 = __webpack_require__(53);
 exports.builder = Stage_1.builder;
 var CYDRAN_KEY = "cydran";
 var ORIGINAL_CYDRAN = window[CYDRAN_KEY];
@@ -3864,12 +3861,9 @@ var ConsoleOutputStrategy = /** @class */ (function () {
             var printFullStack = !(stacked instanceof Error) ? (null !== stacked ? stacked : false) : false;
             if (level >= Level_1.default.WARN) {
                 var logMsg = (shortArgs ? payload.stack : payload);
-                var errMsg = void 0;
+                var errMsg = "";
                 if (stacked instanceof Error) {
                     errMsg = stacked.stack;
-                }
-                else {
-                    errMsg = !shortArgs ? "- FYI ONLY: " : "";
                 }
                 var secondPreamble = (shortArgs ? "" : ((stacked) ? " - %s" : ""));
                 switch (level) {
@@ -3890,20 +3884,20 @@ var ConsoleOutputStrategy = /** @class */ (function () {
                     case Level_1.default.TRACE:
                         if (printFullStack) {
                             // tslint:disable-next-line
-                            console.trace("%c" + preamble, "color:#00752d;", payload);
+                            console.log("%c" + preamble, "color:#00752d;", payload);
                         }
                         else {
                             // tslint:disable-next-line
-                            console.info("%c" + preamble, "color:#ff9400;", payload);
+                            console.log("%c" + preamble, "color:#ff9400;", payload);
                         }
                         break;
                     case Level_1.default.DEBUG:
                         // tslint:disable-next-line
-                        console.debug("%c" + preamble, "color:#00752d;", payload);
+                        console.log("%c" + preamble, "color:#00752d;", payload);
                         break;
                     case Level_1.default.INFO:
                         // tslint:disable-next-line
-                        console.info("%c" + preamble, "color:#2d57ca;", payload);
+                        console.log("%c" + preamble, "color:#2d57ca;", payload);
                         break;
                     default:
                         // tslint:disable-next-line
@@ -3920,50 +3914,6 @@ exports.default = ConsoleOutputStrategy;
 
 /***/ }),
 /* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var Level_1 = __importDefault(__webpack_require__(4));
-var LevelUtils = /** @class */ (function () {
-    function LevelUtils() {
-    }
-    LevelUtils.valueOf = function (lvl) {
-        return Level_1.default[lvl];
-    };
-    LevelUtils.stringValueOf = function (lvl) {
-        return Level_1.default[lvl];
-    };
-    LevelUtils.getKeys = function () {
-        var keys = [];
-        for (var _i = 0, _a = Object.keys(Level_1.default); _i < _a.length; _i++) {
-            var k = _a[_i];
-            if (this.rx.test(k)) {
-                keys[k] = this.stringValueOf(Number.parseInt(k, 10));
-            }
-        }
-        return keys;
-    };
-    LevelUtils.values = function () {
-        return this.getKeys().map(function (key) {
-            return Level_1.default[key];
-        });
-    };
-    LevelUtils.size = function () {
-        return this.getKeys().length;
-    };
-    LevelUtils.rx = /\d+/;
-    return LevelUtils;
-}());
-exports.default = LevelUtils;
-
-
-/***/ }),
-/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3996,7 +3946,7 @@ exports.default = GuardGenerator;
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4033,7 +3983,7 @@ exports.default = GuardImpl;
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4074,7 +4024,7 @@ exports.default = ListenerImpl;
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4084,7 +4034,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(9));
-var Invoker_1 = __importDefault(__webpack_require__(32));
+var Invoker_1 = __importDefault(__webpack_require__(31));
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var Setter_1 = __importDefault(__webpack_require__(12));
@@ -4200,7 +4150,7 @@ exports.default = ModelMediatorImpl;
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4238,7 +4188,7 @@ exports.default = Invoker;
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4277,7 +4227,7 @@ exports.extractAttributes = extractAttributes;
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4300,16 +4250,29 @@ exports.default = Properties;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(7)))
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var RegistrationError_1 = __importDefault(__webpack_require__(36));
+var RegistrationError_1 = __importDefault(__webpack_require__(35));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var ValidationRegExp_1 = __webpack_require__(6);
 var requireValid = ObjectUtils_1.default.requireValid;
@@ -4318,22 +4281,22 @@ var DefaultRegistryStrategyImpl = /** @class */ (function () {
     function DefaultRegistryStrategyImpl() {
         this.factories = {};
     }
-    DefaultRegistryStrategyImpl.prototype.get = function (id) {
+    DefaultRegistryStrategyImpl.prototype.get = function (id, gettable) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         var instance = null;
         if (this.factories[id]) {
-            instance = this.factories[id].get();
+            instance = this.factories[id].get(gettable);
         }
         return instance;
     };
     DefaultRegistryStrategyImpl.prototype.registerConstant = function (id, instance) {
         this.registerFactory(id, new ConstantFactory(instance));
     };
-    DefaultRegistryStrategyImpl.prototype.registerPrototype = function (id, classInstance) {
-        this.registerFactory(id, new PrototypeFactory(classInstance));
+    DefaultRegistryStrategyImpl.prototype.registerPrototype = function (id, classInstance, dependencies) {
+        this.registerFactory(id, new PrototypeFactory(classInstance, dependencies || []));
     };
-    DefaultRegistryStrategyImpl.prototype.registerSingleton = function (id, classInstance) {
-        this.registerFactory(id, new SingletonFactory(classInstance));
+    DefaultRegistryStrategyImpl.prototype.registerSingleton = function (id, classInstance, dependencies) {
+        this.registerFactory(id, new SingletonFactory(classInstance, dependencies || []));
     };
     DefaultRegistryStrategyImpl.prototype.registerFactory = function (id, factory) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
@@ -4356,7 +4319,7 @@ var RegistryImpl = /** @class */ (function () {
         var i = 0;
         var instance = null;
         while (!instance && i < this.strategies.length) {
-            instance = this.strategies[i].get(id);
+            instance = this.strategies[i].get(id, this);
             i++;
         }
         return instance;
@@ -4367,16 +4330,16 @@ var RegistryImpl = /** @class */ (function () {
         this.defaultStrategy.registerConstant(id, instance);
         return this;
     };
-    RegistryImpl.prototype.registerPrototype = function (id, classInstance) {
+    RegistryImpl.prototype.registerPrototype = function (id, classInstance, dependencies) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
-        this.defaultStrategy.registerPrototype(id, classInstance);
+        this.defaultStrategy.registerPrototype(id, classInstance, dependencies);
         return this;
     };
-    RegistryImpl.prototype.registerSingleton = function (id, classInstance) {
+    RegistryImpl.prototype.registerSingleton = function (id, classInstance, dependencies) {
         requireValid(id, "id", ValidationRegExp_1.VALID_ID);
         requireNotNull(classInstance, "classInstance");
-        this.defaultStrategy.registerSingleton(id, classInstance);
+        this.defaultStrategy.registerSingleton(id, classInstance, dependencies);
         return this;
     };
     RegistryImpl.prototype.addStrategy = function (strategy) {
@@ -4391,36 +4354,68 @@ var ConstantFactory = /** @class */ (function () {
     function ConstantFactory(instance) {
         this.instance = instance;
     }
-    ConstantFactory.prototype.get = function () {
+    ConstantFactory.prototype.get = function (gettable) {
         return this.instance;
     };
     return ConstantFactory;
 }());
-var PrototypeFactory = /** @class */ (function () {
-    function PrototypeFactory(classInstance) {
+var AbstractInstantableFactory = /** @class */ (function () {
+    function AbstractInstantableFactory(classInstance, dependencies) {
+        this.dependencies = dependencies;
         this.classInstance = classInstance;
     }
-    PrototypeFactory.prototype.get = function () {
-        return new this.classInstance();
+    AbstractInstantableFactory.prototype.create = function (gettable) {
+        var params = [];
+        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+            var id = _a[_i];
+            var param = gettable.get(id);
+            params.push(param);
+        }
+        var result = (params.length === 0) ? new this.classInstance() : this.instatiate(params);
+        return result;
+    };
+    AbstractInstantableFactory.prototype.instatiate = function (params) {
+        var args = "";
+        for (var i = 0; i < params.length; i++) {
+            if (i > 0) {
+                args += ",";
+            }
+            args += "arguments[1][" + i + "]";
+        }
+        var code = '"use strict"; var classInstance = arguments[0]; return new classInstance(' + args + ");";
+        return Function(code).apply({}, [this.classInstance, params]);
+    };
+    return AbstractInstantableFactory;
+}());
+var PrototypeFactory = /** @class */ (function (_super) {
+    __extends(PrototypeFactory, _super);
+    function PrototypeFactory(classInstance, dependencies) {
+        return _super.call(this, classInstance, dependencies) || this;
+    }
+    PrototypeFactory.prototype.get = function (gettable) {
+        return this.create(gettable);
     };
     return PrototypeFactory;
-}());
-var SingletonFactory = /** @class */ (function () {
-    function SingletonFactory(classInstance) {
-        this.classInstance = classInstance;
+}(AbstractInstantableFactory));
+var SingletonFactory = /** @class */ (function (_super) {
+    __extends(SingletonFactory, _super);
+    function SingletonFactory(classInstance, dependencies) {
+        var _this = _super.call(this, classInstance, dependencies) || this;
+        _this.instance = null;
+        return _this;
     }
-    SingletonFactory.prototype.get = function () {
+    SingletonFactory.prototype.get = function (gettable) {
         if (!this.instance) {
-            this.instance = new this.classInstance();
+            this.instance = this.create(gettable);
         }
         return this.instance;
     };
     return SingletonFactory;
-}());
+}(AbstractInstantableFactory));
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4451,7 +4446,7 @@ exports.default = RegistrationError;
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4482,7 +4477,7 @@ exports.default = ScopeError;
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4507,7 +4502,7 @@ exports.default = SequenceGenerator;
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4517,34 +4512,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
-var Checked_1 = __importDefault(__webpack_require__(40));
+var Checked_1 = __importDefault(__webpack_require__(39));
 Core_1.Mvvm.register(Checked_1.default.KEY, ["input"], Checked_1.default);
-var CSSClass_1 = __importDefault(__webpack_require__(41));
+var CSSClass_1 = __importDefault(__webpack_require__(40));
 Core_1.Mvvm.register(CSSClass_1.default.KEY, ["*"], CSSClass_1.default);
-var Enabled_1 = __importDefault(__webpack_require__(42));
+var Enabled_1 = __importDefault(__webpack_require__(41));
 Core_1.Mvvm.register(Enabled_1.default.KEY, ["*"], Enabled_1.default);
-var ReadOnly_1 = __importDefault(__webpack_require__(43));
+var ReadOnly_1 = __importDefault(__webpack_require__(42));
 Core_1.Mvvm.register(ReadOnly_1.default.KEY, ["*"], ReadOnly_1.default);
-var Style_1 = __importDefault(__webpack_require__(44));
+var Style_1 = __importDefault(__webpack_require__(43));
 Core_1.Mvvm.register(Style_1.default.KEY, ["*"], Style_1.default);
-var ForceFocus_1 = __importDefault(__webpack_require__(45));
+var ForceFocus_1 = __importDefault(__webpack_require__(44));
 Core_1.Mvvm.register(ForceFocus_1.default.KEY, ["*"], ForceFocus_1.default);
-var MultiSelectValueModel_1 = __importDefault(__webpack_require__(46));
+var MultiSelectValueModel_1 = __importDefault(__webpack_require__(45));
 Core_1.Mvvm.register(MultiSelectValueModel_1.default.KEY, ["select"], MultiSelectValueModel_1.default);
-var ValuedModel_1 = __importDefault(__webpack_require__(47));
+var ValuedModel_1 = __importDefault(__webpack_require__(46));
 Core_1.Mvvm.register(ValuedModel_1.default.KEY, ["textarea"], ValuedModel_1.default);
-var InputValueModel_1 = __importDefault(__webpack_require__(48));
+var InputValueModel_1 = __importDefault(__webpack_require__(47));
 Core_1.Mvvm.register(InputValueModel_1.default.KEY, ["input"], InputValueModel_1.default);
-var Visible_1 = __importDefault(__webpack_require__(49));
+var Visible_1 = __importDefault(__webpack_require__(48));
 Core_1.Mvvm.register(Visible_1.default.KEY, ["*"], Visible_1.default);
-var If_1 = __importDefault(__webpack_require__(50));
+var If_1 = __importDefault(__webpack_require__(49));
 Core_1.Mvvm.register(If_1.default.KEY, ["*"], If_1.default);
-var Repeat_1 = __importDefault(__webpack_require__(51));
+var Repeat_1 = __importDefault(__webpack_require__(50));
 Core_1.Mvvm.register("repeat", ["*"], Repeat_1.default);
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4588,7 +4583,7 @@ exports.default = Checked;
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4643,7 +4638,7 @@ exports.default = CSSClass;
 
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4684,7 +4679,7 @@ exports.default = Enabled;
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4725,7 +4720,7 @@ exports.default = ReadOnly;
 
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4774,7 +4769,7 @@ exports.default = Style;
 
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4827,7 +4822,7 @@ exports.default = ForceFocus;
 
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4900,7 +4895,7 @@ exports.default = MultiSelectValueModel;
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4952,7 +4947,7 @@ exports.default = ValuedModel;
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5018,7 +5013,7 @@ exports.default = InputValueModel;
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5062,7 +5057,7 @@ exports.default = Visible;
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5118,7 +5113,7 @@ exports.default = If;
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5142,7 +5137,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ComponentConfig_1 = __webpack_require__(5);
 var Core_1 = __webpack_require__(0);
-var Evaluator_1 = __importDefault(__webpack_require__(52));
+var Evaluator_1 = __importDefault(__webpack_require__(51));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var ScopeImpl_1 = __importDefault(__webpack_require__(14));
 var DEFAULT_ID_KEY = "id";
@@ -5356,7 +5351,7 @@ exports.default = Repeat;
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5390,7 +5385,7 @@ exports.default = Evaluator;
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5398,7 +5393,7 @@ exports.default = Evaluator;
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5409,7 +5404,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(0);
 var CydranConfig_1 = __importDefault(__webpack_require__(15));
-var DomUtils_1 = __importDefault(__webpack_require__(55));
+var DomUtils_1 = __importDefault(__webpack_require__(54));
 var LoggerFactory_1 = __importDefault(__webpack_require__(3));
 var ObjectUtils_1 = __importDefault(__webpack_require__(2));
 var ValidationRegExp_1 = __webpack_require__(6);
@@ -5481,12 +5476,12 @@ var StageBuilderImpl = /** @class */ (function () {
         Core_1.Modules.registerConstant(id, instance);
         return this;
     };
-    StageBuilderImpl.prototype.withPrototype = function (id, classInstance) {
-        Core_1.Modules.registerPrototype(id, classInstance);
+    StageBuilderImpl.prototype.withPrototype = function (id, classInstance, dependencies) {
+        Core_1.Modules.registerPrototype(id, classInstance, dependencies);
         return this;
     };
-    StageBuilderImpl.prototype.withSingleton = function (id, classInstance) {
-        Core_1.Modules.registerSingleton(id, classInstance);
+    StageBuilderImpl.prototype.withSingleton = function (id, classInstance, dependencies) {
+        Core_1.Modules.registerSingleton(id, classInstance, dependencies);
         return this;
     };
     StageBuilderImpl.prototype.withCapability = function (capability) {
@@ -5570,11 +5565,11 @@ var StageImpl = /** @class */ (function () {
     StageImpl.prototype.registerConstant = function (id, instance) {
         Core_1.Modules.registerConstant(id, instance);
     };
-    StageImpl.prototype.registerPrototype = function (id, classInstance) {
-        Core_1.Modules.registerPrototype(id, classInstance);
+    StageImpl.prototype.registerPrototype = function (id, classInstance, dependencies) {
+        Core_1.Modules.registerPrototype(id, classInstance, dependencies);
     };
-    StageImpl.prototype.registerSingleton = function (id, classInstance) {
-        Core_1.Modules.registerSingleton(id, classInstance);
+    StageImpl.prototype.registerSingleton = function (id, classInstance, dependencies) {
+        Core_1.Modules.registerSingleton(id, classInstance, dependencies);
     };
     StageImpl.prototype.getScope = function () {
         return Core_1.Modules.getScope();
@@ -5601,7 +5596,7 @@ exports.builder = builder;
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -195,9 +195,9 @@ export declare class PubSub implements Disposable {
 	broadcastGlobally(channelName: string, messageName: string, payload?: any): void;
 	dispose(): void;
 	on(messageName: string): OnContinuation;
+	enableGlobal(): void;
+	disableGlobal(): void;
 	private listenTo;
-	private enableGlobal;
-	private disableGlobal;
 }
 export declare const Events: {
 	AFTER_CHILD_ADDED: string;
@@ -227,6 +227,9 @@ export interface Disposable {
 }
 export interface ForChannelContinuation {
 	invoke(target: (payload: any) => void): void;
+}
+export interface Gettable {
+	get<T>(id: string): T;
 }
 export interface Guard {
 	isPropagateUp(): boolean;
@@ -288,11 +291,11 @@ export interface OnContinuation {
 }
 export interface Register {
 	registerConstant(id: string, instance: any): any | void;
-	registerPrototype(id: string, classInstance: any): any | void;
-	registerSingleton(id: string, classInstance: any): any | void;
+	registerPrototype(id: string, classInstance: any, dependencies?: string[]): any | void;
+	registerSingleton(id: string, classInstance: any, dependencies?: string[]): any | void;
 }
 export interface RegistryStrategy {
-	get<T>(id: string): T;
+	get<T>(id: string, gettable: Gettable): T;
 }
 export interface Scope {
 	add(name: string, item: any): void;
@@ -329,8 +332,8 @@ export interface StageBuilder {
 	withLoggingDisabled(): StageBuilder;
 	withElementMediator(name: string, supportedTags: string[], elementMediatorClass: any): StageBuilder;
 	withConstant(id: string, instance: any): StageBuilder;
-	withPrototype(id: string, classInstance: any): StageBuilder;
-	withSingleton(id: string, classInstance: any): StageBuilder;
+	withPrototype(id: string, classInstance: any, dependencies?: string[]): StageBuilder;
+	withSingleton(id: string, classInstance: any, dependencies?: string[]): StageBuilder;
 	withCapability(capability: (builder: StageBuilder) => void): StageBuilder;
 	withScopeItem(name: string, item: any): StageBuilder;
 	build(): Stage;
