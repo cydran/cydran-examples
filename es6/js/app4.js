@@ -87,18 +87,21 @@ class Modal extends Component {
 }
 
 function modalCapacity(builder) {
-  builder
-    .withPrototype("modal", Modal)
-    .withPrototype("modalbody1", ModalBody1)
-    .withPrototype("modalbody2", ModalBody2);
+  const moduleNS = "Cydran:Components:Modal";
+  const module = builder.getModule(moduleNS);
+  module.registerPrototype("container", Modal);
+  module.associate(Modal);
+  builder.withComponentAfter("container", moduleNS);
+  builder.withPrototype("modalbody1", ModalBody1);
+  builder.withPrototype("modalbody2", ModalBody2);
 }
 
 builder("#pgpart")
   .withDebugLogging()
   .withCapability(modalCapacity)
-	.withCapability((builder) => {
-  	builder.withPrototype("app4", App4);
-	})
+  .withCapability(builder => {
+    builder.withPrototype("app4", App4);
+  })
   .withInitializer(function() {
     this.setComponentFromRegistry("app4");
   })
