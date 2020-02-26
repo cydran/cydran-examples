@@ -1,5 +1,5 @@
 /*!
- * v0.0.58
+ * v0.1.2
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -4738,7 +4738,9 @@ var Region = /** @class */ (function () {
             this.logger.trace("Component unchanged, so not setting.");
             return;
         }
-        this.logger.ifTrace(function () { return "Setting component " + component.getId(); });
+        if (isDefined(component)) {
+            this.logger.ifTrace(function () { return "Setting component " + component.getId(); });
+        }
         if (isDefined(component) && !isDefined(this.component)) {
             this.component = component;
             var newComponentEl = component.getEl();
