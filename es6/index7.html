@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="js/axios.min.js"></script>
+		<script src="js/cydran.js"></script>
+		<style type="text/css">
+			.collectionDivider {
+				margin-bottom: 2px;
+				border-bottom: 3px dotted red;
+				padding-bottom: 3px;
+			}
+
+			.mylist {
+				list-style: circle;
+			}
+		</style>
+
+		<script>
+			window.onload = function () {
+
+				const channelName = "App";
+				const msgType = "doUpdate";
+				const comms = new cydran.PubSub(channelName);
+				let seq = 0;
+
+				const builder = cydran.builder;
+				const Component = cydran.Component;
+				const PubSub = cydran.PubSub;
+				const ComponentConfigBuilder = cydran.ComponentConfigBuilder;
+
+				const appTemplate = document.querySelector("template[id=main]").innerHTML;
+				const myCollectionTemplate = document.querySelector("template[id=myCollection]").innerHTML;
+				const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
+
+				const AppName = "App";
+				class App extends Component {
+
+					constructor() {
+						super(appTemplate);
+						this.pubSub = new PubSub(AppName);
+						this.on('updated').forChannel(AppName).invoke(this.dataUpdate);
+						this.on('error').forChannel(AppName).invoke(this.dataError);
+						this.log = this.getLogger();
+					}
+
+					init() {
+						this.mylist = [];
+					}
+
+					loadBuffer() {
+						const src_path = "data/index7_data.min.json";
+						axios
+							.get(src_path)
+							.then(response => {
+								this.pubSub.broadcast(AppName, "updated", response.data);
+								this.log.info("loaded \"" + src_path + "\" file");
+							})
+							.catch(error => {
+								this.pubSub.broadcast(AppName, "error", error);
+							});
+					}
+
+					dataError(error) {
+						this.getLogger().error(error);
+					}
+
+					dataUpdate(data) {
+						this.mylist = data;
+					}
+
+					doAReset() {
+						this.reset();
+					}
+				}
+
+				class GroupCollection extends Component {
+					constructor() {
+						super(myCollectionTemplate, new ComponentConfigBuilder()
+							.withAttribute("c")
+							.build()
+						);
+					}
+				}
+
+				class Thing extends Component {
+					constructor() {
+						super(thingTemplate, new ComponentConfigBuilder()
+							.withAttribute("name")
+							.withAttribute("id")
+							.build()
+						);
+					}
+				}
+
+				const wkappName = "mainapp";
+				builder("body")
+					.withDebugLogging()
+					.withPrototype(wkappName, App)
+					.withPrototype("myCollection", GroupCollection)
+					.withPrototype("thing", Thing)
+					.withInitializer(function() {
+						this.setComponentFromRegistry(wkappName);
+					})
+					.build()
+					.start();
+
+			}
+		</script>
+	</head>
+
+	<body></body>
+
+	<template id="thing">
+		<span>{{e().name}}</span>
+	</template>
+
+	<template id="myCollection">
+		<ul c:repeat="e().c || []" class="collectionDivider">
+			<template type="empty">
+				<li>Nothing</li>
+			</template>
+			<template type="item">
+				<li>grouping id: {{i().id}}<br/>
+					<ul c:repeat="i().things" class="mylist">
+						<template type="item">
+							<li><c:component name="thing" c:property-name="i().name" c:property-id="i().id"></c:component></li>
+						</template>
+					</ul>
+				</li>
+			</template>
+		</ul>
+	</template>
+
+	<template id="main">
+		<section class="section">
+			<div class="container">
+				<h1 class="title is-smaller">
+					Nested Structures
+				</h1>
+				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
+				<button class="button is-success" c:onclick="m().doAReset()">Reset</button>
+				<p />
+				<div c:repeat="m().mylist || []">
+					<template type="empty">
+						<div>No data present...</div>
+					</template>
+					<template type="item">
+						<div>
+							Collection ID: {{i().id}}<br/>
+							<c:component name="myCollection" c:property-c="i().grouping"></c:component>
+							<p />
+						</div>
+					</template>
+				</div>
+			</div>
+		</section>
+	</template>
+
+</html>
