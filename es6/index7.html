@@ -6,8 +6,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<script src="js/axios.min.js"></script>
-		<script src="js/cydran.min.js"></script>
+		<script src="js/axios.min.js" type="application/javascript"></script>
+		<script src="js/cydran.min.js" type="application/javascript"></script>
 		<style type="text/css">
 			.collectionDivider {
 				margin-bottom: 2px;
@@ -38,25 +38,26 @@
 				const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
 
 				const AppName = "App";
-				const src_path = "data/index7_data.min.json";
+				const srcPath = "data/index7_data.min.json";
+
 				class App extends Component {
 
-					constructor(src_path) {
+					constructor(srcPath) {
 						super(appTemplate);
 						this.pubSub = new PubSub(AppName);
 						this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
 						this.on("error").forChannel(AppName).invoke(this.dataError);
 						this.log = this.getLogger();
-						this.dataPath = src_path;
 					}
 
 					init() {
+						this.srcPath = srcPath;
 						this.mylist = [];
 					}
 
 					loadBuffer() {
 						axios
-							.get(this.dataPath)
+							.get(this.srcPath)
 							.then(response => {
 								this.pubSub.broadcast(AppName, "updated", response.data);
 							})
@@ -71,7 +72,7 @@
 
 					dataUpdate(data) {
 						this.mylist = data;
-						this.log.info("loaded \"" + src_path + "\" file");
+						this.log.info("loaded \"" + this.srcPath + "\" file");
 					}
 
 					doAReset() {
