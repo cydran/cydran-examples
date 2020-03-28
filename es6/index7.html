@@ -7,7 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<script src="js/axios.min.js"></script>
-		<script src="js/cydran.js"></script>
+		<script src="js/cydran.min.js"></script>
 		<style type="text/css">
 			.collectionDivider {
 				margin-bottom: 2px;
@@ -38,14 +38,16 @@
 				const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
 
 				const AppName = "App";
+				const src_path = "data/index7_data.min.json";
 				class App extends Component {
 
-					constructor() {
+					constructor(src_path) {
 						super(appTemplate);
 						this.pubSub = new PubSub(AppName);
-						this.on('updated').forChannel(AppName).invoke(this.dataUpdate);
-						this.on('error').forChannel(AppName).invoke(this.dataError);
+						this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
+						this.on("error").forChannel(AppName).invoke(this.dataError);
 						this.log = this.getLogger();
+						this.dataPath = src_path;
 					}
 
 					init() {
@@ -53,12 +55,10 @@
 					}
 
 					loadBuffer() {
-						const src_path = "data/index7_data.min.json";
 						axios
-							.get(src_path)
+							.get(this.dataPath)
 							.then(response => {
 								this.pubSub.broadcast(AppName, "updated", response.data);
-								this.log.info("loaded \"" + src_path + "\" file");
 							})
 							.catch(error => {
 								this.pubSub.broadcast(AppName, "error", error);
@@ -66,11 +66,12 @@
 					}
 
 					dataError(error) {
-						this.getLogger().error(error);
+						this.log.error(error);
 					}
 
 					dataUpdate(data) {
 						this.mylist = data;
+						this.log.info("loaded \"" + src_path + "\" file");
 					}
 
 					doAReset() {
