@@ -1,5 +1,5 @@
 /*!
- * v0.1.2
+ * v0.1.3
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -2450,6 +2450,7 @@ var ComponentInternalsImpl = /** @class */ (function () {
         if (typeof template !== "string") {
             throw new TemplateError_1.default("Template must be a string");
         }
+        this.parentSeen = false;
         this.id = IdGenerator_1.default.INSTANCE.generate();
         this.config = (config || DEFAULT_COMPONENT_CONFIG);
         this.hasExternals = false;
@@ -2499,7 +2500,12 @@ var ComponentInternalsImpl = /** @class */ (function () {
     ComponentInternalsImpl.prototype.$apply = function (fn, args) {
         requireNotNull(fn, "fn");
         requireNotNull(args, "args");
-        this.mvvm.$apply(fn, args);
+        if (this.parentSeen) {
+            this.mvvm.$apply(fn, args);
+        }
+        else {
+            fn.apply(this.component, args);
+        }
     };
     ComponentInternalsImpl.prototype.setChild = function (name, component) {
         requireNotNull(name, "name");
@@ -2720,6 +2726,7 @@ var ComponentInternalsImpl = /** @class */ (function () {
         this.parentScope = scope;
     };
     ComponentInternalsImpl.prototype.setParent = function (parent) {
+        this.parentSeen = true;
         var changed = this.bothPresentButDifferent(parent, this.parent) || this.exactlyOneDefined(parent, this.parent);
         var parentAdded = !!(parent !== null && this.parent === null);
         var parentRemoved = !!(parent === null && this.parent !== null);
@@ -3029,10 +3036,6 @@ var Level_1 = __importDefault(__webpack_require__(11));
 var LoggerServiceImpl_1 = __importDefault(__webpack_require__(18));
 var CydranConfig = /** @class */ (function () {
     function CydranConfig() {
-        var _newTarget = this.constructor;
-        if (!(this instanceof CydranConfig)) {
-            throw TypeError(_newTarget.name + " should be an instance of Config");
-        }
     }
     CydranConfig.prototype.useTrace = function () {
         LoggerServiceImpl_1.default.INSTANCE.setLevel(Level_1.default.TRACE);
@@ -4552,19 +4555,29 @@ var Repeat = /** @class */ (function (_super) {
             var component = this.map[key];
             component.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
         }
+        if (this.first) {
+            this.first.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
+        }
+        if (this.last) {
+            this.last.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
+        }
+        if (this.empty) {
+            this.empty.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
+        }
     };
     Repeat.prototype.onTargetChange = function (previous, current) {
         var newIds = [];
-        for (var _i = 0, current_1 = current; _i < current_1.length; _i++) {
-            var item = current_1[_i];
+        var items = current || [];
+        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+            var item = items_1[_i];
             var id = item[this.idKey] + "";
             newIds.push(id);
         }
         if (!ObjectUtils_1.default.equals(this.ids, newIds)) {
             var newMap = {};
             var components = [];
-            for (var _a = 0, current_2 = current; _a < current_2.length; _a++) {
-                var item = current_2[_a];
+            for (var _a = 0, items_2 = items; _a < items_2.length; _a++) {
+                var item = items_2[_a];
                 var id = item[this.idKey] + "";
                 var component = this.map[id] ? this.map[id] : this.create(item);
                 newMap[id] = component;
@@ -4698,9 +4711,9 @@ var UtilityComponent = /** @class */ (function (_super) {
         config.withPrefix(prefix);
         config.setParentModelFn(parentModelFn);
         _this = _super.call(this, template, config) || this;
-        _this.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", parent);
         _this.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "skipId", parentId);
         _this.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "setMode", "repeatable");
+        _this.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", parent);
         return _this;
     }
     return UtilityComponent;
@@ -5139,17 +5152,16 @@ var MvvmImpl = /** @class */ (function () {
                 if (!regex.test(eventName)) {
                     throw new MalformedOnEventError_1.default(EVT_NAME_ERR, { "%eventName%": eventName });
                 }
-                this.addEventElementMediator(eventName.toLowerCase(), expression, el);
+                this.addEventElementMediator(eventName.toLowerCase(), this.trimExpression(expression), el);
                 el.removeAttribute(name_1);
             }
             else if (name_1.indexOf(this.elementMediatorPrefix) === 0) {
                 var elementMediatorType = name_1.substr(this.elementMediatorPrefix.length);
-                this.addElementMediator(el.tagName.toLowerCase(), elementMediatorType, expression, el);
+                this.addElementMediator(el.tagName.toLowerCase(), elementMediatorType, this.trimExpression(expression), el);
                 el.removeAttribute(name_1);
             }
             else if (expression.length > 4 && expression.indexOf("{{") === 0 && expression.indexOf("}}", expression.length - 2) !== -1) {
-                var trimmedExpression = expression.substring(2, expression.length - 2);
-                this.addAttributeElementMediator(name_1, trimmedExpression, el);
+                this.addAttributeElementMediator(name_1, this.trimExpression(expression), el);
             }
         }
     };
@@ -5173,6 +5185,12 @@ var MvvmImpl = /** @class */ (function () {
                 node.remove();
             }
         }
+    };
+    MvvmImpl.prototype.trimExpression = function (input) {
+        var result = (input.length > 4 && input.indexOf("{{") === 0 && input.indexOf("}}", input.length - 2) !== -1)
+            ? input.substring(2, input.length - 2)
+            : input;
+        return result;
     };
     MvvmImpl.prototype.splitChild = function (node) {
         var source = node.textContent || "";
@@ -6033,7 +6051,7 @@ var StageImpl = /** @class */ (function () {
         this.logger.debug("Running initializers");
         for (var _i = 0, _a = this.initializers; _i < _a.length; _i++) {
             var initializer = _a[_i];
-            initializer.apply(this);
+            initializer.apply(this, [this]);
         }
         this.logger.debug("Startup Complete");
     };
