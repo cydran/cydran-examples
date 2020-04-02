@@ -1,5 +1,5 @@
 /*!
- * v0.1.3
+ * v0.1.4
  * Cydran <http://cydran.io/>
  * Copyright The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -107,6 +107,262 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
+var PubSub_1 = __importDefault(__webpack_require__(13));
+var LoggerFactory_1 = __importDefault(__webpack_require__(2));
+var ValidationRegExp_1 = __webpack_require__(7);
+var ParamUtils_1 = __webpack_require__(40);
+var Modules_1 = __webpack_require__(6);
+var Constants_1 = __webpack_require__(4);
+var IdGenerator_1 = __importDefault(__webpack_require__(19));
+var requireNotNull = ObjectUtils_1.default.requireNotNull;
+var requireValid = ObjectUtils_1.default.requireValid;
+/**
+ * The piece of code between the HTMLElement and the Mvvm
+ * @type M {@link ModelMediator}
+ * @type E extends HTMLElement
+ * @implements {@link Disposable}
+ */
+var ElementMediator = /** @class */ (function () {
+    function ElementMediator(dependencies, propagation) {
+        this.____internal$$cydran____ = requireNotNull(dependencies, "dependencies");
+        this.logger = LoggerFactory_1.default.getLogger("ElementMediator: " + dependencies.prefix);
+        this.domListeners = {};
+        this.pubSub = new PubSub_1.default(this, this.getModule());
+        this.params = null;
+        this.propagation = propagation;
+        this.id = IdGenerator_1.default.INSTANCE.generate();
+    }
+    /**
+     * Dispose of ElementMediator when released.
+     * + All event listeners will be removed.
+     * + This element mediator will be unwired from any other DOM entanglements
+     * + The mediator reference to the model is released/nulled
+     * + Any value representation of this element mediator is released/nulled
+     * + The [[Mvvm|mvvm]] refernce is released/nulled
+     * + The parental reference is released/nulled
+     */
+    ElementMediator.prototype.dispose = function () {
+        this.removeDomListeners();
+        this.unwire();
+        this.____internal$$cydran____ = null;
+        this.mediator = null;
+    };
+    /**
+     * Initialize this element mediator.
+     */
+    ElementMediator.prototype.init = function () {
+        this.mediator = this.mediate(this.getExpression());
+        this.wire();
+    };
+    /**
+     * Get the active module instance reference by id
+     * @return U
+     */
+    ElementMediator.prototype.get = function (id) {
+        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
+        return this.moduleInstance.get(id);
+    };
+    /**
+     * Set the [[Module|module]] instance reference
+     * @param {Module} moduleInstance
+     */
+    ElementMediator.prototype.setModule = function (moduleInstance) {
+        this.moduleInstance = requireNotNull(moduleInstance, "moduleInstance");
+    };
+    /**
+     * [message description]
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
+    ElementMediator.prototype.message = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        this.pubSub.message(channelName, messageName, actualPayload);
+    };
+    /**
+     * Broadcast a message
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
+    ElementMediator.prototype.broadcast = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        this.getModule().broadcast(channelName, messageName, actualPayload);
+    };
+    /**
+     * Broadcast a message in the Global context
+     * @param {string} channelName [description]
+     * @param {string} messageName [description]
+     * @param {any}    payload     [description]
+     */
+    ElementMediator.prototype.broadcastGlobally = function (channelName, messageName, payload) {
+        requireNotNull(channelName, "channelName");
+        requireNotNull(messageName, "messageName");
+        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
+        Modules_1.Modules.broadcast(channelName, messageName, actualPayload);
+    };
+    ElementMediator.prototype.on = function (messageName) {
+        var _this = this;
+        requireNotNull(messageName, "messageName");
+        return {
+            forChannel: function (channelName) {
+                requireNotNull(channelName, "channelName");
+                return {
+                    invoke: function (target) {
+                        requireNotNull(target, "target");
+                        _this.pubSub.on(messageName).forChannel(channelName).invoke(function (payload) {
+                            target.apply(_this, [payload]);
+                        });
+                    }
+                };
+            },
+            invoke: function (target) {
+                requireNotNull(target, "target");
+                _this.pubSub.on(messageName).forChannel(Constants_1.INTERNAL_CHANNEL_NAME).invoke(function (payload) {
+                    target.apply(_this, [payload]);
+                });
+            }
+        };
+    };
+    ElementMediator.prototype.requestMediatorSources = function (sources) {
+        // Intentionally do nothing by default
+    };
+    ElementMediator.prototype.getParentId = function () {
+        return this.____internal$$cydran____.mvvm.getId();
+    };
+    ElementMediator.prototype.getId = function () {
+        return this.id;
+    };
+    ElementMediator.prototype.requestMediators = function (consumer) {
+        // Intentionally do nothing by default
+    };
+    ElementMediator.prototype.hasPropagation = function () {
+        return this.propagation;
+    };
+    ElementMediator.prototype.getParams = function () {
+        if (this.params === null) {
+            this.params = ParamUtils_1.extractAttributes(this.getPrefix(), this.getEl());
+        }
+        return this.params;
+    };
+    ElementMediator.prototype.getModelFn = function () {
+        return this.____internal$$cydran____.mvvm.getModelFn();
+    };
+    ElementMediator.prototype.getExternalFn = function () {
+        return this.____internal$$cydran____.mvvm.getExternalFn();
+    };
+    ElementMediator.prototype.bridge = function (name) {
+        var _this = this;
+        requireNotNull(name, "name");
+        var listener = function (event) {
+            _this.message("dom", name, event);
+        };
+        if (!this.domListeners[name]) {
+            this.domListeners[name] = listener;
+            this.getEl().addEventListener(name, listener, false);
+        }
+    };
+    /**
+     * Get the associated {HTMLElement html element} of this element mediator.
+     * @return {HTMLElement} [description]
+     */
+    ElementMediator.prototype.getEl = function () {
+        return this.____internal$$cydran____.el;
+    };
+    /**
+     * [getModule description]
+     * @return {Module} [description]
+     */
+    ElementMediator.prototype.getModule = function () {
+        return this["moduleInstance"];
+    };
+    /**
+     * Gets the prefix.
+     * @return the prefix
+     */
+    ElementMediator.prototype.getPrefix = function () {
+        return this.____internal$$cydran____.prefix;
+    };
+    /**
+     * [mediate description]
+     * @param  {string}        expression [description]
+     * @return {ModelMediator}            [description]
+     */
+    ElementMediator.prototype.mediate = function (expression) {
+        requireNotNull(expression, "expression");
+        return this.____internal$$cydran____.mvvm.mediate(expression);
+    };
+    /**
+     * [getModel description]
+     * @return {any} [description]
+     */
+    ElementMediator.prototype.getModel = function () {
+        return this.____internal$$cydran____.model;
+    };
+    /**
+     * [getParent description]
+     * @return {Component} [description]
+     */
+    ElementMediator.prototype.getParent = function () {
+        return this.____internal$$cydran____.parent.getComponent();
+    };
+    /**
+     * [getMediator description]
+     * @return {ModelMediator} [description]
+     */
+    ElementMediator.prototype.getModelMediator = function () {
+        return this.mediator;
+    };
+    ElementMediator.prototype.$apply = function (fn, args) {
+        requireNotNull(fn, "fn");
+        requireNotNull(args, "args");
+        if (this.____internal$$cydran____ && this.____internal$$cydran____.mvvm) {
+            this.____internal$$cydran____.mvvm.$apply(fn, args);
+        }
+    };
+    /**
+     * Get the expression specified
+     * @return {string} [description]
+     */
+    ElementMediator.prototype.getExpression = function () {
+        return this.____internal$$cydran____.expression;
+    };
+    /**
+     * Gets the logger.
+     * @return {Logger} logger instance
+     */
+    ElementMediator.prototype.getLogger = function () {
+        return this.logger;
+    };
+    ElementMediator.prototype.removeDomListeners = function () {
+        for (var name_1 in this.domListeners) {
+            if (!this.domListeners.hasOwnProperty(name_1)) {
+                continue;
+            }
+            this.getEl().removeEventListener(name_1, this.domListeners[name_1]);
+        }
+        this.domListeners = {};
+    };
+    return ElementMediator;
+}());
+exports.default = ElementMediator;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1285,262 +1541,6 @@ exports.default = {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(16), __webpack_require__(31)(module)))
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
-var PubSub_1 = __importDefault(__webpack_require__(13));
-var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ValidationRegExp_1 = __webpack_require__(7);
-var ParamUtils_1 = __webpack_require__(40);
-var Modules_1 = __webpack_require__(6);
-var Constants_1 = __webpack_require__(4);
-var IdGenerator_1 = __importDefault(__webpack_require__(19));
-var requireNotNull = ObjectUtils_1.default.requireNotNull;
-var requireValid = ObjectUtils_1.default.requireValid;
-/**
- * The piece of code between the HTMLElement and the Mvvm
- * @type M {@link ModelMediator}
- * @type E extends HTMLElement
- * @implements {@link Disposable}
- */
-var ElementMediator = /** @class */ (function () {
-    function ElementMediator(dependencies, propagation) {
-        this.____internal$$cydran____ = requireNotNull(dependencies, "dependencies");
-        this.logger = LoggerFactory_1.default.getLogger("ElementMediator: " + dependencies.prefix);
-        this.domListeners = {};
-        this.pubSub = new PubSub_1.default(this, this.getModule());
-        this.params = null;
-        this.propagation = propagation;
-        this.id = IdGenerator_1.default.INSTANCE.generate();
-    }
-    /**
-     * Dispose of ElementMediator when released.
-     * + All event listeners will be removed.
-     * + This element mediator will be unwired from any other DOM entanglements
-     * + The mediator reference to the model is released/nulled
-     * + Any value representation of this element mediator is released/nulled
-     * + The [[Mvvm|mvvm]] refernce is released/nulled
-     * + The parental reference is released/nulled
-     */
-    ElementMediator.prototype.dispose = function () {
-        this.removeDomListeners();
-        this.unwire();
-        this.____internal$$cydran____ = null;
-        this.mediator = null;
-    };
-    /**
-     * Initialize this element mediator.
-     */
-    ElementMediator.prototype.init = function () {
-        this.mediator = this.mediate(this.getExpression());
-        this.wire();
-    };
-    /**
-     * Get the active module instance reference by id
-     * @return U
-     */
-    ElementMediator.prototype.get = function (id) {
-        requireValid(id, "id", ValidationRegExp_1.VALID_ID);
-        return this.moduleInstance.get(id);
-    };
-    /**
-     * Set the [[Module|module]] instance reference
-     * @param {Module} moduleInstance
-     */
-    ElementMediator.prototype.setModule = function (moduleInstance) {
-        this.moduleInstance = requireNotNull(moduleInstance, "moduleInstance");
-    };
-    /**
-     * [message description]
-     * @param {string} channelName [description]
-     * @param {string} messageName [description]
-     * @param {any}    payload     [description]
-     */
-    ElementMediator.prototype.message = function (channelName, messageName, payload) {
-        requireNotNull(channelName, "channelName");
-        requireNotNull(messageName, "messageName");
-        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
-        this.pubSub.message(channelName, messageName, actualPayload);
-    };
-    /**
-     * Broadcast a message
-     * @param {string} channelName [description]
-     * @param {string} messageName [description]
-     * @param {any}    payload     [description]
-     */
-    ElementMediator.prototype.broadcast = function (channelName, messageName, payload) {
-        requireNotNull(channelName, "channelName");
-        requireNotNull(messageName, "messageName");
-        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
-        this.getModule().broadcast(channelName, messageName, actualPayload);
-    };
-    /**
-     * Broadcast a message in the Global context
-     * @param {string} channelName [description]
-     * @param {string} messageName [description]
-     * @param {any}    payload     [description]
-     */
-    ElementMediator.prototype.broadcastGlobally = function (channelName, messageName, payload) {
-        requireNotNull(channelName, "channelName");
-        requireNotNull(messageName, "messageName");
-        var actualPayload = (payload === null || payload === undefined) ? {} : payload;
-        Modules_1.Modules.broadcast(channelName, messageName, actualPayload);
-    };
-    ElementMediator.prototype.on = function (messageName) {
-        var _this = this;
-        requireNotNull(messageName, "messageName");
-        return {
-            forChannel: function (channelName) {
-                requireNotNull(channelName, "channelName");
-                return {
-                    invoke: function (target) {
-                        requireNotNull(target, "target");
-                        _this.pubSub.on(messageName).forChannel(channelName).invoke(function (payload) {
-                            target.apply(_this, [payload]);
-                        });
-                    }
-                };
-            },
-            invoke: function (target) {
-                requireNotNull(target, "target");
-                _this.pubSub.on(messageName).forChannel(Constants_1.INTERNAL_CHANNEL_NAME).invoke(function (payload) {
-                    target.apply(_this, [payload]);
-                });
-            }
-        };
-    };
-    ElementMediator.prototype.requestMediatorSources = function (sources) {
-        // Intentionally do nothing by default
-    };
-    ElementMediator.prototype.getParentId = function () {
-        return this.____internal$$cydran____.mvvm.getId();
-    };
-    ElementMediator.prototype.getId = function () {
-        return this.id;
-    };
-    ElementMediator.prototype.requestMediators = function (consumer) {
-        // Intentionally do nothing by default
-    };
-    ElementMediator.prototype.hasPropagation = function () {
-        return this.propagation;
-    };
-    ElementMediator.prototype.getParams = function () {
-        if (this.params === null) {
-            this.params = ParamUtils_1.extractAttributes(this.getPrefix(), this.getEl());
-        }
-        return this.params;
-    };
-    ElementMediator.prototype.getModelFn = function () {
-        return this.____internal$$cydran____.mvvm.getModelFn();
-    };
-    ElementMediator.prototype.getExternalFn = function () {
-        return this.____internal$$cydran____.mvvm.getExternalFn();
-    };
-    ElementMediator.prototype.bridge = function (name) {
-        var _this = this;
-        requireNotNull(name, "name");
-        var listener = function (event) {
-            _this.message("dom", name, event);
-        };
-        if (!this.domListeners[name]) {
-            this.domListeners[name] = listener;
-            this.getEl().addEventListener(name, listener, false);
-        }
-    };
-    /**
-     * Get the associated {HTMLElement html element} of this element mediator.
-     * @return {HTMLElement} [description]
-     */
-    ElementMediator.prototype.getEl = function () {
-        return this.____internal$$cydran____.el;
-    };
-    /**
-     * [getModule description]
-     * @return {Module} [description]
-     */
-    ElementMediator.prototype.getModule = function () {
-        return this["moduleInstance"];
-    };
-    /**
-     * Gets the prefix.
-     * @return the prefix
-     */
-    ElementMediator.prototype.getPrefix = function () {
-        return this.____internal$$cydran____.prefix;
-    };
-    /**
-     * [mediate description]
-     * @param  {string}        expression [description]
-     * @return {ModelMediator}            [description]
-     */
-    ElementMediator.prototype.mediate = function (expression) {
-        requireNotNull(expression, "expression");
-        return this.____internal$$cydran____.mvvm.mediate(expression);
-    };
-    /**
-     * [getModel description]
-     * @return {any} [description]
-     */
-    ElementMediator.prototype.getModel = function () {
-        return this.____internal$$cydran____.model;
-    };
-    /**
-     * [getParent description]
-     * @return {Component} [description]
-     */
-    ElementMediator.prototype.getParent = function () {
-        return this.____internal$$cydran____.parent.getComponent();
-    };
-    /**
-     * [getMediator description]
-     * @return {ModelMediator} [description]
-     */
-    ElementMediator.prototype.getModelMediator = function () {
-        return this.mediator;
-    };
-    ElementMediator.prototype.$apply = function (fn, args) {
-        requireNotNull(fn, "fn");
-        requireNotNull(args, "args");
-        if (this.____internal$$cydran____ && this.____internal$$cydran____.mvvm) {
-            this.____internal$$cydran____.mvvm.$apply(fn, args);
-        }
-    };
-    /**
-     * Get the expression specified
-     * @return {string} [description]
-     */
-    ElementMediator.prototype.getExpression = function () {
-        return this.____internal$$cydran____.expression;
-    };
-    /**
-     * Gets the logger.
-     * @return {Logger} logger instance
-     */
-    ElementMediator.prototype.getLogger = function () {
-        return this.logger;
-    };
-    ElementMediator.prototype.removeDomListeners = function () {
-        for (var name_1 in this.domListeners) {
-            if (!this.domListeners.hasOwnProperty(name_1)) {
-                continue;
-            }
-            this.getEl().removeEventListener(name_1, this.domListeners[name_1]);
-        }
-        this.domListeners = {};
-    };
-    return ElementMediator;
-}());
-exports.default = ElementMediator;
-
-
-/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1577,7 +1577,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var Factories = /** @class */ (function () {
     function Factories() {
@@ -1682,7 +1682,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var Constants_1 = __webpack_require__(4);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
@@ -1918,7 +1918,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var ComponentConfigImpl = /** @class */ (function () {
     function ComponentConfigImpl() {
@@ -2149,7 +2149,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var Constants_1 = __webpack_require__(4);
 var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
 var Modules_1 = __webpack_require__(6);
@@ -2288,7 +2288,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ListenerImpl_1 = __importDefault(__webpack_require__(33));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var Modules_1 = __webpack_require__(6);
 var Constants_1 = __webpack_require__(4);
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
@@ -2427,7 +2427,7 @@ var Properties_1 = __importDefault(__webpack_require__(8));
 var Region_1 = __importDefault(__webpack_require__(54));
 var UnknownRegionError_1 = __importDefault(__webpack_require__(55));
 var ValidationRegExp_1 = __webpack_require__(7);
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var PubSub_1 = __importDefault(__webpack_require__(13));
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
@@ -2498,13 +2498,13 @@ var ComponentInternalsImpl = /** @class */ (function () {
         return ((this.regions[name]) ? true : false);
     };
     ComponentInternalsImpl.prototype.$apply = function (fn, args) {
-        requireNotNull(fn, "fn");
-        requireNotNull(args, "args");
+        var actualFn = fn || Constants_1.NO_OP_FN;
+        var actualArgs = args || [];
         if (this.parentSeen) {
-            this.mvvm.$apply(fn, args);
+            this.mvvm.$apply(actualFn, actualArgs);
         }
         else {
-            fn.apply(this.component, args);
+            actualFn.apply(this.component, actualArgs);
         }
     };
     ComponentInternalsImpl.prototype.setChild = function (name, component) {
@@ -3106,7 +3106,7 @@ var PubSub_1 = __importDefault(__webpack_require__(13));
 exports.PubSub = PubSub_1.default;
 var Stage_1 = __webpack_require__(78);
 exports.builder = Stage_1.builder;
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 exports.ElementMediator = ElementMediator_1.default;
 var Component_1 = __importDefault(__webpack_require__(12));
 exports.Component = Component_1.default;
@@ -3189,7 +3189,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Factories_1 = __importDefault(__webpack_require__(3));
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 /**
  *
  */
@@ -3355,7 +3355,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(11));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var LOGGER_NAME_LENGTH = 20;
 var LoggerImpl = /** @class */ (function () {
@@ -3558,7 +3558,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var RegistrationError_1 = __importDefault(__webpack_require__(38));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var requireValid = ObjectUtils_1.default.requireValid;
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
@@ -3741,7 +3741,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var BrokerImpl = /** @class */ (function () {
     function BrokerImpl() {
@@ -3876,7 +3876,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var CSSClass = /** @class */ (function (_super) {
     __extends(CSSClass, _super);
@@ -3935,7 +3935,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var Enabled = /** @class */ (function (_super) {
     __extends(Enabled, _super);
@@ -3980,7 +3980,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var ReadOnly = /** @class */ (function (_super) {
     __extends(ReadOnly, _super);
@@ -4025,7 +4025,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var Style = /** @class */ (function (_super) {
     __extends(Style, _super);
@@ -4078,7 +4078,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Constants_1 = __webpack_require__(4);
 var Events_1 = __importDefault(__webpack_require__(14));
 var Factories_1 = __importDefault(__webpack_require__(3));
@@ -4136,7 +4136,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 /**
  *
@@ -4213,7 +4213,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 /**
  *
@@ -4269,7 +4269,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 /**
  *
@@ -4339,7 +4339,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 /**
  *
@@ -4387,7 +4387,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Properties_1 = __importDefault(__webpack_require__(8));
 var Factories_1 = __importDefault(__webpack_require__(3));
 /**
@@ -4449,11 +4449,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Evaluator_1 = __importDefault(__webpack_require__(52));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var Properties_1 = __importDefault(__webpack_require__(8));
 var Constants_1 = __webpack_require__(4);
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var UtilityComponent_1 = __importDefault(__webpack_require__(53));
 var ItemComponent_1 = __importDefault(__webpack_require__(67));
@@ -4733,7 +4733,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
 var Constants_1 = __webpack_require__(4);
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var isDefined = ObjectUtils_1.default.isDefined;
 var Region = /** @class */ (function () {
     function Region(name, parent) {
@@ -4911,7 +4911,7 @@ var EventElementMediator_1 = __importDefault(__webpack_require__(65));
 var AttributeElementMediator_1 = __importDefault(__webpack_require__(66));
 var Factories_1 = __importDefault(__webpack_require__(3));
 var DirectEvents_1 = __importDefault(__webpack_require__(23));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var requireNonNull = ObjectUtils_1.default.requireNotNull;
 var MvvmImpl = /** @class */ (function () {
     function MvvmImpl(id, model, moduleInstance, prefix, scope, parentModelFn) {
@@ -5294,7 +5294,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(21));
 var Invoker_1 = __importDefault(__webpack_require__(60));
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var Setter_1 = __importDefault(__webpack_require__(22));
 var requireNotNull = ObjectUtils_1.default.requireNotNull;
 var DEFAULT_REDUCER = function (input) { return input; };
@@ -5609,8 +5609,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var TextElementMediator = /** @class */ (function (_super) {
     __extends(TextElementMediator, _super);
     function TextElementMediator(dependencies) {
@@ -5623,8 +5622,7 @@ var TextElementMediator = /** @class */ (function (_super) {
         // Intentionally do nothing
     };
     TextElementMediator.prototype.onTargetChange = function (previous, current) {
-        var replacement = ObjectUtils_1.default.encodeHtml(current);
-        this.getEl().textContent = replacement;
+        this.getEl().textContent = current;
     };
     return TextElementMediator;
 }(ElementMediator_1.default));
@@ -5654,7 +5652,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var EventElementMediator = /** @class */ (function (_super) {
     __extends(EventElementMediator, _super);
     function EventElementMediator(dependencies) {
@@ -5706,7 +5704,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(1));
+var ElementMediator_1 = __importDefault(__webpack_require__(0));
 var AttributeElementMediator = /** @class */ (function (_super) {
     __extends(AttributeElementMediator, _super);
     function AttributeElementMediator(dependencies) {
@@ -5872,7 +5870,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var CydranConfig_1 = __importDefault(__webpack_require__(24));
 var DomUtils_1 = __importDefault(__webpack_require__(79));
 var LoggerFactory_1 = __importDefault(__webpack_require__(2));
-var ObjectUtils_1 = __importDefault(__webpack_require__(0));
+var ObjectUtils_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var Modules_1 = __webpack_require__(6);
 var StageComponent_1 = __importDefault(__webpack_require__(80));
