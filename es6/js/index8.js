@@ -9,20 +9,22 @@ window.onload = function() {
   const PubSub = cydran.PubSub;
   const Stage = cydran.Stage;
 
-  const appTemplate = document.querySelector("template[id=main]").innerHTML;
-  const myCollectionsTemplate = document.querySelector(
-    "template[id=myCollections]"
-  ).innerHTML;
-  const groupTemplate = document.querySelector("template[id=group]").innerHTML;
-  const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
+	const templates = ["main", "myCollections", "group", "thing"].map((t) => {
+		const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
+		return {"key": t, "value": tempTemplate};
+	});
 
   const AppName = "App";
   const srcPath = "data/index7_data.min.json";
   const style_rotation = ["lowerRomanList", "lowerGreekList", "circleList"];
 
+	const TEMPLATE = (key) => {
+		return templates.find((t) => t.key == key).value;
+	};
+
   class App extends Component {
-    constructor(srcPath) {
-      super(appTemplate);
+    constructor() {
+      super(TEMPLATE("main"));
       this.pubSub = new PubSub(AppName);
       this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
       this.on("error").forChannel(AppName).invoke(this.dataError);
@@ -61,19 +63,19 @@ window.onload = function() {
 
   class GroupCollection extends Component {
     constructor() {
-      super(myCollectionsTemplate);
+      super(TEMPLATE("myCollections"));
     }
   }
 
   class Group extends Component {
     constructor() {
-      super(groupTemplate);
+      super(TEMPLATE("group"));
     }
   }
 
   class Thing extends Component {
     constructor() {
-      super(thingTemplate);
+      super(TEMPLATE("thing"));
     }
   }
 
