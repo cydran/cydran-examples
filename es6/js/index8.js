@@ -6,7 +6,6 @@ window.onload = function() {
 
   const builder = cydran.builder;
   const Component = cydran.Component;
-  const PubSub = cydran.PubSub;
   const Stage = cydran.Stage;
 
 	const templates = ["main", "myCollections", "group", "thing"].map((t) => {
@@ -25,7 +24,6 @@ window.onload = function() {
   class App extends Component {
     constructor() {
       super(TEMPLATE("main"));
-      this.pubSub = new PubSub(AppName);
       this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
       this.on("error").forChannel(AppName).invoke(this.dataError);
       this.log = this.getLogger();
