@@ -15,8 +15,9 @@
 				padding-bottom: 3px;
 			}
 
-			.mylist {
-				list-style: circle;
+			li ul[class=thingList] {
+				/* list-style-type: lower-roman; */
+				list-style-type: circle;
 			}
 		</style>
 
@@ -34,11 +35,13 @@
 				const Stage = cydran.Stage;
 
 				const appTemplate = document.querySelector("template[id=main]").innerHTML;
-				const myCollectionTemplate = document.querySelector("template[id=myCollection]").innerHTML;
+				const myCollectionsTemplate = document.querySelector("template[id=myCollections]").innerHTML;
+				const groupTemplate = document.querySelector("template[id=group]").innerHTML;
 				const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
 
 				const AppName = "App";
 				const srcPath = "data/index7_data.min.json";
+				const style_rotation = ["lowerRomanList", "lowerGreekList", "circleList"];
 
 				class App extends Component {
 
@@ -59,10 +62,10 @@
 						axios
 							.get(this.srcPath)
 							.then(response => {
-								this.pubSub.broadcast(AppName, "updated", response.data);
+								this.message(AppName, "updated", response.data);
 							})
 							.catch(error => {
-								this.pubSub.broadcast(AppName, "error", error);
+								this.message(AppName, "eroor", error);
 							});
 					}
 
@@ -82,7 +85,13 @@
 
 				class GroupCollection extends Component {
 					constructor() {
-						super(myCollectionTemplate);
+						super(myCollectionsTemplate);
+					}
+				}
+
+				class Group extends Component {
+					constructor() {
+						super(groupTemplate);
 					}
 				}
 
@@ -96,8 +105,9 @@
 				builder("body")
 					.withDebugLogging()
 					.withPrototype(wkappName, App)
-					.withPrototype("myCollection", GroupCollection)
+					.withPrototype("myCollections", GroupCollection)
 					.withPrototype("thing", Thing)
+					.withPrototype("group", Group)
 					.withInitializer((stage) => {
 						stage.setComponentFromRegistry(wkappName);
 					})
@@ -116,22 +126,22 @@
 				<h1 class="title is-smaller">
 					Nested Structures
 				</h1>
-				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
-				<button class="button is-success" c:onclick="m().doAReset()">Reset</button>
+				<button class="button" c:onclick="m().loadBuffer()">Load Data</button>
+				<button class="button" c:onclick="m().doAReset()">Reset</button>
 				<p />
 				<div c:repeat="m().mylist || []" c:repeat:mode="none">
 					<template type="empty">
 						<div>No data present...</div>
 					</template>
 					<template type="item">
-						<c:component name="myCollection"></c:component>
+						<c:component name="myCollections"></c:component>
 					</template>
 				</div>
 			</div>
 		</section>
 	</template>
 
-	<template id="myCollection">
+	<template id="myCollections">
 		<div>
 			Collection ID: {{i().id}}<br/>
 			<ul c:repeat="i().grouping || []" c:repeat:mode="none" class="collectionDivider">
@@ -139,19 +149,23 @@
 					<li>Nothing</li>
 				</template>
 				<template type="item">
-					<li>grouping id: {{i().id}}<br/>
-						<ul c:repeat="i().things" c:repeat:mode="none" class="mylist">
-							<template type="empty">
-								<li>Nothing</li>
-							</template>
-							<template type="item">
-								<c:component name="thing"></c:component>
-							</template>
-						</ul>
-					</li>
+					<c:component name="group"></c:component>
 				</template>
 			</ul>
 		</div>
+	</template>
+
+	<template id="group">
+		<li>Grouping id: {{i().id}}<br/>
+			<ul c:repeat="i().things" c:repeat:mode="none" class="thingList">
+				<template type="empty">
+					<li>Nothing</li>
+				</template>
+				<template type="item">
+					<c:component name="thing"></c:component>
+				</template>
+			</ul>
+		</li>
 	</template>
 
 	<template id="thing">
