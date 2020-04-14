@@ -1,7 +1,6 @@
 window.onload = function() {
   const channelName = "App";
   const msgType = "doUpdate";
-  const comms = new cydran.PubSub(channelName);
   let seq = 0;
 
   const builder = cydran.builder;
@@ -15,7 +14,6 @@ window.onload = function() {
 
   const AppName = "App";
   const srcPath = "data/index7_data.min.json";
-  const style_rotation = ["lowerRomanList", "lowerGreekList", "circleList"];
 
 	const TEMPLATE = (key) => {
 		return templates.find((t) => t.key == key).value;
