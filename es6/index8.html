@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Pure HTML - Cydran v0.1.6</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="js/axios.min.js" type="application/javascript"></script>
+		<script src="js/cydran/1.6/cydran.min.js" type="application/javascript"></script>
+		<style type="text/css">
+			.collectionDivider {
+				margin-bottom: 2px;
+				border-bottom: 3px dotted red;
+				padding-bottom: 3px;
+			}
+
+			.mylist {
+				list-style: circle;
+			}
+		</style>
+
+		<script>
+			window.onload = function () {
+
+				const channelName = "App";
+				const msgType = "doUpdate";
+				const comms = new cydran.PubSub(channelName);
+				let seq = 0;
+
+				const builder = cydran.builder;
+				const Component = cydran.Component;
+				const PubSub = cydran.PubSub;
+				const Stage = cydran.Stage;
+
+				const appTemplate = document.querySelector("template[id=main]").innerHTML;
+				const myCollectionTemplate = document.querySelector("template[id=myCollection]").innerHTML;
+				const thingTemplate = document.querySelector("template[id=thing]").innerHTML;
+
+				const AppName = "App";
+				const srcPath = "data/index7_data.min.json";
+
+				class App extends Component {
+
+					constructor(srcPath) {
+						super(appTemplate);
+						this.pubSub = new PubSub(AppName);
+						this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
+						this.on("error").forChannel(AppName).invoke(this.dataError);
+						this.log = this.getLogger();
+					}
+
+					init() {
+						this.srcPath = srcPath;
+						this.mylist = [];
+					}
+
+					loadBuffer() {
+						axios
+							.get(this.srcPath)
+							.then(response => {
+								this.pubSub.broadcast(AppName, "updated", response.data);
+							})
+							.catch(error => {
+								this.pubSub.broadcast(AppName, "error", error);
+							});
+					}
+
+					dataError(error) {
+						this.log.error(error);
+					}
+
+					dataUpdate(data) {
+						this.mylist = data;
+						this.log.ifInfo(() => "loaded \"" + this.srcPath + "\" file");
+					}
+
+					doAReset() {
+						this.reset();
+					}
+				}
+
+				class GroupCollection extends Component {
+					constructor() {
+						super(myCollectionTemplate);
+					}
+				}
+
+				class Thing extends Component {
+					constructor() {
+						super(thingTemplate);
+					}
+				}
+
+				const wkappName = "mainapp";
+				builder("body")
+					.withDebugLogging()
+					.withPrototype(wkappName, App)
+					.withPrototype("myCollection", GroupCollection)
+					.withPrototype("thing", Thing)
+					.withInitializer((stage) => {
+						stage.setComponentFromRegistry(wkappName);
+					})
+					.build()
+					.start();
+
+			}
+		</script>
+	</head>
+
+	<body></body>
+
+	<template id="main">
+		<section class="section">
+			<div class="container">
+				<h1 class="title is-smaller">
+					Nested Structures
+				</h1>
+				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
+				<button class="button is-success" c:onclick="m().doAReset()">Reset</button>
+				<p />
+				<div c:repeat="m().mylist || []" c:repeat:mode="none">
+					<template type="empty">
+						<div>No data present...</div>
+					</template>
+					<template type="item">
+						<c:component name="myCollection"></c:component>
+					</template>
+				</div>
+			</div>
+		</section>
+	</template>
+
+	<template id="myCollection">
+		<div>
+			Collection ID: {{i().id}}<br/>
+			<ul c:repeat="i().grouping || []" c:repeat:mode="none" class="collectionDivider">
+				<template type="empty">
+					<li>Nothing</li>
+				</template>
+				<template type="item">
+					<li>grouping id: {{i().id}}<br/>
+						<ul c:repeat="i().things" c:repeat:mode="none" class="mylist">
+							<template type="empty">
+								<li>Nothing</li>
+							</template>
+							<template type="item">
+								<c:component name="thing"></c:component>
+							</template>
+						</ul>
+					</li>
+				</template>
+			</ul>
+		</div>
+	</template>
+
+	<template id="thing">
+		<li>{{i().name}}</li>
+	</template>
+
+</html>
