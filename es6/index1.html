@@ -95,7 +95,7 @@
 			Total: {{m().fullData.length}}
 			<p/>
 			{{m().selectedLabel}}<p />
-			<div class="listbox" c:repeat="m().buffData">
+			<div class="listbox" c:repeat="m().buffData" c:repeat:mode="generated">
 				<template type="item">
 					<div class="listitem" c:onclick="m().setSelectedLabel(i().id)">{{i().id}}</div>
 				</template>

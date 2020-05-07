@@ -188,7 +188,7 @@
 					Nothing to show...
 				</div>
 				<div c:if="m().mylist.length > 0">
-					<select c:repeat="m().mylist" c:model="m().selectedItemId" size="10" c:force-focus="true">
+					<select c:repeat="m().mylist" c:repeat:mode="generated" c:model="m().selectedItemId" size="10" c:force-focus="true">
 						<template type="item">
 							<option value="{{i().id}}" style="width: 75px;">{{i().name}}</option>
 						</template>
@@ -209,7 +209,7 @@
 		<div>
 			<span class="is-size-4">{{m().rname}}</span>
 			<br clear="all" />
-			<div c:repeat="m().entries">
+			<div c:repeat="m().entries" c:repeat:mode="none" c:repeat:idkey="key">
 				<template type="item">
 					<div>
 						<hr />
