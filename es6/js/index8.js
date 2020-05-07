@@ -25,9 +25,12 @@ window.onload = function() {
       this.on("updated").forChannel(AppName).invoke(this.dataUpdate);
       this.on("error").forChannel(AppName).invoke(this.dataError);
       this.log = this.getLogger();
+      this.srcPath = srcPath;
+      this.mylist = [];
     }
 
-    init() {
+    baseline() {
+			this.getLogger().info("returning to baseline");
       this.srcPath = srcPath;
       this.mylist = [];
     }
@@ -50,10 +53,6 @@ window.onload = function() {
     dataUpdate(data) {
       this.mylist = data;
       this.log.ifInfo(() => 'loaded "' + this.srcPath + '" file');
-    }
-
-    doAReset() {
-      this.reset();
     }
   }
 

@@ -12,9 +12,10 @@ window.onload = function() {
 			this.on('updated').forChannel(APP).invoke(this.dataUpdate);
 			this.on('error').forChannel(APP).invoke(this.dataError);
 			this.pubSub = new PubSub(new.target);
+			this.baseline();
 		}
 
-		init() {
+		baseline() {
 			this.pgLabel = 'Cydran ES6 Example - Data';
 			this.buffData = [];
 			this.selectedItem = "Nothing yet...";
@@ -50,7 +51,7 @@ window.onload = function() {
 		}
 
 		doReset() {
-			this.reset();
+			this.baseline();
 		}
 	}
 

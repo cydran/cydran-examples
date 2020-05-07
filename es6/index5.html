@@ -25,16 +25,17 @@
 				comms.broadcast(CName, ActName, {name: 'outside'});			
 			});
 		
-		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().reset()\">Reset</button></span>";
+		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().baseline()\">Reset</button></span>";
 
 		class App extends cydran.Component {
 			constructor() {
 				super(T);
 				this.on(ActName).forChannel(CName).invoke(this.tweak);
 				setInterval(() => { ++this.id }, 1000);
+				this.id = 0;
 			}
 
-			init() {
+			baseline() {
 				this.id = 0;
 			}
 

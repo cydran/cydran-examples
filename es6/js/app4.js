@@ -4,9 +4,6 @@ const Component = cydran.Component;
 class App4 extends Component {
   constructor() {
     super(document.querySelector("#myComponent").innerHTML.trim());
-  }
-
-  init() {
     this.pgLabel = "Cydran ES6 Example - Stuff";
   }
 

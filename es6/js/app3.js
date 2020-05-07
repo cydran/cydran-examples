@@ -8,9 +8,6 @@ window.onload = function() {
 	class App3 extends Component {
 		constructor() {
 			super(T);
-		}
-
-		init() {
 			this.pgLabel = 'Cydran ES6 Example - Stuff';
 		}
 
