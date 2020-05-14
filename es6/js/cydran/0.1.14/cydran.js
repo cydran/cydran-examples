@@ -1,5 +1,5 @@
 /*!
- * v0.1.13
+ * v0.1.14
  * Cydran <http://cydran.io/>
  * Copyright (c) 2018 The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -4332,7 +4332,7 @@ var Repeat = /** @class */ (function (_super) {
             this.map = newMap;
             var el = this.getEl();
             while (el.firstChild) {
-                el.removeChild(el.firstChild);
+                el.removeChild(el.lastChild);
             }
             if (components.length === 0) {
                 if (this.empty) {
@@ -4340,31 +4340,19 @@ var Repeat = /** @class */ (function (_super) {
                 }
             }
             else {
-                if (this.elIsSelect) {
-                    if (this.first) {
-                        el.appendChild(this.first.getEl());
-                    }
-                    for (var _a = 0, components_1 = components; _a < components_1.length; _a++) {
-                        var component = components_1[_a];
-                        el.appendChild(component.getEl());
-                    }
-                    if (this.last) {
-                        el.appendChild(this.last.getEl());
-                    }
+                var workingEl = (this.elIsSelect) ? el : Properties_1.default.getWindow().document.createDocumentFragment();
+                if (this.first) {
+                    workingEl.appendChild(this.first.getEl());
                 }
-                else {
-                    var fragment = Properties_1.default.getWindow().document.createDocumentFragment();
-                    if (this.first) {
-                        fragment.appendChild(this.first.getEl());
-                    }
-                    for (var _b = 0, components_2 = components; _b < components_2.length; _b++) {
-                        var component = components_2[_b];
-                        fragment.appendChild(component.getEl());
-                    }
-                    if (this.last) {
-                        fragment.appendChild(this.last.getEl());
-                    }
-                    el.appendChild(fragment);
+                for (var _a = 0, components_1 = components; _a < components_1.length; _a++) {
+                    var component = components_1[_a];
+                    workingEl.appendChild(component.getEl());
+                }
+                if (this.last) {
+                    workingEl.appendChild(this.last.getEl());
+                }
+                if (!this.elIsSelect) {
+                    el.appendChild(workingEl);
                 }
             }
         }
@@ -6153,7 +6141,7 @@ var AbstractFunctionalFactory = /** @class */ (function () {
                     break;
             }
         }
-        var result = this.fn(params);
+        var result = this.fn.apply({}, params);
         for (var _b = 0, pubSubs_1 = pubSubs; _b < pubSubs_1.length; _b++) {
             var pubSub = pubSubs_1[_b];
             pubSub.setContext(result);
