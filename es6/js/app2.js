@@ -1,7 +1,7 @@
 window.onload = function() {
 	const builder = cydran.builder;
 	const Component = cydran.Component;
-	const PubSub = cydran.PubSub;
+	const requireNotNull = cydran.requireNotNull;
 
 	const T = document.querySelector('#myComponent').innerHTML.trim();
 	const APP = "app";
@@ -11,7 +11,6 @@ window.onload = function() {
 			super(T);
 			this.on('updated').forChannel(APP).invoke(this.dataUpdate);
 			this.on('error').forChannel(APP).invoke(this.dataError);
-			this.pubSub = new PubSub(new.target);
 			this.baseline();
 		}
 
@@ -19,6 +18,7 @@ window.onload = function() {
 			this.pgLabel = 'Cydran ES6 Example - Data';
 			this.buffData = [];
 			this.selectedItem = "Nothing yet...";
+			this.lastHoverItem = "";
 			this.loadBuffer();
 		}
 
@@ -26,10 +26,10 @@ window.onload = function() {
 			axios
 				.get('./data/oss_licenses.json')
 				.then(response => {
-					this.pubSub.broadcast(APP, 'updated', response.data);
+					this.broadcast(APP, 'updated', response.data);
 				})
 				.catch(error => {
-					this.pubSub.broadcast(APP, 'error', error);
+					this.broadcast(APP, 'error', error);
 				});
 		}
 
