@@ -37,7 +37,7 @@
 		<div>
 			<h2>{{m().pgLabel}} {{m().view}}</h2><br/>
 			Current Page: <div class="loud">{{m().curPag}}</div><p />
-			<button c:onclick="m().goView(2)">Go To View 2</button>&nbsp;<button c:onclick="m().goInitialView()">Go Initial Page</button><p />
+			<button c:onclick="m().goView(2)">Go To View 2</button><p />
 			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" /><br/>
 			Offset: <input type="number" c:model="m().offset" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" /><p />
 			<button c:onclick="model().handleClickFirst()">First</button>
@@ -89,8 +89,8 @@
 		<div>
 			<h2>{{m().pgLabel}} {{m().view}}</h2><br/>
 			Current Page: <div class="loud">{{m().curPag}}</div><p />
-			<button c:onclick="m().goView(1)">Go To View 1</button>&nbsp;<button c:onclick="m().goInitialView()">Go Initial Page</button><p />
-			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" />&nbsp;<button c:onclick="m().populateBuffer()">Update List</button>&nbsp;<button c:onclick="m().clearBuffer()">Clear</button><br/>
+			<button c:onclick="m().goView(1)">Go To View 1</button>&nbsp;<button c:onclick="m().resetAll()">Baseline</button><p />
+			Max: <input type="number" c:model="m().max" min="{{m().mincount}}" c:onchange="m().updatePageLoc()" />&nbsp;<button c:onclick="m().populateDataSet()">Update List</button>&nbsp;<button c:onclick="m().clearBuffer()">Clear</button><br/>
 			Offset: {{m().offset}}<br/>
 			Total: {{m().fullData.length}}
 			<p/>
