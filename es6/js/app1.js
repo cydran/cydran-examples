@@ -19,7 +19,7 @@ window.onload = function() {
 		return Number(urlParams.get(c));
 	}
 
-	const D_C = { COUNT: 10000, OFFSET: 250, IDX: 0 };
+	const D_C = { COUNT: 10000, OFFSET: 100, IDX: 0 };
 	const DIR = { UP: 1, DOWN: -1 };
 
 	const wkview = getView('v');
@@ -31,6 +31,8 @@ window.onload = function() {
 	class App extends Component {
 		constructor() {
 			super(wkview.template);
+
+			this.on("select").forChannel(Item.name).invoke(this.setSelectedLabel);
 			this.pgLabel = 'Cydran ES6 Example - Page';
 			this.origMsg = 'No button has been clicked';
 			this.text = this.origMsg;
@@ -48,7 +50,7 @@ window.onload = function() {
 			this.color = "#97c024";
 			this.hideImage = false;
 
-			this.populateBuffer();
+			this.populateDataSet();
 		}
 
 		handleClickFirst() {
@@ -63,8 +65,8 @@ window.onload = function() {
 			this.text = this.origMsg;
 		}
 
-		setSelectedLabel(c) {
-			this.selectedLabel = this.createLabel(c);
+		setSelectedLabel(item) {
+			this.selectedLabel = 'label: #' + item.id;
 		}
 
 		createLabel(c) {
@@ -107,10 +109,10 @@ window.onload = function() {
 			this.updateBuffer(DIR.DOWN);
 		}
 
-		populateBuffer() {
-			this.fullData = [];
+		populateDataSet() {
+			this.fullData = new Array(this.max);
 			for (let i = 0; i < this.max; i++) {
-				this.fullData.push({ id: i });
+				this.fullData[i] = { id: i };
 			}
 			this.toTheBeginning();
 		}
@@ -137,7 +139,7 @@ window.onload = function() {
 			window.location = this.curPg;
 		}
 
-		goInitialView() {
+		resetAll() {
 			const l = new URL(window.location);
 			window.location = l.origin + l.pathname;
 		}
@@ -147,8 +149,20 @@ window.onload = function() {
 		}
 	}
 
+	const ItemTemplate = "<div class='listitem' c:onclick='m().doLabel()'>{{v().id}}</div>";	
+	class Item extends Component {
+		constructor() {
+			super(ItemTemplate);
+		}
+
+		doLabel() {
+			this.broadcast(Item.name, "select", this.getValue());
+		}
+	}
+
 	builder('#pgpart')
 		.withDebugLogging()
+		.withPrototype(Item.name, Item)
 		.withInitializer(function() {
 			const app = new App();
 			app.curPag = window.location.href;
