@@ -34,11 +34,14 @@
 				super(TEMPLATE);
 				this.on(msgName).forChannel(App.name).invoke(this.tweak);
 				setInterval(() => { ++this.id }, 1000);
-				this.id = 0;
+				this.baseline();
 			}
 
 			baseline() {
 				this.id = 0;
+				this.before = 0;
+				this.after = 0;
+				this.caller = "initial";
 			}
 
 			tweak(payload) {
