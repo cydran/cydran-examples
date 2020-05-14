@@ -97,7 +97,7 @@
 			{{m().selectedLabel}}<p />
 			<div class="listbox" c:repeat="m().buffData" c:repeat:mode="none">
 				<template type="item">
-					<div class="listitem" c:onclick="m().setSelectedLabel(i().id)">{{i().id}}</div>
+					<c:component name="Item"></c:component>
 				</template>
 			</div><br/>
 			<span class="extremes" c:onclick="m().toTheBeginning()">&lt;&lt;&nbsp;</span>
