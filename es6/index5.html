@@ -24,6 +24,7 @@
 			Caller: {{m().caller}} | Before: {{m().before}} | After: {{m().after}}
 		</div>
 	</template>
+
 	<script>
 		
 		const msgName = "doUpdate";
@@ -45,9 +46,9 @@
 			}
 
 			tweak(payload) {
-				console.log("Who called:", payload.name);
-				console.log("App Before:", this.id);
-				console.log("App After:", ++this.id);
+				this.caller = payload.name;
+				this.before = this.id;
+				this.after = ++this.id;
 			}
 		}
 
