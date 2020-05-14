@@ -45,9 +45,9 @@ window.onload = function() {
 			this.selectedItem = value;
 		}
 
-		logTheItem() {
-			//alert("License Abbrev: " + this.selectedItem);
-			this.getLogger().info("value: " + this.selectedItem);
+		logTheItem(value) {
+			this.lastHoverItem = value;
+			this.getLogger().info("value: " + this.lastHoverItem.name);
 		}
 
 		doReset() {
@@ -57,10 +57,10 @@ window.onload = function() {
 
 	builder('#pgpart')
 		.withDebugLogging()
-		.withInitializer(function() {
-			const app = new App2();
-			this.setComponent(app);
-		})
+		.withPrototype(App2.name, App2, ["$pubSub"])
+		.withInitializer(stage => {
+      stage.setComponentFromRegistry(App2.name);
+    })
 		.build()
 		.start();
 };
