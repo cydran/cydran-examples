@@ -100,10 +100,10 @@
 					<c:component name="Item"></c:component>
 				</template>
 			</div><br/>
-			<span class="extremes" c:onclick="m().toTheBeginning()">&lt;&lt;&nbsp;</span>
+			<span class="extremes" c:onclick="m().toTheBeginning()" c:if="m().allowPrior">&lt;&lt;&nbsp;</span>
 			<button c:onclick="m().previousBuffer()" c:enabled="m().allowPrior">Previous</button>
 			<button c:onclick="m().nextBuffer()" c:enabled="m().allowNext">Next</button>
-			<span class="extremes" c:onclick="m().toTheEnd()">&nbsp;&gt;&gt;</span>
+			<span class="extremes" c:onclick="m().toTheEnd()" c:if="m().allowNext">&nbsp;&gt;&gt;</span>
 		</div>
 	</template>
 
