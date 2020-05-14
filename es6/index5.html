@@ -15,14 +15,23 @@
 		</div>
 	</body>
 
+	<template id="working">
+		<div>
+			<h2>{{m().id}}</h2>
+			<button type="button" c:onclick="m().tweak({name: 'inside'})">App Tweak!</button><button type="button" c:onclick="m().baseline()">Reset</button>
+			<br/>
+			<br/>
+			Caller: {{m().caller}} | Before: {{m().before}} | After: {{m().after}}
+		</div>
+	</template>
 	<script>
 		
 		const msgName = "doUpdate";
-		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().baseline()\">Reset</button></span>";
+		const TEMPLATE = document.querySelector("template[id=working]").innerHTML.trim();
 
 		class App extends cydran.Component {
 			constructor() {
-				super(T);
+				super(TEMPLATE);
 				this.on(msgName).forChannel(App.name).invoke(this.tweak);
 				setInterval(() => { ++this.id }, 1000);
 				this.id = 0;
