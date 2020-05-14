@@ -1,0 +1,29 @@
+{
+  "name": "es6",
+  "version": "0.0.1",
+  "description": "\"ES6 Examples using Cydran Framework library\"",
+  "main": "\"\"",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cydran/cydran-examples.git"
+  },
+  "keywords": [
+    "example",
+    "cydran",
+    "framework",
+    "es6"
+  ],
+  "author": "The Cydran Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cydran/cydran-examples/issues"
+  },
+  "homepage": "https://github.com/cydran/cydran-examples#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "cydran": "0.1.13"
+  }
+}
