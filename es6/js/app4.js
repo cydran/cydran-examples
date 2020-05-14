@@ -97,10 +97,10 @@ builder("#pgpart")
   .withDebugLogging()
   .withCapability(modalCapacity)
   .withCapability(builder => {
-    builder.withPrototype("app4", App4);
+    builder.withPrototype(App4.name, App4);
   })
   .withInitializer(function() {
-    this.setComponentFromRegistry("app4");
+    this.setComponentFromRegistry(App4.name);
   })
   .build()
   .start();
