@@ -5,7 +5,7 @@
 		<title>Pure HTML - Cydran</title>
 		<meta charset="UTF-8">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<script src="js/cydran/0.1.11/cydran.min.js"></script>
+		<script src="js/cydran/0.1.13/cydran.min.js"></script>
 	</head>
 
 	<body>
@@ -16,21 +16,14 @@
 	</body>
 
 	<script>
-		const CName = "App";
-		const ActName = "doUpdate";
-		const comms = new cydran.PubSub(CName);
 		
-		document.querySelector("button#outside")
-			.addEventListener('click', () => {
-				comms.broadcast(CName, ActName, {name: 'outside'});			
-			});
-		
+		const msgName = "doUpdate";
 		const T = "<span><h2>{{m().id}}</h2><button type=\"button\" c:onclick=\"m().tweak({name: 'inside'})\">App Tweak!</button><button type=\"button\" c:onclick=\"m().baseline()\">Reset</button></span>";
 
 		class App extends cydran.Component {
 			constructor() {
 				super(T);
-				this.on(ActName).forChannel(CName).invoke(this.tweak);
+				this.on(msgName).forChannel(App.name).invoke(this.tweak);
 				setInterval(() => { ++this.id }, 1000);
 				this.id = 0;
 			}
@@ -48,9 +41,15 @@
 
 		cydran.builder('#pgpart')
 			.withDebugLogging()
-			.withInitializer(function () {
+			.withInitializer((stage) => {
 				window.appStage = new App();
-				this.setComponent(window.appStage);
+				const comms = stage.getDefaultModule().createPubSubFor(window);
+				document.querySelector("button#outside")
+					.addEventListener('click', () => {
+						comms.broadcast(App.name, msgName, {name: 'outside'});			
+					});
+				
+				stage.setComponent(window.appStage);
 			})
 			.build()
 			.start();

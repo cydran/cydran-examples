@@ -10,7 +10,7 @@
 		<meta name="theme-color" content="#254665" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script src="js/axios.min.js"></script>
-		<script src="js/cydran/0.1.11/cydran.min.js"></script>
+		<script src="js/cydran/0.1.13/cydran.min.js"></script>
 		<style type="text/css">
 			
 		</style>
@@ -40,9 +40,10 @@
 		<div>
 			<h2>{{m().pgLabel}}</h2><p/>
 			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud">{{m().selectedItem}}</span><p/>
+			Last Hover Item: {{m().lastHoverItem.name}}<p/>
 			<div c:repeat="m().buffData" c:repeat:mode="generated" class="listbox" >
 				<template type="item">
-					<div c:onmouseover="m().updateItem(i().id)" c:onclick="m().logTheItem()">{{i().name}}</div>
+					<div c:onmouseover="m().logTheItem(v())" c:onclick="m().updateItem(v().id)">{{i().name}}</div>
 				</template>
 			</div>
 		</div>
