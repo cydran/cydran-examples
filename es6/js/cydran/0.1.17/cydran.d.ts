@@ -168,6 +168,9 @@ export declare class Component implements Nestable {
 	isConnected(): boolean;
 	getId(): string;
 	forElement<E extends HTMLElement>(name: string): NamedElementOperations<E>;
+	watch<T>(expression: string, target: (previous: T, current: T) => void, reducerFn?: (input: any) => T, context?: any): void;
+	evaluate<T>(expression: string): T;
+	getWatchContext(): any;
 	/**
 	 * @deprecated
 	 */
@@ -177,7 +180,6 @@ export declare class Component implements Nestable {
 	protected broadcast(channelName: string, messageName: string, payload?: any): void;
 	protected broadcastGlobally(channelName: string, messageName: string, payload?: any): void;
 	protected $apply(fn?: Function, args?: any[]): void;
-	protected watch<T>(expression: string, target: (previous: T, current: T) => void, reducerFn?: (input: any) => T): void;
 	protected on(messageName: string): OnContinuation;
 	protected getLogger(): Logger;
 	protected ____internal$$cydran$$init____(template: string, config: ComponentConfig): void;
@@ -190,6 +192,9 @@ export declare class ComponentConfigBuilder {
 	withPrefix(prefix: string): ComponentConfigBuilder;
 	build(): ComponentConfig;
 }
+export declare class Filters {
+	static builder(watchable: Watchable, expression: string): FilterBuilder;
+}
 export declare class LoggerFactory {
 	/**
 	 * Get the named logger
@@ -199,10 +204,10 @@ export declare class LoggerFactory {
 }
 export declare const Events: any;
 export declare const builder: (rootSelector: string) => StageBuilder;
-export declare const isDefined: (value: any) => boolean;
-export declare const requireNotNull: <T>(value: T, name: string) => T;
-export declare const requireValid: (value: string, name: string, regex: RegExp) => string;
+export declare function isDefined(value: any): boolean;
 export declare function noConflict(): any;
+export declare function requireNotNull<T>(value: T, name: string): T;
+export declare function requireValid(value: string, name: string, regex: RegExp): string;
 export interface ComponentConfig {
 	getMetadata(key: string): any;
 	getPrefix(): string;
@@ -218,6 +223,17 @@ export interface Disposable {
 }
 export interface Evaluatable {
 	evaluate(): boolean;
+}
+export interface Filter {
+	items(): any[];
+	extend(): FilterBuilder;
+}
+export interface FilterBuilder {
+	withPredicate(expression: string, ...parameterExpressions: string[]): FilterBuilder;
+	withSort(expression: string, ...parameterExpressions: string[]): FilterBuilder;
+	withLimit(limit: number): FilterBuilder;
+	build(): Filter;
+	with(fn: (builder: FilterBuilder) => void): any;
 }
 export interface ForChannelContinuation {
 	invoke(target: (payload: any) => void): void;
@@ -285,7 +301,7 @@ export interface NamedElementOperations<E extends HTMLElement> {
 	focus(): void;
 	blur(): void;
 }
-export interface Nestable extends Disposable {
+export interface Nestable extends Disposable, Watchable {
 	metadata(): MetadataContinuation;
 	hasRegion(name: string): boolean;
 	getChild<N extends Nestable>(name: string): N;
@@ -372,6 +388,11 @@ export interface StageBuilder {
 }
 export interface Type<T> extends Function {
 	new (...args: any[]): T;
+}
+export interface Watchable {
+	watch<T>(expression: string, target: (previous: T, current: T) => void, reducerFn?: (input: any) => T, context?: any): void;
+	evaluate<T>(expression: string): T;
+	getWatchContext(): any;
 }
 
 export as namespace cydran;
