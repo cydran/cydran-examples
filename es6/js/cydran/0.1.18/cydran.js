@@ -1,5 +1,5 @@
 /*!
- * v0.1.17
+ * v0.1.18
  * Cydran <http://cydran.io/>
  * Copyright (c) 2018 The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -123,7 +123,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeHtml = exports.isDefined = exports.requireValid = exports.requireNotNull = exports.equals = exports.clone = void 0;
-var NullValueError_1 = __importDefault(__webpack_require__(19));
+var NullValueError_1 = __importDefault(__webpack_require__(20));
 var ValidationError_1 = __importDefault(__webpack_require__(35));
 /* tslint:disable */
 var LARGE_ARRAY_SIZE = 200;
@@ -1293,7 +1293,7 @@ function isDefined(value) {
 }
 exports.isDefined = isDefined;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18), __webpack_require__(34)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(34)(module)))
 
 /***/ }),
 /* 1 */
@@ -1306,7 +1306,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerImpl_1 = __importDefault(__webpack_require__(36));
-var LoggerServiceImpl_1 = __importDefault(__webpack_require__(20));
+var LoggerServiceImpl_1 = __importDefault(__webpack_require__(21));
 var LoggerFactory = /** @class */ (function () {
     function LoggerFactory() {
     }
@@ -1328,6 +1328,36 @@ exports.default = LoggerFactory;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EMPTY_OBJECT_FN = exports.NO_OP_FN = exports.TEXT_NODE_TYPE = exports.MODULE_FIELD_NAME = exports.INTERNAL_CHANNEL_NAME = exports.INTERNAL_DIRECT_CHANNEL_NAME = exports.DEFAULT_MODULE_KEY = exports.COMPONENT_INTERNALS_FIELD_NAME = void 0;
+var INTERNAL_DIRECT_CHANNEL_NAME = "Cydran$$Direct$$Internal$$Channel";
+exports.INTERNAL_DIRECT_CHANNEL_NAME = INTERNAL_DIRECT_CHANNEL_NAME;
+var TEXT_NODE_TYPE = 3;
+exports.TEXT_NODE_TYPE = TEXT_NODE_TYPE;
+var MODULE_FIELD_NAME = "____internal$$cydran$$module____";
+exports.MODULE_FIELD_NAME = MODULE_FIELD_NAME;
+var INTERNAL_CHANNEL_NAME = "Cydran$$Internal$$Channel";
+exports.INTERNAL_CHANNEL_NAME = INTERNAL_CHANNEL_NAME;
+var COMPONENT_INTERNALS_FIELD_NAME = "____internal$$cydran____";
+exports.COMPONENT_INTERNALS_FIELD_NAME = COMPONENT_INTERNALS_FIELD_NAME;
+var DEFAULT_MODULE_KEY = "DEFAULT";
+exports.DEFAULT_MODULE_KEY = DEFAULT_MODULE_KEY;
+function NO_OP_FN() {
+    // Intentionally do nothing
+}
+exports.NO_OP_FN = NO_OP_FN;
+function EMPTY_OBJECT_FN() {
+    return {};
+}
+exports.EMPTY_OBJECT_FN = EMPTY_OBJECT_FN;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -1335,8 +1365,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var ParamUtils_1 = __webpack_require__(38);
-var Constants_1 = __webpack_require__(3);
-var IdGenerator_1 = __importDefault(__webpack_require__(21));
+var Constants_1 = __webpack_require__(2);
+var IdGenerator_1 = __importDefault(__webpack_require__(22));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
 var ObjectUtils_1 = __webpack_require__(0);
 /**
@@ -1577,36 +1607,6 @@ exports.default = ElementMediator;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EMPTY_OBJECT_FN = exports.NO_OP_FN = exports.TEXT_NODE_TYPE = exports.MODULE_FIELD_NAME = exports.INTERNAL_CHANNEL_NAME = exports.INTERNAL_DIRECT_CHANNEL_NAME = exports.DEFAULT_MODULE_KEY = exports.COMPONENT_INTERNALS_FIELD_NAME = void 0;
-var INTERNAL_DIRECT_CHANNEL_NAME = "Cydran$$Direct$$Internal$$Channel";
-exports.INTERNAL_DIRECT_CHANNEL_NAME = INTERNAL_DIRECT_CHANNEL_NAME;
-var TEXT_NODE_TYPE = 3;
-exports.TEXT_NODE_TYPE = TEXT_NODE_TYPE;
-var MODULE_FIELD_NAME = "____internal$$cydran$$module____";
-exports.MODULE_FIELD_NAME = MODULE_FIELD_NAME;
-var INTERNAL_CHANNEL_NAME = "Cydran$$Internal$$Channel";
-exports.INTERNAL_CHANNEL_NAME = INTERNAL_CHANNEL_NAME;
-var COMPONENT_INTERNALS_FIELD_NAME = "____internal$$cydran____";
-exports.COMPONENT_INTERNALS_FIELD_NAME = COMPONENT_INTERNALS_FIELD_NAME;
-var DEFAULT_MODULE_KEY = "DEFAULT";
-exports.DEFAULT_MODULE_KEY = DEFAULT_MODULE_KEY;
-function NO_OP_FN() {
-    // Intentionally do nothing
-}
-exports.NO_OP_FN = NO_OP_FN;
-function EMPTY_OBJECT_FN() {
-    return {};
-}
-exports.EMPTY_OBJECT_FN = EMPTY_OBJECT_FN;
-
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1744,7 +1744,7 @@ var Properties = /** @class */ (function () {
 }());
 exports.default = Properties;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
 /* 9 */
@@ -1847,7 +1847,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var NullValueError_1 = __importDefault(__webpack_require__(19));
+var NullValueError_1 = __importDefault(__webpack_require__(20));
 var ScopeError_1 = __importDefault(__webpack_require__(52));
 var ValidationRegExp_1 = __webpack_require__(7);
 var EXCLUSIONS = {
@@ -1973,7 +1973,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
 var ObjectUtils_1 = __webpack_require__(0);
 /**
@@ -2146,7 +2146,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ListenerImpl_1 = __importDefault(__webpack_require__(39));
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ObjectUtils_1 = __webpack_require__(0);
 var PubSubImpl = /** @class */ (function () {
@@ -2284,7 +2284,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var TemplateError_1 = __importDefault(__webpack_require__(22));
+var TemplateError_1 = __importDefault(__webpack_require__(23));
 var Properties_1 = __importDefault(__webpack_require__(8));
 var Region_1 = __importDefault(__webpack_require__(58));
 var UnknownRegionError_1 = __importDefault(__webpack_require__(59));
@@ -2292,19 +2292,19 @@ var ValidationRegExp_1 = __webpack_require__(7);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var SetComponentError_1 = __importDefault(__webpack_require__(60));
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ComponentConfig_1 = __webpack_require__(9);
 var Events_1 = __importDefault(__webpack_require__(14));
 var ExternalMediator_1 = __importDefault(__webpack_require__(61));
 var MvvmImpl_1 = __importDefault(__webpack_require__(62));
-var DirectEvents_1 = __importDefault(__webpack_require__(24));
-var IdGenerator_1 = __importDefault(__webpack_require__(21));
+var DirectEvents_1 = __importDefault(__webpack_require__(25));
+var IdGenerator_1 = __importDefault(__webpack_require__(22));
 var NamedElementOperationsImpl_1 = __importDefault(__webpack_require__(72));
 var UnknownElementError_1 = __importDefault(__webpack_require__(73));
 var Getter_1 = __importDefault(__webpack_require__(16));
 var ModuleAffinityError_1 = __importDefault(__webpack_require__(74));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
-var ModulesContextImpl_1 = __importDefault(__webpack_require__(25));
+var ModulesContextImpl_1 = __importDefault(__webpack_require__(26));
 var ObjectUtils_1 = __webpack_require__(0);
 var DEFAULT_COMPONENT_CONFIG = new ComponentConfig_1.ComponentConfigBuilder().build();
 var ComponentInternalsImpl = /** @class */ (function () {
@@ -2760,6 +2760,46 @@ exports.default = WatcherImpl;
 
 /***/ }),
 /* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ObjectUtils_1 = __webpack_require__(0);
+var Constants_1 = __webpack_require__(2);
+var AbstractPhaseImpl = /** @class */ (function () {
+    function AbstractPhaseImpl(previous) {
+        this.previous = ObjectUtils_1.requireNotNull(previous, "previous");
+        this.memo = null;
+        this.callback = Constants_1.NO_OP_FN;
+    }
+    AbstractPhaseImpl.prototype.process = function (items) {
+        var processed = this.previous.process(items);
+        if (!ObjectUtils_1.isDefined(processed) || ObjectUtils_1.equals(processed, this.memo)) {
+            return null;
+        }
+        this.memo = ObjectUtils_1.clone(processed);
+        return this.execute(processed);
+    };
+    AbstractPhaseImpl.prototype.onChange = function () {
+        this.memo = null;
+        this.callback();
+    };
+    AbstractPhaseImpl.prototype.invalidate = function () {
+        this.onChange();
+        this.previous.invalidate();
+    };
+    AbstractPhaseImpl.prototype.setCallback = function (callback) {
+        this.callback = callback;
+        this.previous.setCallback(callback);
+    };
+    return AbstractPhaseImpl;
+}());
+exports.default = AbstractPhaseImpl;
+
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports) {
 
 var g;
@@ -2785,7 +2825,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2816,7 +2856,7 @@ exports.default = NullValueError;
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2868,7 +2908,7 @@ exports.default = LoggerServiceImpl;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2901,7 +2941,7 @@ exports.default = IdGenerator;
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2932,7 +2972,7 @@ exports.default = TemplateError;
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2966,7 +3006,7 @@ exports.default = Setter;
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2979,7 +3019,7 @@ exports.default = DirectEvents;
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2989,7 +3029,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ValidationRegExp_1 = __webpack_require__(7);
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var ModuleImpl_1 = __importDefault(__webpack_require__(75));
@@ -3074,7 +3114,7 @@ exports.default = ModulesContextImpl;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3084,7 +3124,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Level_1 = __importDefault(__webpack_require__(12));
-var LoggerServiceImpl_1 = __importDefault(__webpack_require__(20));
+var LoggerServiceImpl_1 = __importDefault(__webpack_require__(21));
 var CydranConfig = /** @class */ (function () {
     function CydranConfig() {
     }
@@ -3112,42 +3152,6 @@ var CydranConfig = /** @class */ (function () {
     return CydranConfig;
 }());
 exports.default = CydranConfig;
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __webpack_require__(0);
-var Constants_1 = __webpack_require__(3);
-var AbstractPhaseImpl = /** @class */ (function () {
-    function AbstractPhaseImpl(previous) {
-        this.previous = ObjectUtils_1.requireNotNull(previous, "previous");
-        this.memo = null;
-        this.callback = Constants_1.NO_OP_FN;
-    }
-    AbstractPhaseImpl.prototype.process = function (items) {
-        var processed = this.previous.process(items);
-        if (!ObjectUtils_1.isDefined(processed) || ObjectUtils_1.equals(processed, this.memo)) {
-            return null;
-        }
-        this.memo = ObjectUtils_1.clone(processed);
-        return this.execute(processed);
-    };
-    AbstractPhaseImpl.prototype.onChange = function () {
-        this.memo = null;
-        this.callback();
-    };
-    AbstractPhaseImpl.prototype.setCallback = function (callback) {
-        this.callback = callback;
-        this.previous.setCallback(callback);
-    };
-    return AbstractPhaseImpl;
-}());
-exports.default = AbstractPhaseImpl;
 
 
 /***/ }),
@@ -3196,7 +3200,7 @@ __webpack_require__(94);
 __webpack_require__(95);
 var ComponentConfig_1 = __webpack_require__(9);
 Object.defineProperty(exports, "ComponentConfigBuilder", { enumerable: true, get: function () { return ComponentConfig_1.ComponentConfigBuilder; } });
-var CydranConfig = __importStar(__webpack_require__(26));
+var CydranConfig = __importStar(__webpack_require__(27));
 exports.CydranConfig = CydranConfig;
 var Events_1 = __importDefault(__webpack_require__(14));
 exports.Events = Events_1.default;
@@ -3204,7 +3208,7 @@ var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 exports.LoggerFactory = LoggerFactory_1.default;
 var Stage_1 = __webpack_require__(96);
 Object.defineProperty(exports, "builder", { enumerable: true, get: function () { return Stage_1.builder; } });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 exports.ElementMediator = ElementMediator_1.default;
 var Component_1 = __importDefault(__webpack_require__(11));
 exports.Component = Component_1.default;
@@ -3293,7 +3297,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Factories_1 = __importDefault(__webpack_require__(4));
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Reducers_1 = __webpack_require__(5);
 /**
  *
@@ -3670,7 +3674,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var CSSClass = /** @class */ (function (_super) {
     __extends(CSSClass, _super);
@@ -3729,7 +3733,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
 var Enabled = /** @class */ (function (_super) {
@@ -3775,7 +3779,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
 var ReadOnly = /** @class */ (function (_super) {
@@ -3821,7 +3825,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Style = /** @class */ (function (_super) {
     __extends(Style, _super);
@@ -3874,8 +3878,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
-var Constants_1 = __webpack_require__(3);
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
+var Constants_1 = __webpack_require__(2);
 var Events_1 = __importDefault(__webpack_require__(14));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
@@ -3933,7 +3937,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 /**
  *
@@ -4010,7 +4014,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 /**
  *
@@ -4066,7 +4070,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 /**
  *
@@ -4136,7 +4140,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
 /**
@@ -4185,7 +4189,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Properties_1 = __importDefault(__webpack_require__(8));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
@@ -4250,8 +4254,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Evaluator_1 = __importDefault(__webpack_require__(51));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var Properties_1 = __importDefault(__webpack_require__(8));
-var Constants_1 = __webpack_require__(3);
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
+var Constants_1 = __webpack_require__(2);
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var GeneratedIdStrategyImpl_1 = __importDefault(__webpack_require__(53));
 var NoneIdStrategyImpl_1 = __importDefault(__webpack_require__(55));
@@ -4702,7 +4706,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Component_1 = __importDefault(__webpack_require__(11));
 var ComponentConfig_1 = __webpack_require__(9);
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var UtilityComponent = /** @class */ (function (_super) {
     __extends(UtilityComponent, _super);
     function UtilityComponent(module, template, prefix, parent, parentId, parentModelFn) {
@@ -4733,7 +4737,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ObjectUtils_1 = __webpack_require__(0);
 var Region = /** @class */ (function () {
     function Region(name, parent) {
@@ -4907,7 +4911,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(16));
-var Setter_1 = __importDefault(__webpack_require__(23));
+var Setter_1 = __importDefault(__webpack_require__(24));
 var ExternalMediator = /** @class */ (function () {
     function ExternalMediator(expression) {
         this.getter = new Getter_1.default(expression);
@@ -4936,21 +4940,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ModelMediatorImpl_1 = __importDefault(__webpack_require__(63));
-var DigestionContextImpl_1 = __importDefault(__webpack_require__(65));
-var MalformedOnEventError_1 = __importDefault(__webpack_require__(66));
-var TemplateError_1 = __importDefault(__webpack_require__(22));
+var MalformedOnEventError_1 = __importDefault(__webpack_require__(65));
+var TemplateError_1 = __importDefault(__webpack_require__(23));
 var Properties_1 = __importDefault(__webpack_require__(8));
-var TextElementMediator_1 = __importDefault(__webpack_require__(67));
-var EventElementMediator_1 = __importDefault(__webpack_require__(68));
-var AttributeElementMediator_1 = __importDefault(__webpack_require__(69));
+var TextElementMediator_1 = __importDefault(__webpack_require__(66));
+var EventElementMediator_1 = __importDefault(__webpack_require__(67));
+var AttributeElementMediator_1 = __importDefault(__webpack_require__(68));
 var Factories_1 = __importDefault(__webpack_require__(4));
-var DirectEvents_1 = __importDefault(__webpack_require__(24));
-var DigestLoopError_1 = __importDefault(__webpack_require__(70));
+var DirectEvents_1 = __importDefault(__webpack_require__(25));
 var ObjectUtils_1 = __webpack_require__(0);
-var UnknownComponentError_1 = __importDefault(__webpack_require__(71));
-var MAX_EVALUATIONS = 10000;
+var UnknownComponentError_1 = __importDefault(__webpack_require__(69));
+var DigesterImpl_1 = __importDefault(__webpack_require__(70));
 var MvvmImpl = /** @class */ (function () {
     function MvvmImpl(id, model, moduleInstance, prefix, scope, parentModelFn) {
         var _this = this;
@@ -4971,7 +4973,7 @@ var MvvmImpl = /** @class */ (function () {
         this.model = model;
         this.moduleInstance = moduleInstance;
         this.components = [];
-        this.skipableIds = [];
+        this.digester = new DigesterImpl_1.default(this, this.id, function () { return _this.parent.getComponent().constructor.name; }, function () { return _this.components; });
         var localModelFn = function () { return _this.model; };
         this.modelFn = parentModelFn ? parentModelFn : localModelFn;
         this.itemFn = function () { return _this.parent.getData(); };
@@ -5032,52 +5034,12 @@ var MvvmImpl = /** @class */ (function () {
         return this.scope;
     };
     MvvmImpl.prototype.digest = function () {
-        var _this = this;
-        this.logger.ifTrace(function () { return "Started digest on " + _this.parent.getComponent().constructor.name; });
-        var start = Date.now();
-        var remainingEvaluations = MAX_EVALUATIONS;
-        var pending = true;
-        while (pending && remainingEvaluations > 0) {
-            remainingEvaluations--;
-            var context_1 = new DigestionContextImpl_1.default();
-            var seen = {};
-            var sources = [];
-            while (this.skipableIds.length > 0) {
-                var skipableId = this.skipableIds.pop();
-                if (skipableId !== null) {
-                    seen[skipableId] = true;
-                }
-            }
-            sources.push(this);
-            for (var _i = 0, _a = this.components; _i < _a.length; _i++) {
-                var component = _a[_i];
-                component.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
-            }
-            while (sources.length > 0) {
-                var source = sources.pop();
-                var id = source.getId();
-                if (id !== null && seen[id]) {
-                    continue;
-                }
-                seen[id] = true;
-                source.requestMediatorSources(sources);
-                source.requestMediators(context_1);
-            }
-            var changedMediators = context_1.digest();
-            if (changedMediators.length === 0) {
-                pending = false;
-                break;
-            }
-            for (var _b = 0, changedMediators_1 = changedMediators; _b < changedMediators_1.length; _b++) {
-                var changedMediator = changedMediators_1[_b];
-                changedMediator.notify();
-            }
+        if (this.parent.getFlags().repeatable) {
+            this.parent.getParent().message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "digest");
         }
-        if (remainingEvaluations === 0) {
-            throw new DigestLoopError_1.default("Loop detected in digest cycle.");
+        else {
+            this.digester.digest();
         }
-        this.logger.ifTrace(function () { return _this.getId() + " - Elapsed millis " + (Date.now() - start); });
-        this.logger.ifTrace(function () { return "Ended digest on " + _this.parent.getComponent().constructor.name; });
     };
     MvvmImpl.prototype.requestMediators = function (consumer) {
         var _this = this;
@@ -5154,9 +5116,10 @@ var MvvmImpl = /** @class */ (function () {
         return this.externalFn;
     };
     MvvmImpl.prototype.skipId = function (id) {
-        if (id !== null && id !== undefined) {
-            this.skipableIds.push(id);
-        }
+        this.digester.skipId(id);
+    };
+    MvvmImpl.prototype.getMessagables = function () {
+        return this.components;
     };
     MvvmImpl.prototype.validateEl = function () {
         if (this.el.tagName.toLowerCase() === this.componentPrefix.toLowerCase()) {
@@ -5403,7 +5366,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(16));
 var Invoker_1 = __importDefault(__webpack_require__(64));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
-var Setter_1 = __importDefault(__webpack_require__(23));
+var Setter_1 = __importDefault(__webpack_require__(24));
 var Reducers_1 = __webpack_require__(5);
 var ObjectUtils_1 = __webpack_require__(0);
 var ModelMediatorImpl = /** @class */ (function () {
@@ -5418,7 +5381,7 @@ var ModelMediatorImpl = /** @class */ (function () {
         this.previous = null;
         this.context = {};
         this.target = null;
-        this.watchDispatchPending = false;
+        // this.watchDispatchPending = false;
         this.invoker = new Invoker_1.default(expression);
         this.getter = new Getter_1.default(expression);
         this.setter = new Setter_1.default(expression);
@@ -5440,7 +5403,7 @@ var ModelMediatorImpl = /** @class */ (function () {
         var value = this.get();
         if (this.digested) {
             if (ObjectUtils_1.equals(this.previous, value)) {
-                this.logger.trace("Not different.");
+                this.logger.ifTrace(function () { return ({ message: "Not different.", value: value }); });
             }
             else {
                 if (this.logger.isTrace()) {
@@ -5559,6 +5522,294 @@ exports.default = Invoker;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractCydranError_1 = __webpack_require__(6);
+var MalformedOnEventError = /** @class */ (function (_super) {
+    __extends(MalformedOnEventError, _super);
+    function MalformedOnEventError(msg, reps) {
+        return _super.call(this, msg, reps) || this;
+    }
+    return MalformedOnEventError;
+}(AbstractCydranError_1.CydranError));
+exports.default = MalformedOnEventError;
+
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
+var Reducers_1 = __webpack_require__(5);
+var TextElementMediator = /** @class */ (function (_super) {
+    __extends(TextElementMediator, _super);
+    function TextElementMediator(dependencies) {
+        return _super.call(this, dependencies, false, Reducers_1.asString) || this;
+    }
+    TextElementMediator.prototype.wire = function () {
+        this.getModelMediator().watch(this, this.onTargetChange);
+    };
+    TextElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
+    };
+    TextElementMediator.prototype.onTargetChange = function (previous, current) {
+        this.getEl().textContent = current;
+    };
+    return TextElementMediator;
+}(ElementMediator_1.default));
+exports.default = TextElementMediator;
+
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
+var Reducers_1 = __webpack_require__(5);
+var EventElementMediator = /** @class */ (function (_super) {
+    __extends(EventElementMediator, _super);
+    function EventElementMediator(dependencies) {
+        return _super.call(this, dependencies, false, Reducers_1.asIdentity) || this;
+    }
+    EventElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
+    };
+    EventElementMediator.prototype.handleEvent = function (event) {
+        var _this = this;
+        this.$apply(function () {
+            _this.getModelMediator().invoke({
+                event: event
+            });
+        }, [event]);
+    };
+    EventElementMediator.prototype.wire = function () {
+        this.bridge(this.eventKey);
+        this.on(this.eventKey).forChannel("dom").invoke(this.handleEvent);
+    };
+    EventElementMediator.prototype.setEventKey = function (eventKey) {
+        this.eventKey = eventKey;
+    };
+    return EventElementMediator;
+}(ElementMediator_1.default));
+exports.default = EventElementMediator;
+
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var ElementMediator_1 = __importDefault(__webpack_require__(3));
+var Reducers_1 = __webpack_require__(5);
+var AttributeElementMediator = /** @class */ (function (_super) {
+    __extends(AttributeElementMediator, _super);
+    function AttributeElementMediator(dependencies) {
+        return _super.call(this, dependencies, false, Reducers_1.asString) || this;
+    }
+    AttributeElementMediator.prototype.wire = function () {
+        this.getModelMediator().watch(this, this.onTargetChange);
+    };
+    AttributeElementMediator.prototype.unwire = function () {
+        // Intentionally do nothing
+    };
+    AttributeElementMediator.prototype.setAttributeName = function (attributeName) {
+        this.attributeName = attributeName;
+    };
+    AttributeElementMediator.prototype.onTargetChange = function (previous, current) {
+        this.getEl().setAttribute(this.attributeName, current);
+    };
+    return AttributeElementMediator;
+}(ElementMediator_1.default));
+exports.default = AttributeElementMediator;
+
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractCydranError_1 = __webpack_require__(6);
+var UnknownComponentError = /** @class */ (function (_super) {
+    __extends(UnknownComponentError, _super);
+    function UnknownComponentError(msg, reps) {
+        return _super.call(this, msg, reps) || this;
+    }
+    return UnknownComponentError;
+}(AbstractCydranError_1.CydranError));
+exports.default = UnknownComponentError;
+
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var DigestionContextImpl_1 = __importDefault(__webpack_require__(71));
+var Constants_1 = __webpack_require__(2);
+var ObjectUtils_1 = __webpack_require__(0);
+var LoggerFactory_1 = __importDefault(__webpack_require__(1));
+var MAX_EVALUATIONS = 10000;
+var DigesterImpl = /** @class */ (function () {
+    function DigesterImpl(rootMediatorSource, id, nameFn, messagableSourceFn) {
+        this.skipableIds = [];
+        this.rootMediatorSource = ObjectUtils_1.requireNotNull(rootMediatorSource, "rootMediatorSource");
+        this.nameFn = ObjectUtils_1.requireNotNull(nameFn, "nameFn");
+        this.messagableSourceFn = ObjectUtils_1.requireNotNull(messagableSourceFn, "messagableSourceFn");
+        this.logger = LoggerFactory_1.default.getLogger("Digester " + id);
+    }
+    DigesterImpl.prototype.skipId = function (id) {
+        if (id !== null && id !== undefined) {
+            this.skipableIds.push(id);
+        }
+    };
+    DigesterImpl.prototype.digest = function () {
+        var _this = this;
+        this.logger.ifTrace(function () { return "Started digest on " + _this.nameFn(); });
+        var remainingEvaluations = MAX_EVALUATIONS;
+        var pending = true;
+        while (pending && remainingEvaluations > 0) {
+            this.logger.trace("Top digest loop");
+            remainingEvaluations--;
+            var context_1 = new DigestionContextImpl_1.default();
+            this.populate(context_1);
+            var changedMediators = context_1.digest();
+            if (changedMediators.length === 0) {
+                pending = false;
+                this.logger.trace("Nothing to notify");
+                break;
+            }
+            for (var _i = 0, changedMediators_1 = changedMediators; _i < changedMediators_1.length; _i++) {
+                var changedMediator = changedMediators_1[_i];
+                changedMediator.notify();
+            }
+            this.logger.trace("End digest loop");
+        }
+    };
+    DigesterImpl.prototype.populate = function (context) {
+        var seen = {};
+        var sources = [];
+        while (this.skipableIds.length > 0) {
+            var skipableId = this.skipableIds.pop();
+            if (skipableId !== null) {
+                seen[skipableId] = true;
+            }
+        }
+        sources.push(this.rootMediatorSource);
+        var messagables = this.messagableSourceFn();
+        for (var _i = 0, messagables_1 = messagables; _i < messagables_1.length; _i++) {
+            var component = messagables_1[_i];
+            component.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "consumeDigestionCandidates", sources);
+        }
+        while (sources.length > 0) {
+            var source = sources.pop();
+            var id = source.getId();
+            if (id !== null && seen[id]) {
+                continue;
+            }
+            seen[id] = true;
+            source.requestMediatorSources(sources);
+            source.requestMediators(context);
+        }
+    };
+    return DigesterImpl;
+}());
+exports.default = DigesterImpl;
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -5607,243 +5858,6 @@ var DigestionContextImpl = /** @class */ (function () {
     return DigestionContextImpl;
 }());
 exports.default = DigestionContextImpl;
-
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractCydranError_1 = __webpack_require__(6);
-var MalformedOnEventError = /** @class */ (function (_super) {
-    __extends(MalformedOnEventError, _super);
-    function MalformedOnEventError(msg, reps) {
-        return _super.call(this, msg, reps) || this;
-    }
-    return MalformedOnEventError;
-}(AbstractCydranError_1.CydranError));
-exports.default = MalformedOnEventError;
-
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
-var Reducers_1 = __webpack_require__(5);
-var TextElementMediator = /** @class */ (function (_super) {
-    __extends(TextElementMediator, _super);
-    function TextElementMediator(dependencies) {
-        return _super.call(this, dependencies, false, Reducers_1.asString) || this;
-    }
-    TextElementMediator.prototype.wire = function () {
-        this.getModelMediator().watch(this, this.onTargetChange);
-    };
-    TextElementMediator.prototype.unwire = function () {
-        // Intentionally do nothing
-    };
-    TextElementMediator.prototype.onTargetChange = function (previous, current) {
-        this.getEl().textContent = current;
-    };
-    return TextElementMediator;
-}(ElementMediator_1.default));
-exports.default = TextElementMediator;
-
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
-var Reducers_1 = __webpack_require__(5);
-var EventElementMediator = /** @class */ (function (_super) {
-    __extends(EventElementMediator, _super);
-    function EventElementMediator(dependencies) {
-        return _super.call(this, dependencies, false, Reducers_1.asIdentity) || this;
-    }
-    EventElementMediator.prototype.unwire = function () {
-        // Intentionally do nothing
-    };
-    EventElementMediator.prototype.handleEvent = function (event) {
-        var _this = this;
-        this.$apply(function () {
-            _this.getModelMediator().invoke({
-                event: event
-            });
-        }, [event]);
-    };
-    EventElementMediator.prototype.wire = function () {
-        this.bridge(this.eventKey);
-        this.on(this.eventKey).forChannel("dom").invoke(this.handleEvent);
-    };
-    EventElementMediator.prototype.setEventKey = function (eventKey) {
-        this.eventKey = eventKey;
-    };
-    return EventElementMediator;
-}(ElementMediator_1.default));
-exports.default = EventElementMediator;
-
-
-/***/ }),
-/* 69 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var ElementMediator_1 = __importDefault(__webpack_require__(2));
-var Reducers_1 = __webpack_require__(5);
-var AttributeElementMediator = /** @class */ (function (_super) {
-    __extends(AttributeElementMediator, _super);
-    function AttributeElementMediator(dependencies) {
-        return _super.call(this, dependencies, false, Reducers_1.asString) || this;
-    }
-    AttributeElementMediator.prototype.wire = function () {
-        this.getModelMediator().watch(this, this.onTargetChange);
-    };
-    AttributeElementMediator.prototype.unwire = function () {
-        // Intentionally do nothing
-    };
-    AttributeElementMediator.prototype.setAttributeName = function (attributeName) {
-        this.attributeName = attributeName;
-    };
-    AttributeElementMediator.prototype.onTargetChange = function (previous, current) {
-        this.getEl().setAttribute(this.attributeName, current);
-    };
-    return AttributeElementMediator;
-}(ElementMediator_1.default));
-exports.default = AttributeElementMediator;
-
-
-/***/ }),
-/* 70 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractCydranError_1 = __webpack_require__(6);
-var DigestLoopError = /** @class */ (function (_super) {
-    __extends(DigestLoopError, _super);
-    function DigestLoopError(msg, reps) {
-        return _super.call(this, msg, reps) || this;
-    }
-    return DigestLoopError;
-}(AbstractCydranError_1.CydranError));
-exports.default = DigestLoopError;
-
-
-/***/ }),
-/* 71 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractCydranError_1 = __webpack_require__(6);
-var UnknownComponentError = /** @class */ (function (_super) {
-    __extends(UnknownComponentError, _super);
-    function UnknownComponentError(msg, reps) {
-        return _super.call(this, msg, reps) || this;
-    }
-    return UnknownComponentError;
-}(AbstractCydranError_1.CydranError));
-exports.default = UnknownComponentError;
 
 
 /***/ }),
@@ -5953,7 +5967,7 @@ var Registry_1 = __webpack_require__(76);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var BrokerImpl_1 = __importDefault(__webpack_require__(79));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ValidationRegExp_1 = __webpack_require__(7);
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
 var ObjectUtils_1 = __webpack_require__(0);
@@ -6517,7 +6531,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Component_1 = __importDefault(__webpack_require__(11));
 var ComponentConfig_1 = __webpack_require__(9);
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
 var ItemComponent = /** @class */ (function (_super) {
     __extends(ItemComponent, _super);
@@ -6550,7 +6564,7 @@ exports.default = ItemComponent;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var ObjectUtils_1 = __webpack_require__(0);
 var EmbeddedComponentFactoryImpl = /** @class */ (function () {
     function EmbeddedComponentFactoryImpl(module, componentId, moduleId, parent, parentId) {
@@ -6739,13 +6753,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StageImpl = exports.builder = void 0;
-var CydranConfig_1 = __importDefault(__webpack_require__(26));
+var CydranConfig_1 = __importDefault(__webpack_require__(27));
 var DomUtils_1 = __importDefault(__webpack_require__(97));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var StageComponent_1 = __importDefault(__webpack_require__(98));
-var Constants_1 = __webpack_require__(3);
-var ModulesContextImpl_1 = __importDefault(__webpack_require__(25));
+var Constants_1 = __webpack_require__(2);
+var ModulesContextImpl_1 = __importDefault(__webpack_require__(26));
 var AnonymousComponent_1 = __importDefault(__webpack_require__(101));
 var ObjectUtils_1 = __webpack_require__(0);
 var StageBuilderImpl = /** @class */ (function () {
@@ -7053,7 +7067,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Constants_1 = __webpack_require__(3);
+var Constants_1 = __webpack_require__(2);
 var StageComponentInternals_1 = __importDefault(__webpack_require__(99));
 var ComponentConfig_1 = __webpack_require__(9);
 var Component_1 = __importDefault(__webpack_require__(11));
@@ -7244,6 +7258,7 @@ var WatcherImpl_1 = __importDefault(__webpack_require__(17));
 var SortPhaseImpl_1 = __importDefault(__webpack_require__(103));
 var PredicatePhaseImpl_1 = __importDefault(__webpack_require__(105));
 var IdentityPhaseImpl_1 = __importDefault(__webpack_require__(107));
+var SimplePredicatePhaseImpl_1 = __importDefault(__webpack_require__(108));
 var FilterBuilderImpl = /** @class */ (function () {
     function FilterBuilderImpl(watchable, watcher) {
         this.watchable = ObjectUtils_1.requireNotNull(watchable, "watchable");
@@ -7256,6 +7271,10 @@ var FilterBuilderImpl = /** @class */ (function () {
             parameterExpressions[_i - 1] = arguments[_i];
         }
         this.phase = new PredicatePhaseImpl_1.default(this.phase, expression, this.watchable, parameterExpressions);
+        return this;
+    };
+    FilterBuilderImpl.prototype.withSimplePredicate = function (predicate) {
+        this.phase = new SimplePredicatePhaseImpl_1.default(this.phase, predicate);
         return this;
     };
     FilterBuilderImpl.prototype.withSort = function (expression) {
@@ -7271,11 +7290,16 @@ var FilterBuilderImpl = /** @class */ (function () {
         return this;
     };
     FilterBuilderImpl.prototype.withLimit = function (limit) {
-        // TODO - Build this using a non-expression based phase
-        return this.withPredicate("index < " + limit);
+        return this.withSimplePredicate(function (index, value) { return index < limit; });
     };
     FilterBuilderImpl.prototype.build = function () {
         return new FilterImpl(this.watchable, this.watcher, this.phase);
+    };
+    FilterBuilderImpl.prototype.paged = function () {
+        return new PagedFilterImpl(this.build());
+    };
+    FilterBuilderImpl.prototype.limited = function () {
+        return new LimitOffsetFilterImpl(this.build());
     };
     return FilterBuilderImpl;
 }());
@@ -7307,6 +7331,9 @@ var FilterImpl = /** @class */ (function () {
         });
         return this;
     };
+    FilterImpl.prototype.invalidate = function () {
+        this.phase.invalidate();
+    };
     FilterImpl.prototype.filter = function (items) {
         var source = [];
         // tslint:disable-next-line:prefer-for-of
@@ -7326,6 +7353,121 @@ var FilterImpl = /** @class */ (function () {
         }
     };
     return FilterImpl;
+}());
+var LimitOffsetFilterImpl = /** @class */ (function () {
+    function LimitOffsetFilterImpl(parent) {
+        var _this = this;
+        this.parent = ObjectUtils_1.requireNotNull(parent, "parent");
+        this.limiting = this.parent.extend()
+            .withSimplePredicate(function (index, value) { return (!ObjectUtils_1.isDefined(_this.limit) || index < (_this.offset + _this.limit)) && (index >= _this.offset); })
+            .build();
+        this.offset = 0;
+        this.limit = null;
+    }
+    LimitOffsetFilterImpl.prototype.getLimit = function () {
+        return this.limit;
+    };
+    LimitOffsetFilterImpl.prototype.setLimit = function (limit) {
+        this.limit = ObjectUtils_1.isDefined(limit) ? Math.floor(limit) : null;
+        this.limiting.invalidate();
+        this.limiting.refresh();
+    };
+    LimitOffsetFilterImpl.prototype.getOffset = function () {
+        return this.offset;
+    };
+    LimitOffsetFilterImpl.prototype.setOffset = function (offset) {
+        this.offset = ObjectUtils_1.isDefined(offset) ? Math.floor(offset) : 0;
+        this.limiting.invalidate();
+        this.limiting.refresh();
+    };
+    LimitOffsetFilterImpl.prototype.setLimitAndOffset = function (limit, offset) {
+        var oldLimit = this.limit;
+        var oldOffset = this.offset;
+        this.limit = limit;
+        this.offset = ObjectUtils_1.isDefined(offset) ? offset : 0;
+        if (!ObjectUtils_1.equals(oldLimit, this.limit) || !ObjectUtils_1.equals(oldOffset, this.offset)) {
+            this.limiting.invalidate();
+            this.limiting.refresh();
+        }
+    };
+    LimitOffsetFilterImpl.prototype.items = function () {
+        return this.limiting.items();
+    };
+    LimitOffsetFilterImpl.prototype.extend = function () {
+        return this.limiting.extend();
+    };
+    LimitOffsetFilterImpl.prototype.addCallback = function (context, callback) {
+        this.limiting.addCallback(context, callback);
+    };
+    return LimitOffsetFilterImpl;
+}());
+var PagedFilterImpl = /** @class */ (function () {
+    function PagedFilterImpl(parent) {
+        var _this = this;
+        this.parent = ObjectUtils_1.requireNotNull(parent, "parent");
+        this.limited = this.parent.extend().limited();
+        this.page = 0;
+        this.pageSize = 10;
+        this.parent.addCallback(this, function () {
+            _this.enforcePageBounds();
+            _this.sync();
+        });
+        this.sync();
+    }
+    PagedFilterImpl.prototype.getPageSize = function () {
+        return this.pageSize;
+    };
+    PagedFilterImpl.prototype.setPageSize = function (size) {
+        this.pageSize = (size < 1) ? 1 : Math.floor(size);
+        this.sync();
+    };
+    PagedFilterImpl.prototype.getTotalPages = function () {
+        return Math.ceil(this.parent.items().length / this.pageSize);
+    };
+    PagedFilterImpl.prototype.getPage = function () {
+        return this.page;
+    };
+    PagedFilterImpl.prototype.setPage = function (page) {
+        this.page = Math.floor(page);
+        this.enforcePageBounds();
+        this.sync();
+    };
+    PagedFilterImpl.prototype.toPrevious = function () {
+        this.setPage(this.page - 1);
+    };
+    PagedFilterImpl.prototype.toNext = function () {
+        this.setPage(this.page + 1);
+    };
+    PagedFilterImpl.prototype.toStart = function () {
+        this.setPage(0);
+    };
+    PagedFilterImpl.prototype.toEnd = function () {
+        this.setPage(this.getTotalPages());
+    };
+    PagedFilterImpl.prototype.items = function () {
+        return this.limited.items();
+    };
+    PagedFilterImpl.prototype.extend = function () {
+        return this.limited.extend();
+    };
+    PagedFilterImpl.prototype.addCallback = function (context, callback) {
+        this.limited.addCallback(context, callback);
+    };
+    PagedFilterImpl.prototype.enforcePageBounds = function () {
+        if (this.page < 0) {
+            this.page = 0;
+        }
+        if (this.page >= this.getTotalPages()) {
+            this.page = this.getTotalPages() - 1;
+        }
+        if (this.page < 0) {
+            this.page = 0;
+        }
+    };
+    PagedFilterImpl.prototype.sync = function () {
+        this.limited.setLimitAndOffset(this.pageSize, this.page * this.pageSize);
+    };
+    return PagedFilterImpl;
 }());
 var Filters = /** @class */ (function () {
     function Filters() {
@@ -7364,7 +7506,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(27));
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
 var ObjectUtils_1 = __webpack_require__(0);
 var WatcherImpl_1 = __importDefault(__webpack_require__(17));
 var ComparisonEvaluator_1 = __importDefault(__webpack_require__(104));
@@ -7457,7 +7599,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(27));
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
 var ObjectUtils_1 = __webpack_require__(0);
 var IndexedEvaluator_1 = __importDefault(__webpack_require__(106));
 var Reducers_1 = __webpack_require__(5);
@@ -7553,9 +7695,60 @@ var IdentityPhaseImpl = /** @class */ (function () {
     IdentityPhaseImpl.prototype.setCallback = function (callback) {
         // Intentionally do nothing
     };
+    IdentityPhaseImpl.prototype.invalidate = function () {
+        // Intentionally do nothing
+    };
     return IdentityPhaseImpl;
 }());
 exports.default = IdentityPhaseImpl;
+
+
+/***/ }),
+/* 108 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
+var ObjectUtils_1 = __webpack_require__(0);
+var SimplePredicatePhaseImpl = /** @class */ (function (_super) {
+    __extends(SimplePredicatePhaseImpl, _super);
+    function SimplePredicatePhaseImpl(previous, predicate) {
+        var _this = _super.call(this, previous) || this;
+        _this.predicate = ObjectUtils_1.requireNotNull(predicate, "predicate");
+        return _this;
+    }
+    SimplePredicatePhaseImpl.prototype.execute = function (items) {
+        var result = [];
+        // tslint:disable-next-line:prefer-for-of
+        for (var i = 0; i < items.length; i++) {
+            var current = items[i];
+            if (this.predicate.apply({}, [i, current])) {
+                result.push(current);
+            }
+        }
+        return result;
+    };
+    return SimplePredicatePhaseImpl;
+}(AbstractPhaseImpl_1.default));
+exports.default = SimplePredicatePhaseImpl;
 
 
 /***/ })

@@ -230,16 +230,26 @@ export interface Filter {
 }
 export interface FilterBuilder {
 	withPredicate(expression: string, ...parameterExpressions: string[]): FilterBuilder;
+	withSimplePredicate(predicate: (index: number, value: any) => boolean): FilterBuilder;
 	withSort(expression: string, ...parameterExpressions: string[]): FilterBuilder;
 	withLimit(limit: number): FilterBuilder;
+	with(fn: (builder: FilterBuilder) => void): FilterBuilder;
 	build(): Filter;
-	with(fn: (builder: FilterBuilder) => void): any;
+	paged(): PagedFilter;
+	limited(): LimitOffsetFilter;
 }
 export interface ForChannelContinuation {
 	invoke(target: (payload: any) => void): void;
 }
 export interface Gettable {
 	get<T>(id: string): T;
+}
+export interface LimitOffsetFilter extends Filter {
+	getLimit(): number;
+	setLimit(limit: number): void;
+	getOffset(): number;
+	setOffset(offset: number): void;
+	setLimitAndOffset(limit: number, offset: number): void;
 }
 export interface Logger {
 	getName(): string;
@@ -267,6 +277,9 @@ export interface MediatorSource {
 	requestMediators(consumer: DigestionCandidateConsumer): void;
 	requestMediatorSources(sources: MediatorSource[]): void;
 	getId(): string;
+}
+export interface Messagable {
+	message(channelName: string, messageName: string, payload?: any): void;
 }
 export interface MetadataContinuation {
 	has: (name: string) => boolean;
@@ -301,13 +314,12 @@ export interface NamedElementOperations<E extends HTMLElement> {
 	focus(): void;
 	blur(): void;
 }
-export interface Nestable extends Disposable, Watchable {
+export interface Nestable extends Disposable, Watchable, Messagable {
 	metadata(): MetadataContinuation;
 	hasRegion(name: string): boolean;
 	getChild<N extends Nestable>(name: string): N;
 	setChild(name: string, component: Nestable): void;
 	setChildFromRegistry(name: string, componentName: string, defaultComponentName?: string): void;
-	message(channelName: string, messageName: string, payload?: any): void;
 	getParent(): Nestable;
 	getEl(): HTMLElement;
 	get<T>(id: string): T;
@@ -322,6 +334,17 @@ export interface Notifyable {
 export interface OnContinuation {
 	invoke(target: (payload: any) => void): void;
 	forChannel(name: string): ForChannelContinuation;
+}
+export interface PagedFilter extends Filter {
+	getPageSize(): number;
+	setPageSize(size: number): void;
+	getTotalPages(): number;
+	getPage(): number;
+	setPage(page: number): void;
+	toPrevious(): void;
+	toNext(): void;
+	toStart(): void;
+	toEnd(): void;
 }
 export interface PubSub extends Disposable {
 	message(channelName: string, messageName: string, payload?: any): void;
