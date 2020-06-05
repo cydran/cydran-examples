@@ -1,173 +1,70 @@
 window.onload = function() {
-	const builder = cydran.builder;
-	const Component = cydran.Component;
+  const builder = cydran.builder;
+  const Component = cydran.Component;
+  const Filter = cydran.Filter;
+  const Filters = cydran.Filters;
+  const PagedFilter = cydran.PagedFilter;
 
-	const urlParams = new URL(window.location).searchParams;
-	const vMap = { t1: '#appComponent', t2: '#chooseComponent' };
+  const urlParams = new URL(window.location).searchParams;
 
-	function getView(v) {
-		const base = 't1';
-		let vp = (urlParams.get(v) || base).toLowerCase();
-		if (!vMap[vp]) {
-			vp = base;
-		}
-		const sv = vMap[vp] || vMap[base];
-		return { template: document.querySelector(sv).innerHTML.trim(), name: vp };
-	}
+  const PGSIZE = 50;
 
-	function getConstantValue(c) {
-		return Number(urlParams.get(c));
-	}
+  const APP_TEMPLATE = document.querySelector("#app").innerHTML.trim();
+  class App extends Component {
+    constructor() {
+      super(APP_TEMPLATE);
 
-	const D_C = { COUNT: 10000, OFFSET: 100, IDX: 0 };
-	const DIR = { UP: 1, DOWN: -1 };
+			this.setBaseline();
+      this.pgLabel = "Cydran ES6 Example - Paging";
+      this.hardLimit = 1000000;
 
-	const wkview = getView('v');
-	const iCnt = getConstantValue('c') || D_C.COUNT;
-	const offset = getConstantValue('o') || D_C.OFFSET;
-	const idx = getConstantValue('i') || D_C.IDX;
-	const msg = urlParams.get('m') || 'nothing';
+      this.filtered = Filters.builder(this, "m().fullData").paged();
+      this.filtered.setPageSize(PGSIZE);
+      this.on("PagedItem").forChannel(App.name).invoke(this.setTheLabel);
+      this.setChild("filteredData", new Paged());
+    }
 
-	class App extends Component {
-		constructor() {
-			super(wkview.template);
-
-			this.on("select").forChannel(Item.name).invoke(this.setSelectedLabel);
-			this.pgLabel = 'Cydran ES6 Example - Page';
-			this.origMsg = 'No button has been clicked';
-			this.text = this.origMsg;
-			this.selectedLabel = this.createLabel(msg);
-			this.max = iCnt;
-			this.fullData = null;
-			this.buffData = [];
-			this.arrayIdx = idx;
-			this.mincount = 0;
-			this.offset = offset <= this.max ? offset : this.max;
-			this.allowPrior = false;
-			this.allowNext = true;
-			this.curPg = '';
-			this.view = wkview.name;
-			this.color = "#97c024";
-			this.hideImage = false;
-
-			this.populateDataSet();
+		setBaseline() {
+      this.rowCount = 10000;
+      this.selectedItem = null;
+      this.fullData = this.populateDataSet();
+			this.filtered?.toStart();
 		}
 
-		handleClickFirst() {
-			this.text = 'The first button was clicked';
-		}
+    setTheLabel(label) {
+      this.selectedItem = label;
+    }
 
-		handleClickSecond() {
-			this.text = 'The second button was clicked';
-		}
+    populateDataSet() {
+      const retval = new Array(this.rowCount);
+      for (let i = 0; i < this.rowCount; i++) {
+        retval[i] = {id: i};
+      }
+      return retval;
+    }
 
-		resetOrig() {
-			this.text = this.origMsg;
-		}
+    updateDataSet() {
+			this.fullData = this.populateDataSet();
+    }
+  }
 
-		setSelectedLabel(item) {
-			this.selectedLabel = 'label: #' + item.id;
-		}
+  const PAGED_TEMPLATE = document.querySelector("#paged").innerHTML.trim();
+  class Paged extends Component {
+    constructor() {
+      super(PAGED_TEMPLATE);
+    }
 
-		createLabel(c) {
-			return 'label: #' + c;
-		}
+    doLabel(item) {
+      this.broadcast(App.name, "PagedItem", item.id);
+    }
+  }
 
-		updateBuffer(dir) {
-			let p1 = this.arrayIdx;
-			let p2 = this.arrayIdx + this.offset;
-			const a = this.fullData;
-			if (dir === DIR.DOWN) {
-				p1 = this.arrayIdx - this.offset;
-				p2 = p1 - this.offset;
-				p2 = p2 < 0 ? 0 : p2;
-				this.buffData = a.slice(p2, p1);
-				this.arrayIdx = p1;
-			} else {
-				this.buffData = a.slice(p1, p2);
-				this.arrayIdx = p2;
-			}
-			this.allowPrior = this.arrayIdx > this.offset;
-			this.allowNext = this.arrayIdx < this.fullData.length;
-		}
-
-		toTheBeginning() {
-			this.arrayIdx = 0;
-			this.updateBuffer(DIR.UP);
-		}
-
-		toTheEnd() {
-			this.arrayIdx = this.fullData.length - this.offset;
-			this.updateBuffer(DIR.UP);
-		}
-
-		nextBuffer() {
-			this.updateBuffer(DIR.UP);
-		}
-
-		previousBuffer() {
-			this.updateBuffer(DIR.DOWN);
-		}
-
-		populateDataSet() {
-			this.fullData = new Array(this.max);
-			for (let i = 0; i < this.max; i++) {
-				this.fullData[i] = { id: i };
-			}
-			this.toTheBeginning();
-		}
-
-		clearBuffer() {
-			this.buffData = [];
-			this.arrayIdx = 0;
-			this.setSelectedLabel(msg);
-		}
-
-		updatePageLoc() {
-			const l = new URL(window.location);
-			const p = l.searchParams;
-			p.set('v', this.view);
-			p.set('c', this.max);
-			p.set('o', this.offset);
-			this.curPg = l.href;
-			console.log('this.curPg:', this.curPg);
-		}
-
-		goView(v) {
-			this.view = v === 1 ? 't1' : 't2';
-			this.updatePageLoc();
-			window.location = this.curPg;
-		}
-
-		resetAll() {
-			const l = new URL(window.location);
-			window.location = l.origin + l.pathname;
-		}
-
-		toggleImage() {
-			this.hideImage = !this.hideImage;
-		}
-	}
-
-	const ItemTemplate = "<div class='listitem' c:onclick='m().doLabel()'>{{v().id}}</div>";	
-	class Item extends Component {
-		constructor() {
-			super(ItemTemplate);
-		}
-
-		doLabel() {
-			this.broadcast(Item.name, "select", this.getValue());
-		}
-	}
-
-	builder('#pgpart')
-		.withDebugLogging()
-		.withPrototype(Item.name, Item)
-		.withInitializer(function() {
-			const app = new App();
-			app.curPag = window.location.href;
-			this.setComponent(app);
-		})
-		.build()
-		.start();
+  builder("#pgpart")
+    .withDebugLogging()
+    .withInitializer(function() {
+      const app = new App();
+      this.setComponent(app);
+    })
+    .build()
+    .start();
 };
