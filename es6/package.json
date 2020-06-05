@@ -24,6 +24,6 @@
   "homepage": "https://github.com/cydran/cydran-examples#readme",
   "dependencies": {},
   "devDependencies": {
-    "cydran": "0.1.18"
+    "cydran": "0.1.19"
   }
 }

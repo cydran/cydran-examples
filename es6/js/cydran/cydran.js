@@ -1,5 +1,5 @@
 /*!
- * v0.1.18
+ * v0.1.19
  * Cydran <http://cydran.io/>
  * Copyright (c) 2018 The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -1974,7 +1974,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Constants_1 = __webpack_require__(2);
-var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
+var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(16));
 var ObjectUtils_1 = __webpack_require__(0);
 /**
  * Core class for Cydran
@@ -2255,6 +2255,46 @@ exports.default = PubSubImpl;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var ObjectUtils_1 = __webpack_require__(0);
+var Constants_1 = __webpack_require__(2);
+var AbstractPhaseImpl = /** @class */ (function () {
+    function AbstractPhaseImpl(previous) {
+        this.previous = ObjectUtils_1.requireNotNull(previous, "previous");
+        this.memo = null;
+        this.callback = Constants_1.NO_OP_FN;
+    }
+    AbstractPhaseImpl.prototype.process = function (items) {
+        var processed = this.previous.process(items);
+        if (!ObjectUtils_1.isDefined(processed) || ObjectUtils_1.equals(processed, this.memo)) {
+            return null;
+        }
+        this.memo = ObjectUtils_1.clone(processed);
+        return this.execute(processed);
+    };
+    AbstractPhaseImpl.prototype.onChange = function () {
+        this.memo = null;
+        this.callback();
+    };
+    AbstractPhaseImpl.prototype.invalidate = function () {
+        this.onChange();
+        this.previous.invalidate();
+    };
+    AbstractPhaseImpl.prototype.setCallback = function (callback) {
+        this.callback = callback;
+        this.previous.setCallback(callback);
+    };
+    return AbstractPhaseImpl;
+}());
+exports.default = AbstractPhaseImpl;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var Events = {
     AFTER_CHILD_ADDED: "AFTER_CHILD_ADDED",
     AFTER_CHILD_CHANGED: "AFTER_CHILD_CHANGED",
@@ -2275,7 +2315,7 @@ exports.default = Events;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2294,14 +2334,14 @@ var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var SetComponentError_1 = __importDefault(__webpack_require__(60));
 var Constants_1 = __webpack_require__(2);
 var ComponentConfig_1 = __webpack_require__(9);
-var Events_1 = __importDefault(__webpack_require__(14));
+var Events_1 = __importDefault(__webpack_require__(15));
 var ExternalMediator_1 = __importDefault(__webpack_require__(61));
 var MvvmImpl_1 = __importDefault(__webpack_require__(62));
 var DirectEvents_1 = __importDefault(__webpack_require__(25));
 var IdGenerator_1 = __importDefault(__webpack_require__(22));
 var NamedElementOperationsImpl_1 = __importDefault(__webpack_require__(72));
 var UnknownElementError_1 = __importDefault(__webpack_require__(73));
-var Getter_1 = __importDefault(__webpack_require__(16));
+var Getter_1 = __importDefault(__webpack_require__(17));
 var ModuleAffinityError_1 = __importDefault(__webpack_require__(74));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
 var ModulesContextImpl_1 = __importDefault(__webpack_require__(26));
@@ -2681,7 +2721,7 @@ exports.default = ComponentInternalsImpl;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2718,7 +2758,7 @@ exports.default = Getter;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2756,46 +2796,6 @@ var WatcherImpl = /** @class */ (function () {
     return WatcherImpl;
 }());
 exports.default = WatcherImpl;
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var ObjectUtils_1 = __webpack_require__(0);
-var Constants_1 = __webpack_require__(2);
-var AbstractPhaseImpl = /** @class */ (function () {
-    function AbstractPhaseImpl(previous) {
-        this.previous = ObjectUtils_1.requireNotNull(previous, "previous");
-        this.memo = null;
-        this.callback = Constants_1.NO_OP_FN;
-    }
-    AbstractPhaseImpl.prototype.process = function (items) {
-        var processed = this.previous.process(items);
-        if (!ObjectUtils_1.isDefined(processed) || ObjectUtils_1.equals(processed, this.memo)) {
-            return null;
-        }
-        this.memo = ObjectUtils_1.clone(processed);
-        return this.execute(processed);
-    };
-    AbstractPhaseImpl.prototype.onChange = function () {
-        this.memo = null;
-        this.callback();
-    };
-    AbstractPhaseImpl.prototype.invalidate = function () {
-        this.onChange();
-        this.previous.invalidate();
-    };
-    AbstractPhaseImpl.prototype.setCallback = function (callback) {
-        this.callback = callback;
-        this.previous.setCallback(callback);
-    };
-    return AbstractPhaseImpl;
-}());
-exports.default = AbstractPhaseImpl;
 
 
 /***/ }),
@@ -3202,7 +3202,7 @@ var ComponentConfig_1 = __webpack_require__(9);
 Object.defineProperty(exports, "ComponentConfigBuilder", { enumerable: true, get: function () { return ComponentConfig_1.ComponentConfigBuilder; } });
 var CydranConfig = __importStar(__webpack_require__(27));
 exports.CydranConfig = CydranConfig;
-var Events_1 = __importDefault(__webpack_require__(14));
+var Events_1 = __importDefault(__webpack_require__(15));
 exports.Events = Events_1.default;
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 exports.LoggerFactory = LoggerFactory_1.default;
@@ -3880,7 +3880,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Constants_1 = __webpack_require__(2);
-var Events_1 = __importDefault(__webpack_require__(14));
+var Events_1 = __importDefault(__webpack_require__(15));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
 var ForceFocus = /** @class */ (function (_super) {
@@ -4910,7 +4910,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Getter_1 = __importDefault(__webpack_require__(16));
+var Getter_1 = __importDefault(__webpack_require__(17));
 var Setter_1 = __importDefault(__webpack_require__(24));
 var ExternalMediator = /** @class */ (function () {
     function ExternalMediator(expression) {
@@ -5363,7 +5363,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Getter_1 = __importDefault(__webpack_require__(16));
+var Getter_1 = __importDefault(__webpack_require__(17));
 var Invoker_1 = __importDefault(__webpack_require__(64));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var Setter_1 = __importDefault(__webpack_require__(24));
@@ -6532,7 +6532,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Component_1 = __importDefault(__webpack_require__(11));
 var ComponentConfig_1 = __webpack_require__(9);
 var Constants_1 = __webpack_require__(2);
-var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
+var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(16));
 var ItemComponent = /** @class */ (function (_super) {
     __extends(ItemComponent, _super);
     function ItemComponent(module, template, prefix, parent, parentId, parentModelFn, itemFn) {
@@ -7123,7 +7123,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Properties_1 = __importDefault(__webpack_require__(8));
 var SelectorError_1 = __importDefault(__webpack_require__(100));
-var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(15));
+var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(16));
 var StageComponentInternals = /** @class */ (function (_super) {
     __extends(StageComponentInternals, _super);
     function StageComponentInternals() {
@@ -7254,11 +7254,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ObjectUtils_1 = __webpack_require__(0);
-var WatcherImpl_1 = __importDefault(__webpack_require__(17));
+var WatcherImpl_1 = __importDefault(__webpack_require__(18));
 var SortPhaseImpl_1 = __importDefault(__webpack_require__(103));
 var PredicatePhaseImpl_1 = __importDefault(__webpack_require__(105));
 var IdentityPhaseImpl_1 = __importDefault(__webpack_require__(107));
 var SimplePredicatePhaseImpl_1 = __importDefault(__webpack_require__(108));
+var DelegatingPhaseImpl_1 = __importDefault(__webpack_require__(109));
 var FilterBuilderImpl = /** @class */ (function () {
     function FilterBuilderImpl(watchable, watcher) {
         this.watchable = ObjectUtils_1.requireNotNull(watchable, "watchable");
@@ -7275,6 +7276,10 @@ var FilterBuilderImpl = /** @class */ (function () {
     };
     FilterBuilderImpl.prototype.withSimplePredicate = function (predicate) {
         this.phase = new SimplePredicatePhaseImpl_1.default(this.phase, predicate);
+        return this;
+    };
+    FilterBuilderImpl.prototype.withPhase = function (fn) {
+        this.phase = new DelegatingPhaseImpl_1.default(this.phase, fn);
         return this;
     };
     FilterBuilderImpl.prototype.withSort = function (expression) {
@@ -7359,7 +7364,13 @@ var LimitOffsetFilterImpl = /** @class */ (function () {
         var _this = this;
         this.parent = ObjectUtils_1.requireNotNull(parent, "parent");
         this.limiting = this.parent.extend()
-            .withSimplePredicate(function (index, value) { return (!ObjectUtils_1.isDefined(_this.limit) || index < (_this.offset + _this.limit)) && (index >= _this.offset); })
+            .withPhase(function (input) {
+            var result = input.slice(_this.offset);
+            if (ObjectUtils_1.isDefined(_this.limit)) {
+                result = result.slice(0, _this.limit);
+            }
+            return result;
+        })
             .build();
         this.offset = 0;
         this.limit = null;
@@ -7506,9 +7517,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(14));
 var ObjectUtils_1 = __webpack_require__(0);
-var WatcherImpl_1 = __importDefault(__webpack_require__(17));
+var WatcherImpl_1 = __importDefault(__webpack_require__(18));
 var ComparisonEvaluator_1 = __importDefault(__webpack_require__(104));
 var SortPhaseImpl = /** @class */ (function (_super) {
     __extends(SortPhaseImpl, _super);
@@ -7599,11 +7610,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(14));
 var ObjectUtils_1 = __webpack_require__(0);
 var IndexedEvaluator_1 = __importDefault(__webpack_require__(106));
 var Reducers_1 = __webpack_require__(5);
-var WatcherImpl_1 = __importDefault(__webpack_require__(17));
+var WatcherImpl_1 = __importDefault(__webpack_require__(18));
 var PredicatePhaseImpl = /** @class */ (function (_super) {
     __extends(PredicatePhaseImpl, _super);
     function PredicatePhaseImpl(previous, expression, watchable, parameterExpressions) {
@@ -7726,7 +7737,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(18));
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(14));
 var ObjectUtils_1 = __webpack_require__(0);
 var SimplePredicatePhaseImpl = /** @class */ (function (_super) {
     __extends(SimplePredicatePhaseImpl, _super);
@@ -7749,6 +7760,46 @@ var SimplePredicatePhaseImpl = /** @class */ (function (_super) {
     return SimplePredicatePhaseImpl;
 }(AbstractPhaseImpl_1.default));
 exports.default = SimplePredicatePhaseImpl;
+
+
+/***/ }),
+/* 109 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var AbstractPhaseImpl_1 = __importDefault(__webpack_require__(14));
+var ObjectUtils_1 = __webpack_require__(0);
+var DelegatingPhaseImpl = /** @class */ (function (_super) {
+    __extends(DelegatingPhaseImpl, _super);
+    function DelegatingPhaseImpl(previous, fn) {
+        var _this = _super.call(this, previous) || this;
+        _this.fn = ObjectUtils_1.requireNotNull(fn, "fn");
+        return _this;
+    }
+    DelegatingPhaseImpl.prototype.execute = function (items) {
+        return this.fn.apply({}, [items]);
+    };
+    return DelegatingPhaseImpl;
+}(AbstractPhaseImpl_1.default));
+exports.default = DelegatingPhaseImpl;
 
 
 /***/ })
