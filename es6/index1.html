@@ -26,6 +26,15 @@
 			.loud {
 				color: red;
 			}
+
+			.disabled {
+				color:lightblue;
+				cursor: auto;
+			}
+
+			.activePointer {
+				cursor: pointer;
+			}
 		</style>
 		<script src="js/app1.js"></script>
 	</head>
@@ -42,12 +51,13 @@
 			Last Item: {{m().selectedItem || 'Nothing'}}<br/>
 			<button c:onclick="m().setBaseline()">Reset It All!</button>
 			<p />
-			<button c:onclick="m().filtered.setPage(Math.floor(Math.random()*m().filtered.getTotalPages()))">Go To Random</button>&nbsp;&nbsp;Current: {{m().filtered.getPage() + 1}}<br/>
+			<button c:onclick="m().filtered.setPage(Math.floor(Math.random()*m().filtered.getTotalPages()))">Go To Random</button>&nbsp;&nbsp;Current: {{m().filtered.getPage() + 1}}
+			<p/>
 			<c:region name="filteredData" value="m().filtered.items()"></c:region><br/>
-			<span c:onclick="m().filtered.toStart()" style="font-weight: bold; cursor: pointer;">|&lt;</span>
-			<button c:onclick="m().filtered.toPrevious()">Previous</button>
-			<button c:onclick="m().filtered.toNext()">Next</button>
-			<span c:onclick="m().filtered.toEnd()" style="font-weight: bold; cursor: pointer;">&gt;|</span>
+			<span class="activePointer" c:onclick="m().filtered.toStart()" style="font-weight: bold;" c:class="{'disabled': m().filtered.isAtBeginning()}">|&lt;</span>
+			<button c:onclick="m().filtered.toPrevious()" c:enabled="m().filtered.isMoreBefore()">Previous</button>
+			<button c:onclick="m().filtered.toNext()" c:enabled="m().filtered.isMoreAfter()">Next</button>
+			<span class="activePointer" c:onclick="m().filtered.toEnd()" style="font-weight: bold;" c:class="{'disabled': m().filtered.isAtEnd()}">&gt;|</span>
 		</div>
 	</template>
 

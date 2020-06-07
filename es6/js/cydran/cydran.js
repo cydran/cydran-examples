@@ -1,5 +1,5 @@
 /*!
- * v0.1.19
+ * v0.1.20
  * Cydran <http://cydran.io/>
  * Copyright (c) 2018 The Cydran Team and other contributors <http://cydran.io/>
  * Released under MIT license <http://cydran.io/license>
@@ -109,7 +109,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 28);
+/******/ 	return __webpack_require__(__webpack_require__.s = 29);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -124,7 +124,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeHtml = exports.isDefined = exports.requireValid = exports.requireNotNull = exports.equals = exports.clone = void 0;
 var NullValueError_1 = __importDefault(__webpack_require__(20));
-var ValidationError_1 = __importDefault(__webpack_require__(35));
+var ValidationError_1 = __importDefault(__webpack_require__(36));
 /* tslint:disable */
 var LARGE_ARRAY_SIZE = 200;
 var FUNC_ERROR_TEXT = "Expected a function";
@@ -1293,7 +1293,7 @@ function isDefined(value) {
 }
 exports.isDefined = isDefined;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(34)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(35)(module)))
 
 /***/ }),
 /* 1 */
@@ -1305,7 +1305,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var LoggerImpl_1 = __importDefault(__webpack_require__(36));
+var LoggerImpl_1 = __importDefault(__webpack_require__(37));
 var LoggerServiceImpl_1 = __importDefault(__webpack_require__(21));
 var LoggerFactory = /** @class */ (function () {
     function LoggerFactory() {
@@ -1364,7 +1364,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
-var ParamUtils_1 = __webpack_require__(38);
+var ParamUtils_1 = __webpack_require__(39);
 var Constants_1 = __webpack_require__(2);
 var IdGenerator_1 = __importDefault(__webpack_require__(22));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
@@ -1729,22 +1729,110 @@ exports.VALID_KEY = VALID_KEY;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-Object.defineProperty(exports, "__esModule", { value: true });
-var Properties = /** @class */ (function () {
-    function Properties() {
-    }
-    Properties.setWindow = function (instance) {
-        Properties.window = instance;
-    };
-    Properties.getWindow = function () {
-        return Properties.window || global["window"];
-    };
-    return Properties;
-}());
-exports.default = Properties;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTextNodeOffDom = exports.createDocumentFragmentOffDom = exports.createCommentOffDom = exports.createElementOffDom = exports.domReady = void 0;
+var Properties_1 = __importDefault(__webpack_require__(23));
+var ObjectUtils_1 = __webpack_require__(0);
+var win = null;
+var offDomDoc = null;
+function getWindow() {
+    if (!ObjectUtils_1.isDefined(win)) {
+        win = Properties_1.default.getWindow();
+    }
+    return win;
+}
+function getDocument() {
+    return getWindow().document;
+}
+function getOffDomDocument() {
+    if (!ObjectUtils_1.isDefined(offDomDoc)) {
+        offDomDoc = getDocument().implementation.createHTMLDocument("");
+    }
+    return offDomDoc;
+}
+var readyList = [];
+var readyFired = false;
+var readyEventHandlersInstalled = false;
+function ready() {
+    if (!readyFired) {
+        // this must be set to true before we start calling callbacks
+        readyFired = true;
+        // tslint:disable-next-line
+        for (var i = 0; i < readyList.length; i++) {
+            // if a callback here happens to add new ready handlers,
+            // the docReady() function will see that it already fired
+            // and will schedule the callback to run right after
+            // this event loop finishes so all handlers will still execute
+            // in order and no new ones will be added to the readyList
+            // while we are processing the list
+            readyList[i].fn.call(getWindow(), readyList[i].ctx);
+        }
+        // allow any closures held by these functions to free
+        readyList = [];
+    }
+}
+function readyStateChange() {
+    if (getDocument().readyState === "complete") {
+        ready();
+    }
+}
+function domReady(callback, context) {
+    if (typeof callback !== "function") {
+        throw new TypeError("callback for docReady(fn) must be a function");
+    }
+    // if ready has already fired, then just schedule the callback
+    // to fire asynchronously, but right away
+    if (readyFired) {
+        setTimeout(function () { callback(context); }, 1);
+        return;
+    }
+    else {
+        // add the function and context to the list
+        readyList.push({ fn: callback, ctx: context });
+    }
+    // if document already ready to go, schedule the ready function to run
+    // IE only safe when readyState is "complete", others safe when readyState is "interactive"
+    if (getDocument().readyState === "complete" || (!getDocument()["attachEvent"] && getDocument().readyState === "interactive")) {
+        setTimeout(ready, 1);
+    }
+    else if (!readyEventHandlersInstalled) {
+        // otherwise if we don't have event handlers installed, install them
+        if (getDocument().addEventListener) {
+            // first choice is DOMContentLoaded event
+            getDocument().addEventListener("DOMContentLoaded", ready, false);
+            // backup is window load event
+            getWindow().addEventListener("load", ready, false);
+        }
+        else {
+            // must be IE
+            getDocument()["attachEvent"]("onreadystatechange", readyStateChange);
+            getWindow()["attachEvent"]("onload", ready);
+        }
+        readyEventHandlersInstalled = true;
+    }
+}
+exports.domReady = domReady;
+function createElementOffDom(tagName) {
+    return getOffDomDocument().createElement(tagName);
+}
+exports.createElementOffDom = createElementOffDom;
+function createCommentOffDom(content) {
+    return getOffDomDocument().createComment(content);
+}
+exports.createCommentOffDom = createCommentOffDom;
+function createDocumentFragmentOffDom() {
+    return getOffDomDocument().createDocumentFragment();
+}
+exports.createDocumentFragmentOffDom = createDocumentFragmentOffDom;
+function createTextNodeOffDom(text) {
+    return getOffDomDocument().createTextNode(text);
+}
+exports.createTextNodeOffDom = createTextNodeOffDom;
+
 
 /***/ }),
 /* 9 */
@@ -1848,7 +1936,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var NullValueError_1 = __importDefault(__webpack_require__(20));
-var ScopeError_1 = __importDefault(__webpack_require__(52));
+var ScopeError_1 = __importDefault(__webpack_require__(53));
 var ValidationRegExp_1 = __webpack_require__(7);
 var EXCLUSIONS = {
     e: "e",
@@ -2145,7 +2233,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ListenerImpl_1 = __importDefault(__webpack_require__(39));
+var ListenerImpl_1 = __importDefault(__webpack_require__(40));
 var Constants_1 = __webpack_require__(2);
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ObjectUtils_1 = __webpack_require__(0);
@@ -2324,28 +2412,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var TemplateError_1 = __importDefault(__webpack_require__(23));
-var Properties_1 = __importDefault(__webpack_require__(8));
-var Region_1 = __importDefault(__webpack_require__(58));
-var UnknownRegionError_1 = __importDefault(__webpack_require__(59));
+var TemplateError_1 = __importDefault(__webpack_require__(24));
+var Region_1 = __importDefault(__webpack_require__(59));
+var UnknownRegionError_1 = __importDefault(__webpack_require__(60));
 var ValidationRegExp_1 = __webpack_require__(7);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
-var SetComponentError_1 = __importDefault(__webpack_require__(60));
+var SetComponentError_1 = __importDefault(__webpack_require__(61));
 var Constants_1 = __webpack_require__(2);
 var ComponentConfig_1 = __webpack_require__(9);
 var Events_1 = __importDefault(__webpack_require__(15));
-var ExternalMediator_1 = __importDefault(__webpack_require__(61));
-var MvvmImpl_1 = __importDefault(__webpack_require__(62));
-var DirectEvents_1 = __importDefault(__webpack_require__(25));
+var ExternalMediator_1 = __importDefault(__webpack_require__(62));
+var MvvmImpl_1 = __importDefault(__webpack_require__(63));
+var DirectEvents_1 = __importDefault(__webpack_require__(26));
 var IdGenerator_1 = __importDefault(__webpack_require__(22));
-var NamedElementOperationsImpl_1 = __importDefault(__webpack_require__(72));
-var UnknownElementError_1 = __importDefault(__webpack_require__(73));
+var NamedElementOperationsImpl_1 = __importDefault(__webpack_require__(73));
+var UnknownElementError_1 = __importDefault(__webpack_require__(74));
 var Getter_1 = __importDefault(__webpack_require__(17));
-var ModuleAffinityError_1 = __importDefault(__webpack_require__(74));
+var ModuleAffinityError_1 = __importDefault(__webpack_require__(75));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
-var ModulesContextImpl_1 = __importDefault(__webpack_require__(26));
+var ModulesContextImpl_1 = __importDefault(__webpack_require__(27));
 var ObjectUtils_1 = __webpack_require__(0);
+var DomUtils_1 = __webpack_require__(8);
 var DEFAULT_COMPONENT_CONFIG = new ComponentConfig_1.ComponentConfigBuilder().build();
 var ComponentInternalsImpl = /** @class */ (function () {
     function ComponentInternalsImpl(component, template, config) {
@@ -2623,7 +2711,7 @@ var ComponentInternalsImpl = /** @class */ (function () {
         return this.template;
     };
     ComponentInternalsImpl.prototype.render = function () {
-        var templateEl = Properties_1.default.getWindow().document.createElement("template");
+        var templateEl = DomUtils_1.createElementOffDom("template");
         templateEl.insertAdjacentHTML("afterbegin", this.template.trim());
         var count = templateEl.childElementCount;
         if (count !== 1) {
@@ -2865,7 +2953,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ConsoleOutputStrategy_1 = __importDefault(__webpack_require__(37));
+var ConsoleOutputStrategy_1 = __importDefault(__webpack_require__(38));
 var Level_1 = __importDefault(__webpack_require__(12));
 var LoggerServiceImpl = /** @class */ (function () {
     function LoggerServiceImpl() {
@@ -2945,6 +3033,28 @@ exports.default = IdGenerator;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+Object.defineProperty(exports, "__esModule", { value: true });
+var Properties = /** @class */ (function () {
+    function Properties() {
+    }
+    Properties.setWindow = function (instance) {
+        Properties.window = instance;
+    };
+    Properties.getWindow = function () {
+        return Properties.window || global["window"];
+    };
+    return Properties;
+}());
+exports.default = Properties;
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2972,7 +3082,7 @@ exports.default = TemplateError;
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3006,7 +3116,7 @@ exports.default = Setter;
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3019,7 +3129,7 @@ exports.default = DirectEvents;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3032,9 +3142,9 @@ var ValidationRegExp_1 = __webpack_require__(7);
 var Constants_1 = __webpack_require__(2);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var Factories_1 = __importDefault(__webpack_require__(4));
-var ModuleImpl_1 = __importDefault(__webpack_require__(75));
+var ModuleImpl_1 = __importDefault(__webpack_require__(76));
 var ObjectUtils_1 = __webpack_require__(0);
-var ScopeContents_1 = __webpack_require__(80);
+var ScopeContents_1 = __webpack_require__(81);
 var ModulesContextImpl = /** @class */ (function () {
     function ModulesContextImpl() {
         this.rootScope = new ScopeImpl_1.default(false);
@@ -3114,7 +3224,7 @@ exports.default = ModulesContextImpl;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3155,7 +3265,7 @@ exports.default = CydranConfig;
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3184,11 +3294,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Filters = exports.requireValid = exports.requireNotNull = exports.isDefined = exports.noConflict = exports.CydranConfig = exports.LoggerFactory = exports.ElementMediator = exports.builder = exports.Events = exports.Component = exports.ComponentConfigBuilder = void 0;
-__webpack_require__(29);
 __webpack_require__(30);
 __webpack_require__(31);
 __webpack_require__(32);
-__webpack_require__(86);
+__webpack_require__(33);
 __webpack_require__(87);
 __webpack_require__(88);
 __webpack_require__(89);
@@ -3198,15 +3307,16 @@ __webpack_require__(92);
 __webpack_require__(93);
 __webpack_require__(94);
 __webpack_require__(95);
+__webpack_require__(96);
 var ComponentConfig_1 = __webpack_require__(9);
 Object.defineProperty(exports, "ComponentConfigBuilder", { enumerable: true, get: function () { return ComponentConfig_1.ComponentConfigBuilder; } });
-var CydranConfig = __importStar(__webpack_require__(27));
+var CydranConfig = __importStar(__webpack_require__(28));
 exports.CydranConfig = CydranConfig;
 var Events_1 = __importDefault(__webpack_require__(15));
 exports.Events = Events_1.default;
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 exports.LoggerFactory = LoggerFactory_1.default;
-var Stage_1 = __webpack_require__(96);
+var Stage_1 = __webpack_require__(97);
 Object.defineProperty(exports, "builder", { enumerable: true, get: function () { return Stage_1.builder; } });
 var ElementMediator_1 = __importDefault(__webpack_require__(3));
 exports.ElementMediator = ElementMediator_1.default;
@@ -3226,14 +3336,6 @@ function noConflict() {
     return currentCydran;
 }
 exports.noConflict = noConflict;
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 
 
 /***/ }),
@@ -3258,9 +3360,16 @@ exports.noConflict = noConflict;
 
 "use strict";
 
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(33);
-__webpack_require__(40);
+__webpack_require__(34);
 __webpack_require__(41);
 __webpack_require__(42);
 __webpack_require__(43);
@@ -3271,10 +3380,11 @@ __webpack_require__(47);
 __webpack_require__(48);
 __webpack_require__(49);
 __webpack_require__(50);
+__webpack_require__(51);
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3323,7 +3433,7 @@ exports.default = Checked;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -3351,7 +3461,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3382,7 +3492,7 @@ exports.default = ValidationError;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3485,7 +3595,7 @@ exports.default = LoggerImpl;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3571,7 +3681,7 @@ exports.default = ConsoleOutputStrategy;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3611,7 +3721,7 @@ exports.extractAttributes = extractAttributes;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3652,7 +3762,7 @@ exports.default = ListenerImpl;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3711,7 +3821,7 @@ exports.default = CSSClass;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3757,7 +3867,7 @@ exports.default = Enabled;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3803,7 +3913,7 @@ exports.default = ReadOnly;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3856,7 +3966,7 @@ exports.default = Style;
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3915,7 +4025,7 @@ exports.default = ForceFocus;
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3992,7 +4102,7 @@ exports.default = MultiSelectValueModel;
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4048,7 +4158,7 @@ exports.default = ValuedModel;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4118,7 +4228,7 @@ exports.default = InputValueModel;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4167,7 +4277,7 @@ exports.default = Visible;
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4190,9 +4300,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ElementMediator_1 = __importDefault(__webpack_require__(3));
-var Properties_1 = __importDefault(__webpack_require__(8));
 var Factories_1 = __importDefault(__webpack_require__(4));
 var Reducers_1 = __webpack_require__(5);
+var DomUtils_1 = __webpack_require__(8);
 /**
  *
  */
@@ -4204,7 +4314,7 @@ var If = /** @class */ (function (_super) {
         return _this;
     }
     If.prototype.wire = function () {
-        this.comment = Properties_1.default.getWindow().document.createComment(" hidden ");
+        this.comment = DomUtils_1.createCommentOffDom(" hidden ");
         this.getModelMediator().watch(this, this.onTargetChange);
     };
     If.prototype.unwire = function () {
@@ -4229,7 +4339,7 @@ exports.default = If;
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4251,21 +4361,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Evaluator_1 = __importDefault(__webpack_require__(51));
+var Evaluator_1 = __importDefault(__webpack_require__(52));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
-var Properties_1 = __importDefault(__webpack_require__(8));
 var Constants_1 = __webpack_require__(2);
 var ElementMediator_1 = __importDefault(__webpack_require__(3));
 var Factories_1 = __importDefault(__webpack_require__(4));
-var GeneratedIdStrategyImpl_1 = __importDefault(__webpack_require__(53));
-var NoneIdStrategyImpl_1 = __importDefault(__webpack_require__(55));
-var UtilityComponentFactoryImpl_1 = __importDefault(__webpack_require__(56));
-var ItemComponentFactoryImpl_1 = __importDefault(__webpack_require__(81));
-var EmbeddedComponentFactoryImpl_1 = __importDefault(__webpack_require__(83));
-var InvalidIdStrategyImpl_1 = __importDefault(__webpack_require__(84));
-var ExpressionIdStrategyImpl_1 = __importDefault(__webpack_require__(85));
+var GeneratedIdStrategyImpl_1 = __importDefault(__webpack_require__(54));
+var NoneIdStrategyImpl_1 = __importDefault(__webpack_require__(56));
+var UtilityComponentFactoryImpl_1 = __importDefault(__webpack_require__(57));
+var ItemComponentFactoryImpl_1 = __importDefault(__webpack_require__(82));
+var EmbeddedComponentFactoryImpl_1 = __importDefault(__webpack_require__(84));
+var InvalidIdStrategyImpl_1 = __importDefault(__webpack_require__(85));
+var ExpressionIdStrategyImpl_1 = __importDefault(__webpack_require__(86));
 var Reducers_1 = __webpack_require__(5);
 var ObjectUtils_1 = __webpack_require__(0);
+var DomUtils_1 = __webpack_require__(8);
 var DEFAULT_ID_KEY = "id";
 /**
  *
@@ -4435,7 +4545,7 @@ var Repeat = /** @class */ (function (_super) {
                 }
             }
             else {
-                var workingEl = (this.elIsSelect) ? el : Properties_1.default.getWindow().document.createDocumentFragment();
+                var workingEl = (this.elIsSelect) ? el : DomUtils_1.createDocumentFragmentOffDom();
                 if (this.first) {
                     workingEl.appendChild(this.first.getEl());
                 }
@@ -4473,7 +4583,8 @@ var Repeat = /** @class */ (function (_super) {
         return factory.create(item);
     };
     Repeat.prototype.createFactory = function (markup, factory) {
-        var templateEl = Properties_1.default.getWindow().document.createElement("template");
+        // TODO - Look into optimizing this DOM creation without the need for a workaround
+        var templateEl = DomUtils_1.createElementOffDom("template");
         templateEl.insertAdjacentHTML("afterbegin", markup.trim());
         var expectedTag = this.getParent().getPrefix() + ":component";
         var result = null;
@@ -4494,7 +4605,7 @@ exports.default = Repeat;
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4528,7 +4639,7 @@ exports.default = Evaluator;
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4559,13 +4670,13 @@ exports.default = ScopeError;
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var UuidUtils_1 = __webpack_require__(54);
+var UuidUtils_1 = __webpack_require__(55);
 var ObjectUtils_1 = __webpack_require__(0);
 var GeneratedIdStrategyImpl = /** @class */ (function () {
     function GeneratedIdStrategyImpl(idKey) {
@@ -4589,7 +4700,7 @@ exports.default = GeneratedIdStrategyImpl;
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4624,7 +4735,7 @@ exports.uuidV4 = uuidV4;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4654,7 +4765,7 @@ exports.default = NoneIdStrategyImpl;
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4663,7 +4774,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var UtilityComponent_1 = __importDefault(__webpack_require__(57));
+var UtilityComponent_1 = __importDefault(__webpack_require__(58));
 var UtilityComponentFactoryImpl = /** @class */ (function () {
     function UtilityComponentFactoryImpl(module, template, prefix, parent, parentId, parentModelFn) {
         this.module = module;
@@ -4682,7 +4793,7 @@ exports.default = UtilityComponentFactoryImpl;
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4727,7 +4838,7 @@ exports.default = UtilityComponent;
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4786,8 +4897,8 @@ var Region = /** @class */ (function () {
             this.component = component;
             var newComponentEl = component.getEl();
             var parentElement = this.defaultEl.parentElement;
-            parentElement.replaceChild(newComponentEl, this.defaultEl);
             this.component.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.parent.getComponent());
+            parentElement.replaceChild(newComponentEl, this.defaultEl);
         }
         else if (!ObjectUtils_1.isDefined(component) && ObjectUtils_1.isDefined(this.component)) {
             // Component being nulled, existing component present
@@ -4803,9 +4914,9 @@ var Region = /** @class */ (function () {
             var newComponentEl = component.getEl();
             var oldComponentEl = this.component.getEl();
             var parentElement = oldComponentEl.parentElement;
-            parentElement.replaceChild(newComponentEl, oldComponentEl);
             this.component = component;
             this.component.message(Constants_1.INTERNAL_DIRECT_CHANNEL_NAME, "setParent", this.parent.getComponent());
+            parentElement.replaceChild(newComponentEl, oldComponentEl);
         }
         this.syncComponentMode();
     };
@@ -4839,7 +4950,7 @@ exports.default = Region;
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4870,7 +4981,7 @@ exports.default = UnknownRegionError;
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4901,7 +5012,7 @@ exports.default = SetComponentError;
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4911,7 +5022,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(17));
-var Setter_1 = __importDefault(__webpack_require__(24));
+var Setter_1 = __importDefault(__webpack_require__(25));
 var ExternalMediator = /** @class */ (function () {
     function ExternalMediator(expression) {
         this.getter = new Getter_1.default(expression);
@@ -4929,7 +5040,7 @@ exports.default = ExternalMediator;
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4941,18 +5052,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
 var Constants_1 = __webpack_require__(2);
-var ModelMediatorImpl_1 = __importDefault(__webpack_require__(63));
-var MalformedOnEventError_1 = __importDefault(__webpack_require__(65));
-var TemplateError_1 = __importDefault(__webpack_require__(23));
-var Properties_1 = __importDefault(__webpack_require__(8));
-var TextElementMediator_1 = __importDefault(__webpack_require__(66));
-var EventElementMediator_1 = __importDefault(__webpack_require__(67));
-var AttributeElementMediator_1 = __importDefault(__webpack_require__(68));
+var ModelMediatorImpl_1 = __importDefault(__webpack_require__(64));
+var MalformedOnEventError_1 = __importDefault(__webpack_require__(66));
+var TemplateError_1 = __importDefault(__webpack_require__(24));
+var TextElementMediator_1 = __importDefault(__webpack_require__(67));
+var EventElementMediator_1 = __importDefault(__webpack_require__(68));
+var AttributeElementMediator_1 = __importDefault(__webpack_require__(69));
 var Factories_1 = __importDefault(__webpack_require__(4));
-var DirectEvents_1 = __importDefault(__webpack_require__(25));
+var DirectEvents_1 = __importDefault(__webpack_require__(26));
 var ObjectUtils_1 = __webpack_require__(0);
-var UnknownComponentError_1 = __importDefault(__webpack_require__(69));
-var DigesterImpl_1 = __importDefault(__webpack_require__(70));
+var UnknownComponentError_1 = __importDefault(__webpack_require__(70));
+var DigesterImpl_1 = __importDefault(__webpack_require__(71));
+var DomUtils_1 = __webpack_require__(8);
 var MvvmImpl = /** @class */ (function () {
     function MvvmImpl(id, model, moduleInstance, prefix, scope, parentModelFn) {
         var _this = this;
@@ -5255,17 +5366,17 @@ var MvvmImpl = /** @class */ (function () {
                     break;
                 default:
                     if (inside) {
-                        var beginComment = Properties_1.default.getWindow().document.createComment("#");
+                        var beginComment = DomUtils_1.createCommentOffDom("#");
                         collected.push(beginComment);
-                        var textNode = Properties_1.default.getWindow().document.createTextNode(section);
+                        var textNode = DomUtils_1.createTextNodeOffDom(section);
                         textNode.textContent = "";
                         this.addTextElementMediator(section, textNode);
                         collected.push(textNode);
-                        var endComment = Properties_1.default.getWindow().document.createComment("#");
+                        var endComment = DomUtils_1.createCommentOffDom("#");
                         collected.push(endComment);
                     }
                     else {
-                        var textNode = Properties_1.default.getWindow().document.createTextNode(section);
+                        var textNode = DomUtils_1.createTextNodeOffDom(section);
                         collected.push(textNode);
                     }
                     break;
@@ -5354,7 +5465,7 @@ exports.default = MvvmImpl;
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5364,9 +5475,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Getter_1 = __importDefault(__webpack_require__(17));
-var Invoker_1 = __importDefault(__webpack_require__(64));
+var Invoker_1 = __importDefault(__webpack_require__(65));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
-var Setter_1 = __importDefault(__webpack_require__(24));
+var Setter_1 = __importDefault(__webpack_require__(25));
 var Reducers_1 = __webpack_require__(5);
 var ObjectUtils_1 = __webpack_require__(0);
 var ModelMediatorImpl = /** @class */ (function () {
@@ -5459,7 +5570,7 @@ exports.default = ModelMediatorImpl;
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5517,7 +5628,7 @@ exports.default = Invoker;
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5548,7 +5659,7 @@ exports.default = MalformedOnEventError;
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5592,7 +5703,7 @@ exports.default = TextElementMediator;
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5645,7 +5756,7 @@ exports.default = EventElementMediator;
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5692,7 +5803,7 @@ exports.default = AttributeElementMediator;
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5723,7 +5834,7 @@ exports.default = UnknownComponentError;
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5732,7 +5843,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var DigestionContextImpl_1 = __importDefault(__webpack_require__(71));
+var DigestionContextImpl_1 = __importDefault(__webpack_require__(72));
 var Constants_1 = __webpack_require__(2);
 var ObjectUtils_1 = __webpack_require__(0);
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
@@ -5805,7 +5916,7 @@ exports.default = DigesterImpl;
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5861,7 +5972,7 @@ exports.default = DigestionContextImpl;
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5892,7 +6003,7 @@ exports.default = NamedElementOperationsImpl;
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5923,7 +6034,7 @@ exports.default = UnknownElementError;
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5954,7 +6065,7 @@ exports.default = ModuleAffinityError;
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5963,9 +6074,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Registry_1 = __webpack_require__(76);
+var Registry_1 = __webpack_require__(77);
 var ScopeImpl_1 = __importDefault(__webpack_require__(10));
-var BrokerImpl_1 = __importDefault(__webpack_require__(79));
+var BrokerImpl_1 = __importDefault(__webpack_require__(80));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var Constants_1 = __webpack_require__(2);
 var ValidationRegExp_1 = __webpack_require__(7);
@@ -6116,7 +6227,7 @@ exports.default = ModuleImpl;
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6139,9 +6250,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegistryImpl = void 0;
-var RegistrationError_1 = __importDefault(__webpack_require__(77));
+var RegistrationError_1 = __importDefault(__webpack_require__(78));
 var ValidationRegExp_1 = __webpack_require__(7);
-var Instantiator_1 = __importDefault(__webpack_require__(78));
+var Instantiator_1 = __importDefault(__webpack_require__(79));
 var PubSubImpl_1 = __importDefault(__webpack_require__(13));
 var ObjectUtils_1 = __webpack_require__(0);
 var DefaultRegistryStrategyImpl = /** @class */ (function () {
@@ -6306,7 +6417,7 @@ var SingletonFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6337,7 +6448,7 @@ exports.default = RegistrationError;
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6373,7 +6484,7 @@ exports.default = Instantiator;
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6456,7 +6567,7 @@ exports.default = BrokerImpl;
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6479,7 +6590,7 @@ exports.COMPARE = COMPARE;
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6488,7 +6599,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ItemComponent_1 = __importDefault(__webpack_require__(82));
+var ItemComponent_1 = __importDefault(__webpack_require__(83));
 var ItemComponentFactoryImpl = /** @class */ (function () {
     function ItemComponentFactoryImpl(module, template, prefix, parent, parentId, parentModelFn) {
         this.module = module;
@@ -6507,7 +6618,7 @@ exports.default = ItemComponentFactoryImpl;
 
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6558,7 +6669,7 @@ exports.default = ItemComponent;
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6591,7 +6702,7 @@ exports.default = EmbeddedComponentFactoryImpl;
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6618,7 +6729,7 @@ exports.default = InvalidIdStrategyImpl;
 
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6660,14 +6771,6 @@ var ExpressionIdStrategyImpl = /** @class */ (function () {
     return ExpressionIdStrategyImpl;
 }());
 exports.default = ExpressionIdStrategyImpl;
-
-
-/***/ }),
-/* 86 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 
 
 /***/ }),
@@ -6748,20 +6851,28 @@ exports.default = ExpressionIdStrategyImpl;
 
 "use strict";
 
+
+
+/***/ }),
+/* 97 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StageImpl = exports.builder = void 0;
-var CydranConfig_1 = __importDefault(__webpack_require__(27));
-var DomUtils_1 = __importDefault(__webpack_require__(97));
+var CydranConfig_1 = __importDefault(__webpack_require__(28));
 var LoggerFactory_1 = __importDefault(__webpack_require__(1));
 var ValidationRegExp_1 = __webpack_require__(7);
 var StageComponent_1 = __importDefault(__webpack_require__(98));
 var Constants_1 = __webpack_require__(2);
-var ModulesContextImpl_1 = __importDefault(__webpack_require__(26));
+var ModulesContextImpl_1 = __importDefault(__webpack_require__(27));
 var AnonymousComponent_1 = __importDefault(__webpack_require__(101));
 var ObjectUtils_1 = __webpack_require__(0);
+var DomUtils_1 = __webpack_require__(8);
 var StageBuilderImpl = /** @class */ (function () {
     function StageBuilderImpl(rootSelector) {
         this.config = new CydranConfig_1.default();
@@ -6901,7 +7012,7 @@ var StageImpl = /** @class */ (function () {
         }
         this.logger.debug("Cydran Starting");
         this.modules.registerConstant("stage", this);
-        DomUtils_1.default.domReady(function () { return _this.domReady(); });
+        DomUtils_1.domReady(function () { return _this.domReady(); });
     };
     StageImpl.prototype.setComponent = function (component) {
         this.root.setChild("body", component);
@@ -6962,86 +7073,6 @@ var builder = function (rootSelector) {
     return new StageBuilderImpl(rootSelector);
 };
 exports.builder = builder;
-
-
-/***/ }),
-/* 97 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var Properties_1 = __importDefault(__webpack_require__(8));
-var WIN = Properties_1.default.getWindow();
-var DOC = WIN.document;
-var readyList = [];
-var readyFired = false;
-var readyEventHandlersInstalled = false;
-function ready() {
-    if (!readyFired) {
-        // this must be set to true before we start calling callbacks
-        readyFired = true;
-        // tslint:disable-next-line
-        for (var i = 0; i < readyList.length; i++) {
-            // if a callback here happens to add new ready handlers,
-            // the docReady() function will see that it already fired
-            // and will schedule the callback to run right after
-            // this event loop finishes so all handlers will still execute
-            // in order and no new ones will be added to the readyList
-            // while we are processing the list
-            readyList[i].fn.call(WIN, readyList[i].ctx);
-        }
-        // allow any closures held by these functions to free
-        readyList = [];
-    }
-}
-function readyStateChange() {
-    if (DOC.readyState === "complete") {
-        ready();
-    }
-}
-function domReady(callback, context) {
-    if (typeof callback !== "function") {
-        throw new TypeError("callback for docReady(fn) must be a function");
-    }
-    // if ready has already fired, then just schedule the callback
-    // to fire asynchronously, but right away
-    if (readyFired) {
-        setTimeout(function () { callback(context); }, 1);
-        return;
-    }
-    else {
-        // add the function and context to the list
-        readyList.push({ fn: callback, ctx: context });
-    }
-    // if document already ready to go, schedule the ready function to run
-    // IE only safe when readyState is "complete", others safe when readyState is "interactive"
-    if (DOC.readyState === "complete" || (!DOC["attachEvent"] && DOC.readyState === "interactive")) {
-        setTimeout(ready, 1);
-    }
-    else if (!readyEventHandlersInstalled) {
-        // otherwise if we don't have event handlers installed, install them
-        if (DOC.addEventListener) {
-            // first choice is DOMContentLoaded event
-            DOC.addEventListener("DOMContentLoaded", ready, false);
-            // backup is window load event
-            WIN.addEventListener("load", ready, false);
-        }
-        else {
-            // must be IE
-            DOC["attachEvent"]("onreadystatechange", readyStateChange);
-            WIN["attachEvent"]("onload", ready);
-        }
-        readyEventHandlersInstalled = true;
-    }
-}
-var result = {
-    domReady: domReady
-};
-exports.default = result;
 
 
 /***/ }),
@@ -7121,9 +7152,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Properties_1 = __importDefault(__webpack_require__(8));
+var Properties_1 = __importDefault(__webpack_require__(23));
 var SelectorError_1 = __importDefault(__webpack_require__(100));
 var ComponentInternalsImpl_1 = __importDefault(__webpack_require__(16));
+var DomUtils_1 = __webpack_require__(8);
 var StageComponentInternals = /** @class */ (function (_super) {
     __extends(StageComponentInternals, _super);
     function StageComponentInternals() {
@@ -7147,18 +7179,18 @@ var StageComponentInternals = /** @class */ (function (_super) {
         }
         for (var _i = 0, topIds_1 = topIds; _i < topIds_1.length; _i++) {
             var pair = topIds_1[_i];
-            var componentDiv = Properties_1.default.getWindow().document.createElement("c:component");
+            var componentDiv = DomUtils_1.createElementOffDom("c:component");
             componentDiv.setAttribute("name", pair.componentId);
             componentDiv.setAttribute("module", pair.moduleId);
             element.appendChild(componentDiv);
         }
-        var regionDiv = Properties_1.default.getWindow().document.createElement("c:region");
+        var regionDiv = DomUtils_1.createElementOffDom("c:region");
         regionDiv.setAttribute("name", "body");
         element.appendChild(regionDiv);
         this.setEl(element);
         for (var _a = 0, bottomIds_1 = bottomIds; _a < bottomIds_1.length; _a++) {
             var pair = bottomIds_1[_a];
-            var componentDiv = Properties_1.default.getWindow().document.createElement("c:component");
+            var componentDiv = DomUtils_1.createElementOffDom("c:component");
             componentDiv.setAttribute("name", pair.componentId);
             componentDiv.setAttribute("module", pair.moduleId);
             element.appendChild(componentDiv);
@@ -7475,7 +7507,23 @@ var PagedFilterImpl = /** @class */ (function () {
             this.page = 0;
         }
     };
+    PagedFilterImpl.prototype.isAtBeginning = function () {
+        return this.atBeginning;
+    };
+    PagedFilterImpl.prototype.isAtEnd = function () {
+        return this.atEnd;
+    };
+    PagedFilterImpl.prototype.isMoreBefore = function () {
+        return this.moreBefore;
+    };
+    PagedFilterImpl.prototype.isMoreAfter = function () {
+        return this.moreAfter;
+    };
     PagedFilterImpl.prototype.sync = function () {
+        this.atBeginning = (this.page === 0);
+        this.atEnd = (this.page >= this.getTotalPages() - 1);
+        this.moreBefore = !this.atBeginning;
+        this.moreAfter = !this.atEnd;
         this.limited.setLimitAndOffset(this.pageSize, this.page * this.pageSize);
     };
     return PagedFilterImpl;

@@ -20,6 +20,7 @@ window.onload = function() {
 
       this.filtered = Filters.builder(this, "m().fullData").paged();
       this.filtered.setPageSize(PGSIZE);
+
       this.on("PagedItem").forChannel(App.name).invoke(this.setTheLabel);
       this.setChild("filteredData", new Paged());
     }

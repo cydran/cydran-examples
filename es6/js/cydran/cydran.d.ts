@@ -346,6 +346,10 @@ export interface PagedFilter extends Filter {
 	toNext(): void;
 	toStart(): void;
 	toEnd(): void;
+	isAtBeginning(): boolean;
+	isAtEnd(): boolean;
+	isMoreBefore(): boolean;
+	isMoreAfter(): boolean;
 }
 export interface PubSub extends Disposable {
 	message(channelName: string, messageName: string, payload?: any): void;
