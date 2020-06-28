@@ -51,7 +51,7 @@
 	</template>
 
 	<template id="modalBox">
-		<div c:visible="m().visible" tabindex="-1" class="cydran-modal">
+		<div c:hidden="!m().visible" tabindex="-1" class="cydran-modal">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
