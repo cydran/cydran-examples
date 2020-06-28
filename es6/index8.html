@@ -48,8 +48,8 @@
 
 	<template id="myCollections">
 		<div>
-			Collection ID: {{i().id}}<br/>
-			<ul c:repeat="i().grouping || []" c:repeat:mode="none" class="collectionDivider">
+			Collection ID: {{v().id}}<br/>
+			<ul c:repeat="v().grouping || []" c:repeat:mode="none" class="collectionDivider">
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
@@ -61,8 +61,8 @@
 	</template>
 
 	<template id="group">
-		<li>Grouping id: {{i().id}}<br/>
-			<ul c:repeat="i().things" c:repeat:mode="none" class="thingList">
+		<li>Grouping id: {{v().id}}<br/>
+			<ul c:repeat="v().things" c:repeat:mode="none" class="thingList">
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
@@ -74,7 +74,7 @@
 	</template>
 
 	<template id="thing">
-		<li>{{i().name}}</li>
+		<li>{{v().name}}</li>
 	</template>
 
 </html>

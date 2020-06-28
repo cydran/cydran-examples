@@ -40,7 +40,7 @@
 			Last Hover Item: {{m().lastHoverItem.name}}<p/>
 			<div c:repeat="m().buffData" c:repeat:mode="generated" class="listbox" >
 				<template type="item">
-					<div c:onmouseover="m().logTheItem(v())" c:onclick="m().updateItem(v().id)">{{i().name}}</div>
+					<div c:onmouseover="m().logTheItem(v())" c:onclick="m().updateItem(v().id)">{{v().name}}</div>
 				</template>
 			</div>
 		</div>

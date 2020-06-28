@@ -185,7 +185,7 @@
 				<div c:if="m().mylist.length > 0">
 					<select c:repeat="m().mylist" c:repeat:mode="generated" c:model="m().selectedItemId" size="10" c:force-focus="true">
 						<template type="item">
-							<option value="{{i().id}}" style="width: 75px;">{{i().name}}</option>
+							<option value="{{v().id}}" style="width: 75px;">{{v().name}}</option>
 						</template>
 					</select> <span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
 					<p />
