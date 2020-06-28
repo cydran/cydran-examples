@@ -12,11 +12,12 @@ export declare abstract class ElementMediator<M, E extends HTMLElement | Text, P
 	private mediator;
 	private pubSub;
 	private propagation;
+	private topLevelSupported;
 	private domListeners;
 	private id;
 	private params;
 	private reducerFn?;
-	constructor(dependencies: any, propagation: boolean, reducerFn: (input: any) => M);
+	constructor(dependencies: any, propagation: boolean, reducerFn: (input: any) => M, topLevelSupported?: boolean);
 	/**
 	 * Dispose of ElementMediator when released.
 	 * + All event listeners will be removed.
@@ -63,9 +64,9 @@ export declare abstract class ElementMediator<M, E extends HTMLElement | Text, P
 	getId(): string;
 	requestMediators(consumer: DigestionCandidateConsumer): void;
 	hasPropagation(): boolean;
+	isTopLevelSupported(): boolean;
 	protected getParams(): P;
 	protected getModelFn(): () => any;
-	protected getExternalFn(): () => any;
 	protected bridge(name: string): void;
 	/**
 	 * Get the associated {HTMLElement html element} of this element mediator.
@@ -171,12 +172,7 @@ export declare class Component implements Nestable {
 	watch<T>(expression: string, target: (previous: T, current: T) => void, reducerFn?: (input: any) => T, context?: any): void;
 	evaluate<T>(expression: string): T;
 	getWatchContext(): any;
-	/**
-	 * @deprecated
-	 */
-	protected getItem<T>(): T;
 	protected getValue<T>(): T;
-	protected getExternals<T>(): T;
 	protected broadcast(channelName: string, messageName: string, payload?: any): void;
 	protected broadcastGlobally(channelName: string, messageName: string, payload?: any): void;
 	protected $apply(fn?: Function, args?: any[]): void;
@@ -188,7 +184,6 @@ export declare class ComponentConfigBuilder {
 	private instance;
 	constructor();
 	withMetadata(name: string, value: any): ComponentConfigBuilder;
-	withAttribute(name: string): ComponentConfigBuilder;
 	withPrefix(prefix: string): ComponentConfigBuilder;
 	build(): ComponentConfig;
 }
@@ -203,15 +198,16 @@ export declare class LoggerFactory {
 	static getLogger(name: string): Logger;
 }
 export declare const Events: any;
+export declare const HOOKS: Hooks;
 export declare const builder: (rootSelector: string) => StageBuilder;
 export declare function isDefined(value: any): boolean;
 export declare function noConflict(): any;
 export declare function requireNotNull<T>(value: T, name: string): T;
 export declare function requireValid(value: string, name: string, regex: RegExp): string;
+export declare function setStrictTypeChecksEnabled(value: boolean): void;
 export interface ComponentConfig {
 	getMetadata(key: string): any;
 	getPrefix(): string;
-	getAttributes(): string[];
 }
 export interface DigestionCandidate extends Evaluatable, Notifyable {
 }
@@ -223,6 +219,10 @@ export interface Disposable {
 }
 export interface Evaluatable {
 	evaluate(): boolean;
+}
+export interface EventHooks<T> {
+	add(listener: (context: T) => void): void;
+	notify(context: T): void;
 }
 export interface Filter {
 	items(): any[];
@@ -244,6 +244,9 @@ export interface ForChannelContinuation {
 }
 export interface Gettable {
 	get<T>(id: string): T;
+}
+export interface Hooks {
+	getDigestionCycleStartHooks(): EventHooks<Nestable>;
 }
 export interface LimitOffsetFilter extends Filter {
 	getLimit(): number;
@@ -374,11 +377,11 @@ export interface Scope {
 	add(name: string, item: any): void;
 	remove(name: string): void;
 }
-export interface Stage {
+export interface Stage extends Disposable {
 	setComponent(component: Nestable): Stage;
 	setComponentFromRegistry(componentName: string, defaultComponentName?: string): void;
 	get<T>(id: string): T;
-	start(): void;
+	start(): Stage;
 	getModule(name: string): Module;
 	getDefaultModule(): Module;
 	forEach(fn: (instace: Module) => void): void;
@@ -387,6 +390,7 @@ export interface Stage {
 	registerPrototype(id: string, classInstance: Type<any>): void;
 	registerSingleton(id: string, classInstance: Type<any>): void;
 	getScope(): Scope;
+	isStarted(): boolean;
 }
 export interface StageBuilder {
 	getModule(name: string): Module;
