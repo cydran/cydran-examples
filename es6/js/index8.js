@@ -7,7 +7,7 @@ window.onload = function() {
   const Component = cydran.Component;
   const Stage = cydran.Stage;
 
-	const templates = ["main", "myCollections", "group", "thing"].map((t) => {
+	const templates = ["main", "myCollections", "group", "thing", "nodata"].map((t) => {
 		const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
 		return {"key": t, "value": tempTemplate};
 	});
@@ -81,6 +81,7 @@ window.onload = function() {
     .withPrototype("myCollections", GroupCollection)
     .withPrototype("thing", Thing)
     .withPrototype("group", Group)
+		.withImplicit("nodata", TEMPLATE("nodata"))
     .withInitializer(stage => {
       stage.setComponentFromRegistry(wkappName);
     })

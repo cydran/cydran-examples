@@ -36,7 +36,7 @@
 				<p />
 				<div c:repeat="m().mylist || []" c:repeat:mode="none">
 					<template type="empty">
-						<div>No data present...</div>
+						<c:region component="nodata"></c:region>
 					</template>
 					<template type="item">
 						<c:region component="myCollections"></c:region>
@@ -75,6 +75,10 @@
 
 	<template id="thing">
 		<li>{{v().name}}</li>
+	</template>
+
+	<template id="nodata">
+		<div>No data present...</div>
 	</template>
 
 </html>

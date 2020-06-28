@@ -139,15 +139,11 @@
 				class Single extends Component {
 
 					constructor() {
-						super(regItemTemplate, new ComponentConfigBuilder()
-							.withAttribute("key")
-							.withAttribute("value")
-							.build()
-							);
+						super(regItemTemplate);
 					}
 
 					changeValue() {
-						this.getExternals()["value"] = Math.floor(Math.random() * 99999) + 1;	
+						this.getValue().value = Math.floor(Math.random() * 99999) + 1;	
 					}
 				}
 
@@ -206,11 +202,7 @@
 			<br clear="all" />
 			<div c:repeat="m().entries" c:repeat:mode="none" c:repeat:idkey="key">
 				<template type="item">
-					<div>
-						<hr />
-						<button c:onclick="console.log('i():',i())">i()</button>
-						<c:component name="regItem" c:property-key="i().key" c:property-value="i().value"></c:component>
-					</div>
+					<c:region component="regItem"></c:region>
 				</template>
 			</div>
 		</div>
@@ -218,11 +210,11 @@
 
 	<template id="regItem">
 		<div>
-			<p>
-				Key: {{e().key}} | Value: {{e().value}} : <button c:onclick="m().changeValue()">Change</button>
-			</p>
+			<hr />
 			<button c:onclick="console.log('m():',m())">m()</button>
-			<button c:onclick="console.log('e():',e())">e()</button>
+			<p>
+				{{JSON.stringify(v())}} : <button c:onclick="m().changeValue()">Change</button>
+			</p>
 		</div>
 	</template>
 
