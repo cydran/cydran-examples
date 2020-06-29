@@ -1,4 +1,4 @@
 .project
 .settings/
 node_modules/
-*-lock.json
+/es6/nbproject/**
