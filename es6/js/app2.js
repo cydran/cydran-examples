@@ -4,9 +4,8 @@ window.onload = function() {
 	const requireNotNull = cydran.requireNotNull;
 
 	const T = document.querySelector('#myComponent').innerHTML.trim();
-	const APP = "app";
 
-	class App2 extends Component {
+	class App extends Component {
 		constructor() {
 			super(T);
 			this.on('updated').forChannel(APP).invoke(this.dataUpdate);
@@ -57,9 +56,9 @@ window.onload = function() {
 
 	builder('#pgpart')
 		.withDebugLogging()
-		.withPrototype(App2.name, App2, ["$pubSub"])
+		.withPrototype(App.name, App, ["$pubSub"])
 		.withInitializer(stage => {
-      stage.setComponentFromRegistry(App2.name);
+      stage.setComponentFromRegistry(App.name);
     })
 		.build()
 		.start();

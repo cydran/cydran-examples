@@ -1,7 +1,7 @@
 const builder = cydran.builder;
 const Component = cydran.Component;
 
-class App4 extends Component {
+class App extends Component {
   constructor() {
     super(document.querySelector("#myComponent").innerHTML.trim());
     this.pgLabel = "Cydran ES6 Example - Stuff";
@@ -97,10 +97,10 @@ builder("#pgpart")
   .withDebugLogging()
   .withCapability(modalCapacity)
   .withCapability(builder => {
-    builder.withPrototype(App4.name, App4);
+    builder.withPrototype(App.name, App);
   })
   .withInitializer(function() {
-    this.setComponentFromRegistry(App4.name);
+    this.setComponentFromRegistry(App.name);
   })
   .build()
   .start();

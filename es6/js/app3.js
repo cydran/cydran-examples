@@ -5,7 +5,7 @@ window.onload = function() {
 
 	const T = document.querySelector('#myComponent').innerHTML.trim();
 
-	class App3 extends Component {
+	class App extends Component {
 		constructor() {
 			super(T);
 			this.pgLabel = 'Cydran ES6 Example - Stuff';
@@ -25,7 +25,7 @@ window.onload = function() {
 	builder('#pgpart')
 		.withDebugLogging()
 		.withInitializer(function() {
-			const app = new App3();
+			const app = new App();
 			this.setComponent(app);
 		})
 		.build()
