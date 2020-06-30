@@ -52,8 +52,8 @@
 			<button c:onclick="m().setBaseline()">Reset It All!</button>
 			<p />
 			<button c:onclick="m().filtered.setPage(Math.floor(Math.random()*m().filtered.getTotalPages()))">Go To Random</button>&nbsp;&nbsp;Current: {{m().filtered.getPage() + 1}}
-			<p/>
-			<c:region name="filteredData" value="m().filtered.items()"></c:region><br/>
+			<p />
+			<script type="cydran/region" name="filteredData" value="m().filtered.items()"></script><br/>
 			<span class="activePointer" c:onclick="m().filtered.toStart()" style="font-weight: bold;" c:class="{'disabled': m().filtered.isAtBeginning()}">|&lt;</span>
 			<button c:onclick="m().filtered.toPrevious()" c:enabled="m().filtered.isMoreBefore()">Previous</button>
 			<button c:onclick="m().filtered.toNext()" c:enabled="m().filtered.isMoreAfter()">Next</button>

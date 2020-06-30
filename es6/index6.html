@@ -33,19 +33,19 @@
 
 					constructor() {
 						super(appTemplate);
+						this.baseline();
 						this.on('updated').forChannel(APP).invoke(this.dataUpdate);
 						this.on('error').forChannel(APP).invoke(this.dataError);
 						this.log = this.getLogger();
-						this.watch("m().selectedItemId", () => this.doR());
-						this.watch("m().curReg", () => this.doR());
-						this.baseline();
+						this.watch("m().selectedItemId", this.doR);
+						this.watch("m().curReg", this.doR);
+						this.foundItemCondition = (item) => item.id == this.selectedItemId;
 					}
 
 					baseline() {
-						this.foundItemCondition = (item) => item.id == this.selectedItemId;
+						this.selectedItemId = "";
 						this.curReg = Reg.A;
 						this.mylist = [];
-						this.selectedItemId = null;
 					}
 
 					loadBuffer() {
@@ -65,7 +65,9 @@
 
 					dataUpdate(data) {
 						this.mylist = data;
-						this.selectedItemId = data[0].id;
+						if (this.mylist.length > 0) {
+							this.selectedItemId = this.mylist[0].id;
+						}
 					}
 
 					doRegistryA() {
@@ -107,6 +109,7 @@
 
 					doR() {
 						if(this.mylist.length > 0) {
+							console.log("doR():id = %s", this.selectedItemId);
 							this.setChildFromRegistry("register", "wkRegister");
 							this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
 						}
@@ -190,7 +193,7 @@
 					<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
 					<br />
 				</div>
-				<c:region name="register"></c:region>
+				<script type="cydran/region" name="register"></script>
 				<hr width="80%" />
 			</div>
 		</section>
@@ -201,9 +204,7 @@
 			<span class="is-size-4">{{m().rname}}</span>
 			<br clear="all" />
 			<div c:repeat="m().entries" c:repeat:mode="none" c:repeat:idkey="key">
-				<template type="item">
-					<c:region component="regItem"></c:region>
-				</template>
+				<template type="item" component="regItem"></template>
 			</div>
 		</div>
 	</template>

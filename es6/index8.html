@@ -35,11 +35,8 @@
 				<button class="button" c:onclick="m().baseline()">Reset</button>
 				<p />
 				<div c:repeat="m().mylist || []" c:repeat:mode="none">
-					<template type="empty">
-						<c:region component="nodata"></c:region>
-					</template>
-					<template type="item">
-						<c:region component="myCollections"></c:region>
+					<template type="empty" component="nodata"></template>
+					<template type="item" component="myCollections"></template>
 					</template>
 				</div>
 			</div>
@@ -53,9 +50,7 @@
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
-				<template type="item">
-					<c:region component="group"></c:region>
-				</template>
+				<template type="item" component="group"></template>
 			</ul>
 		</div>
 	</template>
@@ -66,9 +61,7 @@
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
-				<template type="item">
-					<c:region component="thing"></c:region>
-				</template>
+				<template type="item" component="thing"></template>
 			</ul>
 		</li>
 	</template>
