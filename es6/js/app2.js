@@ -8,8 +8,8 @@ window.onload = function() {
 	class App extends Component {
 		constructor() {
 			super(T);
-			this.on('updated').forChannel(APP).invoke(this.dataUpdate);
-			this.on('error').forChannel(APP).invoke(this.dataError);
+			this.on('updated').forChannel(App.name).invoke(this.dataUpdate);
+			this.on('error').forChannel(App.name).invoke(this.dataError);
 			this.baseline();
 		}
 
@@ -25,10 +25,10 @@ window.onload = function() {
 			axios
 				.get('./data/oss_licenses.json')
 				.then(response => {
-					this.broadcast(APP, 'updated', response.data);
+					this.broadcast(App.name, 'updated', response.data);
 				})
 				.catch(error => {
-					this.broadcast(APP, 'error', error);
+					this.broadcast(App.name, 'error', error);
 				});
 		}
 
