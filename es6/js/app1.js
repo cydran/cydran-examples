@@ -8,7 +8,7 @@ window.onload = function() {
 
 	const urlParams = new URL(window.location).searchParams;
 
-	const PGSIZE = 50;
+	const PGSIZE = 20;
 
 	const APP_TEMPLATE = document.querySelector("#app").innerHTML.trim();
 	class App extends Component {
@@ -17,9 +17,9 @@ window.onload = function() {
 
 			this.setBaseline();
 			this.pgLabel = "Cydran ES6 Example - Paging";
-			this.hardLimit = 1000000;
 
-			this.filtered = Filters.builder(this, "m().fullData").paged();
+			this.filtered = Filters.builder(this, "m().fullData")
+				.paged();
 			this.filtered.setPageSize(PGSIZE);
 
 			this.on("PagedItem").forChannel(App.name).invoke(this.setTheLabel);
@@ -27,7 +27,7 @@ window.onload = function() {
 		}
 
 		setBaseline() {
-			this.rowCount = 10000;
+			this.rowCount = 1000;
 			this.selectedItem = null;
 			this.fullData = this.populateDataSet();
 		}
