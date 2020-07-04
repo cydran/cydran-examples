@@ -38,7 +38,7 @@
 			<h2>{{m().pgLabel}}</h2><p/>
 			<button c:onclick="m().doReset()">Reset</button>&nbsp;&nbsp;&nbsp;<span class="loud">{{m().selectedItem}}</span><p/>
 			Last Hover Item: {{m().lastHoverItem.name}}<p/>
-			<div c:repeat="m().buffData" c:repeat:mode="generated" class="listbox" >
+			<div c:each="m().buffData" c:each:mode="generated" class="listbox" >
 				<template type="item">
 					<div c:onmouseover="m().logTheItem(v())" c:onclick="m().updateItem(v().id)">{{v().name}}</div>
 				</template>

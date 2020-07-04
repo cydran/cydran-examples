@@ -34,7 +34,7 @@
 				<button class="button" c:onclick="m().loadBuffer()">Load Data</button>
 				<button class="button" c:onclick="m().baseline()">Reset</button>
 				<p />
-				<div c:repeat="m().mylist || []" c:repeat:mode="none">
+				<div c:each="m().mylist || []" c:each:mode="none">
 					<template type="empty" component="nodata"></template>
 					<template type="item" component="myCollections"></template>
 					</template>
@@ -46,7 +46,7 @@
 	<template id="myCollections">
 		<div>
 			Collection ID: {{v().id}}<br/>
-			<ul c:repeat="v().grouping || []" c:repeat:mode="none" class="collectionDivider">
+			<ul c:each="v().grouping || []" c:each:mode="none" class="collectionDivider">
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
@@ -57,7 +57,7 @@
 
 	<template id="group">
 		<li>Grouping id: {{v().id}}<br/>
-			<ul c:repeat="v().things" c:repeat:mode="none" class="thingList">
+			<ul c:each="v().things" c:each:mode="none" class="thingList">
 				<template type="empty">
 					<li>Nothing</li>
 				</template>
