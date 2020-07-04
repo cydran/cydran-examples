@@ -33,7 +33,6 @@
 							"no.data": "Datos no disponibles..."
 						}
 					};
-
 					return dictionary[pgLang.toLowerCase()][key];
 				};
 
@@ -55,7 +54,7 @@
 						this.noData = "No data present...";
 						this.dataList = new Array(this.wkCount);
 						this.watch("m().wkCount", this.adjustArray);
-						this.lang = "en";
+						this.lang = "es";
 					}
 
 					adjustArray() {
@@ -91,19 +90,20 @@
 		<section class="section">
 			<div class="container">
 				<span class="title is-4">
-					[[i18n("pg.header")]]<br>
+					[[i18n("pg.header")]]
 				</span>
 				<br /><br />
 				<div class="columns">
 					<div class="column is-one-third field">
 						<div class="field-label is-normal">
+							lang: [[m().lang]]<br clear="all"/>
 							<label class="label">[[i18n("label.idx")]] {{m().wkCount}}</label>
 						</div>
 						<div class="field-body">
 							<div class="field">
 								<div class="control">
 									<input class="input is-primary" type="range" min="{{m().minSize}}" max="{{m().maxSize}}"
-										value="{{m().wkCount}}" c:model="m().wkCount" />
+										c:model="m().wkCount" />
 								</div>
 							</div>
 						</div>
