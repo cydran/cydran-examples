@@ -15,13 +15,35 @@
 				const Component = cydran.Component;
 				const Stage = cydran.Stage;
 
+				// changable to "en" or "ES" - case is irrelevant
+				const pgLang = "eN";
+
+				const i18n = (key) => {
+					const dictionary = {
+						"en": {
+							"item.label": "Ticket",
+							"label.idx": "Index",
+							"pg.header": "Cydran components in structures with restricted child node types",
+							"no.data": "No data available..."
+						},
+						"es": {
+							'item.label': 'Ficha',
+							"label.idx": "Índice",
+							"pg.header": "Componentes de Cydran en estructuras con tipos de nodos secundarios restringidos",
+							"no.data": "Datos no disponibles..."
+						}
+					};
+
+					return dictionary[pgLang.toLowerCase()][key];
+				};
+
 				const templates = ["Main", "NoData", "WkItem"].map((t) => {
 					const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
 					return {"key": t, "value": tempTemplate};
 				});
 
 				const TEMPLATE = (key) => {
-					return templates.find((t) => t.key == key).value;
+					return templates.find((t) => t.key === key).value;
 				};
 
 				class App extends Component {
@@ -33,6 +55,7 @@
 						this.noData = "No data present...";
 						this.dataList = new Array(this.wkCount);
 						this.watch("m().wkCount", this.adjustArray);
+						this.lang = "en";
 					}
 
 					adjustArray() {
@@ -49,6 +72,7 @@
 				builder("body")
 					.withDebugLogging()
 					.withPrototype(App.name, App)
+					.withScopeItem('i18n', i18n)
 					.withImplicit("NoData", TEMPLATE("NoData"))
 					.withImplicit("WkItem", TEMPLATE("WkItem"))
 					.withInitializer(stage => {
@@ -67,13 +91,13 @@
 		<section class="section">
 			<div class="container">
 				<span class="title is-4">
-					Cydran components in structures with restricted child node types<br>
+					[[i18n("pg.header")]]<br>
 				</span>
 				<br /><br />
 				<div class="columns">
 					<div class="column is-one-third field">
 						<div class="field-label is-normal">
-							<label class="label">Index: {{m().wkCount}}</label>
+							<label class="label">[[i18n("label.idx")]] {{m().wkCount}}</label>
 						</div>
 						<div class="field-body">
 							<div class="field">
@@ -104,12 +128,12 @@
 
 	<template id="WkItem">
 		<tr>
-			<td>Item #{{v().value}}</td>
+			<td>[[i18n("item.label")]] #{{v().value}}</td>
 		</tr>
 	</template>
 
 	<template id="NoData">
-		<span>No data available...</span>
+		<span>[[i18n("no.data")]]</span>
 	</template>
 
 </html>
