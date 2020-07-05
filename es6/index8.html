@@ -35,8 +35,8 @@
 				<button class="button" c:onclick="m().baseline()">Reset</button>
 				<p />
 				<div c:each="m().mylist || []" c:each:mode="none">
-					<template type="empty" component="nodata"></template>
-					<template type="item" component="myCollections"></template>
+					<template c:type="empty" c:component="nodata"></template>
+					<template c:type="item" c:component="myCollections"></template>
 					</template>
 				</div>
 			</div>
@@ -47,10 +47,10 @@
 		<div>
 			Collection ID: {{v().id}}<br/>
 			<ul c:each="v().grouping || []" c:each:mode="none" class="collectionDivider">
-				<template type="empty">
+				<template c:type="empty">
 					<li>Nothing</li>
 				</template>
-				<template type="item" component="group"></template>
+				<template c:type="item" c:component="group"></template>
 			</ul>
 		</div>
 	</template>
@@ -58,10 +58,10 @@
 	<template id="group">
 		<li>Grouping id: {{v().id}}<br/>
 			<ul c:each="v().things" c:each:mode="none" class="thingList">
-				<template type="empty">
+				<template c:type="empty">
 					<li>Nothing</li>
 				</template>
-				<template type="item" component="thing"></template>
+				<template c:type="item" c:component="thing"></template>
 			</ul>
 		</li>
 	</template>

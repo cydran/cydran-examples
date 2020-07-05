@@ -16,7 +16,7 @@
 				const Stage = cydran.Stage;
 
 				// changable to "en" or "ES" - case is irrelevant
-				const pgLang = "eN";
+				const pgLang = "en";
 
 				const i18n = (key) => {
 					const dictionary = {
@@ -111,14 +111,14 @@
 					<div class="column is-two-thirds">
 						<table class="table is-striped is-bordered is-fullwidth">
 							<tbody c:each="m().dataList" c:each:mode="generated">
-								<template type="empty">
+								<template c:type="empty">
 									<tr>
 										<td>
-											<script type="cydran/region" component="NoData"></script>
+											<script type="cydran/region" c:component="NoData"></script>
 										</td>
 									</tr>
 								</template>
-								<template type="item" component="WkItem"></template>
+								<template c:type="item" c:component="WkItem"></template>
 							</tbody>
 						</table>
 					</div>

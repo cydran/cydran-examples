@@ -8,7 +8,8 @@ window.onload = function() {
 
 	const urlParams = new URL(window.location).searchParams;
 
-	const PGSIZE = 20;
+	const PGSIZE = 100;
+	const RCNT = 10000;
 
 	const APP_TEMPLATE = document.querySelector("#app").innerHTML.trim();
 	class App extends Component {
@@ -27,7 +28,7 @@ window.onload = function() {
 		}
 
 		setBaseline() {
-			this.rowCount = 1000;
+			this.rowCount = RCNT;
 			this.selectedItem = null;
 			this.fullData = this.populateDataSet();
 		}

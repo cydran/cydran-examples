@@ -146,7 +146,7 @@
 					}
 
 					changeValue() {
-						this.getValue().value = Math.floor(Math.random() * 99999) + 1;	
+						this.getValue().value = Math.floor(Math.random() * 99999) + 1;
 					}
 				}
 
@@ -183,7 +183,7 @@
 				</div>
 				<div c:if="m().mylist.length > 0">
 					<select c:each="m().mylist" c:each:mode="generated" c:model="m().selectedItemId" size="10" c:force-focus="true">
-						<template type="item">
+						<template c:type="item">
 							<option value="{{v().id}}" style="width: 75px;">{{v().name}}</option>
 						</template>
 					</select> <span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
@@ -193,7 +193,7 @@
 					<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
 					<br />
 				</div>
-				<script type="cydran/region" name="register"></script>
+				<script type="cydran/region" c:name="register"></script>
 				<hr width="80%" />
 			</div>
 		</section>
@@ -204,7 +204,7 @@
 			<span class="is-size-4">{{m().rname}}</span>
 			<br clear="all" />
 			<div c:each="m().entries" c:each:mode="none" c:each:idkey="key">
-				<template type="item" component="regItem"></template>
+				<template c:type="item" c:component="regItem"></template>
 			</div>
 		</div>
 	</template>

@@ -45,7 +45,7 @@
 	<template id="app">
 		<div>
 			<h2>{{m().pgLabel}}</h2><br/>
-			Rows: <input type="number" c:model="m().rowCount" min="0" max="{{m().hardLimit}}"  c:onblur="m().updateDataSet()" /><br/>
+			Rows: {{ m().rowCount }}<br/>
 			Page Size: {{m().filtered.getPageSize()}}<br/>
 			Total Pages: {{m().filtered.getTotalPages()}}<br/>
 			Last Item: {{m().selectedItem || 'Nothing'}}<br/>
@@ -53,7 +53,7 @@
 			<p />
 			<button c:onclick="m().filtered.setPage(Math.floor(Math.random()*m().filtered.getTotalPages()))">Go To Random</button>&nbsp;&nbsp;Current: {{m().filtered.getPage() + 1}}
 			<p />
-			<script type="cydran/region" name="filteredData" value="m().filtered.items()"></script><br/>
+			<script type="cydran/region" c:name="filteredData" c:value="m().filtered.items()"></script><br/>
 			<span class="activePointer" c:onclick="m().filtered.toStart()" style="font-weight: bold;" c:class="{'disabled': m().filtered.isAtBeginning()}">|&lt;</span>
 			<button c:onclick="m().filtered.toPrevious()" c:enabled="m().filtered.isMoreBefore()">Previous</button>
 			<button c:onclick="m().filtered.toNext()" c:enabled="m().filtered.isMoreAfter()">Next</button>
@@ -64,10 +64,10 @@
 	<template id="paged">
 		<div>
 			<div class="listbox" c:each="v()" c:each:mode="none">
-				<template type="none">
+				<template c:type="none">
 					<div>Nothing to see...</div>
 				</template>
-				<template type="item">
+				<template c:type="item">
 					<div class='listitem' c:onclick='m().doLabel(v())'>{{v().id}}</div>
 				</template>
 			</div>
