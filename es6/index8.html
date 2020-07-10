@@ -32,7 +32,7 @@
 					Nested Structures
 				</h1>
 				<button class="button" c:onclick="m().loadBuffer()">Load Data</button>
-				<button class="button" c:onclick="m().baseline()">Reset</button>
+				<button class="button" c:onclick="m().baseline()" c:enabled="m().mylist.length > 0">Reset</button>
 				<p />
 				<div c:each="m().mylist || []" c:each:mode="none">
 					<template c:type="empty" c:component="nodata"></template>

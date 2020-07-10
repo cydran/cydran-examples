@@ -175,7 +175,7 @@
 				</h1>
 				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
 				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
-				<button class="button is-success" c:onclick="m().doAReset()">Reset</button>
+				<button class="button is-success" c:onclick="m().doAReset()" c:if="m().selectedItemId != ''">Reset</button>
 				<br />
 				<br />
 				<div c:if="m().mylist.length === 0">
