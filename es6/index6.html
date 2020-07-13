@@ -110,10 +110,18 @@
 
 					doR() {
 						if (this.mylist.length > 0) {
-							console.log("doR():id = %s", this.selectedItemId);
+							this.getLogger().info("doR():id = " + this.selectedItemId);
 							this.setChildFromRegistry("register", "wkRegister");
-							this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
+							this.broadcastGlobally("register", "update", this.resolveRegister());
 						}
+					}
+
+					resolveRegister() {
+						return this.mylist[this.getCurrentItemIdx()][this.curReg];
+					}
+
+					currentRegisterName() {
+						return (this.curReg == Reg.A) ? Reg.A.toString() : Reg.B.toString();
 					}
 				}
 
@@ -132,6 +140,7 @@
 
 					doUpdate(payload) {
 						if (this.rname === null || this.rname === payload.name) {
+							//console.log("%o", payload);
 							this.rname = payload.name;
 							this.entries = Object.entries(payload.values).map((e) => {
 								return { "key": e[0], "value": e[1] };
@@ -175,7 +184,6 @@
 					<h1 class="title is-smaller">
 						Nested Structures
 					</h1>
-					<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
 					<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
 					<button class="button is-success" c:onclick="m().doAReset()" c:if="m().selectedItemId != ''">Reset</button>
 					<br />
@@ -189,15 +197,18 @@
 								<option value="{{v().id}}" style="width: 75px;">{{v().name}}</option>
 							</template>
 						</select><br clear="all" />
-						<span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
-						<p />
-						<button class="button is-primary" c:onclick="m().doRegistryA()">Registry A</button>
-						<button class="button is-warning" c:onclick="m().doRegistryB()">Registry B</button>
+						<span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span><br/>
+						<button class="button is-danger" c:onclick="m().removeItem()">Remove Current Item</button>
+						<br />
+						<br />
+						<button class="button is-primary" c:onclick="m().doRegistryA()" c:if="!m().currentRegisterName().endsWith('A')">Select Registry A</button>
+						<button class="button is-warning" c:onclick="m().doRegistryB()" c:if="!m().currentRegisterName().endsWith('B')">Select Registry B</button>
 						<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
 						<br />
 					</div>
 				</div>
 				<div class="column">
+					<span class="title is-5 has-text-success" c:if="m().mylist.length > 0">{{m().currentRegisterName()}}</span><br/>
 					<script type="cydran/region" c:name="register"></script>
 				</div>
 			</div>
