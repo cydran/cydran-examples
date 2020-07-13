@@ -156,7 +156,7 @@
 					.withPrototype("mainapp", App)
 					.withPrototype("wkRegister", Register)
 					.withPrototype("regItem", Single)
-					.withInitializer(function () {
+					.withInitializer(function() {
 						this.setComponentFromRegistry("mainapp");
 					})
 					.build()
@@ -169,35 +169,40 @@
 	<body></body>
 
 	<template id="main">
-		<section class="section">
-			<div class="container">
-				<h1 class="title is-smaller">
-					Nested Structures
-				</h1>
-				<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
-				<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
-				<button class="button is-success" c:onclick="m().doAReset()" c:if="m().selectedItemId != ''">Reset</button>
-				<br />
-				<br />
-				<div c:if="m().mylist.length === 0">
-					Nothing to show...
-				</div>
-				<div c:if="m().mylist.length > 0">
-					<select c:each="m().mylist" c:each:mode="generated" c:model="m().selectedItemId" size="10" c:force-focus="true">
-						<template c:type="item">
-							<option value="{{v().id}}" style="width: 75px;">{{v().name}}</option>
-						</template>
-					</select> <span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
-					<p />
-					<button class="button is-primary" c:onclick="m().doRegistryA()">Registry A</button>
-					<button class="button is-warning" c:onclick="m().doRegistryB()">Registry B</button>
-					<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
+		<div class="container">
+			<div class="columns">
+				<div class="column">
+					<h1 class="title is-smaller">
+						Nested Structures
+					</h1>
+					<button class="button is-danger" c:onclick="m().removeItem()">Remove Item</button>
+					<button class="button is-info" c:onclick="m().loadBuffer()">Load Data</button>
+					<button class="button is-success" c:onclick="m().doAReset()" c:if="m().selectedItemId != ''">Reset</button>
 					<br />
+					<br />
+					<div c:if="m().mylist.length === 0">
+						Nothing to show...
+					</div>
+					<div c:if="m().mylist.length > 0">
+						<select c:id="picker" c:each="m().mylist" c:each:mode="generated" c:model="m().selectedItemId" size="10">
+							<template c:type="item">
+								<option value="{{v().id}}" style="width: 75px;">{{v().name}}</option>
+							</template>
+						</select><br clear="all" />
+						<span class="is-size-4 has-text-danger">: {{m().selectedItemId}}</span>
+						<p />
+						<button class="button is-primary" c:onclick="m().doRegistryA()">Registry A</button>
+						<button class="button is-warning" c:onclick="m().doRegistryB()">Registry B</button>
+						<button class="button is-success" c:onclick="m().modifyRegister()">Modify Register</button>
+						<br />
+					</div>
 				</div>
-				<script type="cydran/region" c:name="register"></script>
-				<hr width="80%" />
+				<div class="column">
+					<script type="cydran/region" c:name="register"></script>
+				</div>
 			</div>
-		</section>
+			<hr width="80%" />
+		</div>
 	</template>
 
 	<template id="register">
