@@ -10,7 +10,7 @@
 		<script src="node_modules/axios/dist/axios.min.js"></script>
 		<script src="node_modules/cydran/dist/cydran.js"></script>
 		<script>
-			window.onload = function () {
+			window.onload = function() {
 
 				const channelName = "App";
 				const msgType = "doUpdate";
@@ -27,7 +27,8 @@
 				const Reg = {
 					A: "registerA",
 					B: "registerB"
-				}
+				};
+
 				const APP = "App";
 				class App extends Component {
 
@@ -108,7 +109,7 @@
 					}
 
 					doR() {
-						if(this.mylist.length > 0) {
+						if (this.mylist.length > 0) {
 							console.log("doR():id = %s", this.selectedItemId);
 							this.setChildFromRegistry("register", "wkRegister");
 							this.broadcastGlobally("register", "update", this.mylist[this.getCurrentItemIdx()][this.curReg]);
@@ -124,7 +125,7 @@
 					}
 
 					baseline() {
-						this.keyPairs = {};
+						this.keyPairs = { };
 						this.rname = null;
 						this.entries = [];
 					}
@@ -133,7 +134,7 @@
 						if (this.rname === null || this.rname === payload.name) {
 							this.rname = payload.name;
 							this.entries = Object.entries(payload.values).map((e) => {
-								return {"key": e[0], "value": e[1]};
+								return { "key": e[0], "value": e[1] };
 							});
 						}
 					}
