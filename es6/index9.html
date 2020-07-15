@@ -9,73 +9,84 @@
 		<script src="node_modules/axios/dist/axios.min.js"></script>
 		<script src="node_modules/cydran/dist/cydran.min.js"></script>
 		<script>
-			window.onload = function () {
+			window.onload = function() {
 
 				const builder = cydran.builder;
 				const Component = cydran.Component;
 				const Stage = cydran.Stage;
 
-				// changable to "en" or "ES" - case is irrelevant
-				const pgLang = "en";
+				const PROPS = {
+					"cydran.development.enabled": true
+				}
 
-				const i18n = (key) => {
-					const dictionary = {
-						"en": {
-							"item.label": "Ticket",
-							"label.idx": "Index",
-							"pg.header": "Cydran components in structures with restricted child node types",
-							"no.data": "No data available..."
-						},
-						"es": {
-							'item.label': 'Ficha',
-							"label.idx": "Índice",
-							"pg.header": "Componentes de Cydran en estructuras con tipos de nodos secundarios restringidos",
-							"no.data": "Datos no disponibles..."
-						}
-					};
-					return dictionary[pgLang.toLowerCase()][key];
+				const langs = {
+					"en": "English",
+					"es": "Español"
 				};
 
-				const templates = ["Main", "NoData", "WkItem"].map((t) => {
-					const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
-					return {"key": t, "value": tempTemplate};
-				});
+				const labels = {
+					"en": {
+						"item.label": "Ticket",
+						"label.idx": "Index",
+						"pg.header": "Cydran components in structures with restricted child node types",
+						"no.data": "No data available...",
+						"lang.label": "Language"
+					},
+					"es": {
+						'item.label': 'Ficha',
+						"label.idx": "Índice",
+						"pg.header": "Componentes de Cydran en estructuras con tipos de nodos secundarios restringidos",
+						"no.data": "Datos no disponibles...",
+						"lang.label": "Idioma"
+					}
+				};
 
+				const i18n = (lang, key) => {
+					return labels[lang][key];
+				};
+
+				const templates = ["Main", 'NoData', 'WkItem'].map((t) => {
+					const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
+					return { "key": t, 'value': tempTemplate };
+				});
 				const TEMPLATE = (key) => {
 					return templates.find((t) => t.key === key).value;
 				};
-
 				class App extends Component {
 					constructor() {
 						super(TEMPLATE("Main"));
+						this.pgLang = "en";
 						this.wkCount = 0;
 						this.minSize = 0;
 						this.maxSize = 10;
-						this.noData = "No data present...";
+
 						this.dataList = new Array(this.wkCount);
 						this.watch("m().wkCount", this.adjustArray);
-						this.lang = "es";
 					}
 
 					adjustArray() {
 						while (this.wkCount > this.dataList.length) {
-							this.dataList.push({'value': this.dataList.length});
+							this.dataList.push({ 'value': this.dataList.length, 'lang': this.pgLang });
 						}
 						while (this.wkCount < this.dataList.length) {
 							this.dataList.pop();
 						}
+					}
+
+					getLangs() {
+						return langs;
 					}
 				}
 
 				const wkappName = "mainapp";
 				builder("body")
 					.withDebugLogging()
-					.withPrototype(App.name, App)
+					.withProperties(PROPS)
 					.withScopeItem('i18n', i18n)
 					.withImplicit("NoData", TEMPLATE("NoData"))
 					.withImplicit("WkItem", TEMPLATE("WkItem"))
 					.withInitializer(stage => {
-						stage.setComponentFromRegistry(App.name);
+						stage.setComponent(new App())
 					})
 					.build()
 					.start();
@@ -90,20 +101,29 @@
 		<section class="section">
 			<div class="container">
 				<span class="title is-4">
-					[[i18n("pg.header")]]
+					{{i18n(m().pgLang, 'pg.header')}}
 				</span>
 				<br /><br />
 				<div class="columns">
-					<div class="column is-one-third field">
-						<div class="field-label is-normal">
-							lang: [[m().lang]]<br clear="all"/>
-							<label class="label">[[i18n("label.idx")]] {{m().wkCount}}</label>
+					<div class="column is-one-third">
+						{{i18n(m().pgLang, 'lang.label')}}:
+						<div class="control" c:each="Object.entries(m().getLangs())" c:each:mode="expression" c:each:expression="v()[0]">
+							<template c:type="item">
+								<label class="radio">
+									<input type="radio" name="wklang" c:model="m().pgLang" value="{{v()[0]}}" />
+									{{v()[1]}}
+								</label>
+							</template>
 						</div>
-						<div class="field-body">
-							<div class="field">
-								<div class="control">
-									<input class="input is-primary" type="range" min="{{m().minSize}}" max="{{m().maxSize}}"
-										c:model="m().wkCount" />
+						<div class="field">
+							<div class="field-label is-normal">
+								<label class="label">{{i18n(m().pgLang, 'label.idx')}}: {{m().wkCount}}</label>
+							</div>
+							<div class="field-body">
+								<div class="field">
+									<div class="control">
+										<input class="input is-primary" type="range" min="{{m().minSize}}" max="{{m().maxSize}}" c:model="m().wkCount" />
+									</div>
 								</div>
 							</div>
 						</div>
@@ -111,14 +131,8 @@
 					<div class="column is-two-thirds">
 						<table class="table is-striped is-bordered is-fullwidth">
 							<tbody c:each="m().dataList" c:each:mode="generated">
-								<template c:type="empty">
-									<tr>
-										<td>
-											<script type="cydran/region" c:component="NoData"></script>
-										</td>
-									</tr>
-								</template>
-								<template c:type="item" c:component="WkItem"></template>
+							<template c:type="empty" c:component="NoData" c:value="m().pgLang"></template>
+							<template c:type="item" c:component="WkItem"></template>
 							</tbody>
 						</table>
 					</div>
@@ -128,12 +142,14 @@
 
 	<template id="WkItem">
 		<tr>
-			<td>[[i18n("item.label")]] #{{v().value}}</td>
+			<td>[[i18n(v().lang, 'item.label')]] #[[v().value]]</td>
 		</tr>
 	</template>
 
 	<template id="NoData">
-		<span>[[i18n("no.data")]]</span>
+		<tr>
+			<td>[[i18n(v(), 'no.data')]]</td>
+		</tr>
 	</template>
 
 </html>
