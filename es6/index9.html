@@ -42,7 +42,7 @@
 				};
 
 				const i18n = (lang, key) => {
-					return labels[lang][key];
+					return labels[lang || "en"][key];
 				};
 
 				const templates = ["Main", 'NoData', 'WkItem'].map((t) => {
