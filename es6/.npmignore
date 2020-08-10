@@ -1,3 +1,5 @@
 nbproject
 *.tgz
 *.tar.gz
+.jshintrc
+.project
