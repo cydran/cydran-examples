@@ -143,13 +143,13 @@
 
 	<template id="WkItem">
 		<tr>
-			<td>[[i18n(v().lang, 'item.label')]] #[[v().value]]</td>
+			<td>[[ i18n(v().lang, 'item.label')]] #[[v().value ]]</td>
 		</tr>
 	</template>
 
 	<template id="NoData">
 		<tr>
-			<td>[[i18n(v(), 'no.data')]]</td>
+			<td>{{i18n(v(), 'no.data')}}</td>
 		</tr>
 	</template>
 
