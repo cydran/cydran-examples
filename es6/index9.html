@@ -42,7 +42,7 @@
 				};
 
 				const i18n = (lang, key) => {
-					return labels[lang][key];
+					return labels[lang||'en'][key];
 				};
 
 				const templates = ["Main", 'NoData', 'WkItem'].map((t) => {
@@ -52,6 +52,18 @@
 				const TEMPLATE = (key) => {
 					return templates.find((t) => t.key === key).value;
 				};
+
+				class MyListener {
+					constructor(pubSub) {
+						this.pubsub = pubSub;
+						this.pubsub.on("dothemessage").forChannel(App.name).invoke(this.doSomeWork);
+					}
+
+					doSomeWork(payload) {
+						console.log("o%", payload);
+					}
+				}
+
 				class App extends Component {
 					constructor() {
 						super(TEMPLATE("Main"));
@@ -62,6 +74,7 @@
 
 						this.dataList = new Array(this.wkCount);
 						this.watch("m().wkCount", this.adjustArray);
+						this.on("dothemessage").forChannel(App.name).invoke(this.doTheMessage);
 					}
 
 					adjustArray() {
@@ -76,17 +89,28 @@
 					getLangs() {
 						return langs;
 					}
+
+					doTheClick() {
+						this.broadcastGlobally(App.name, "dothemessage", {'msg':'going cray cray cray!'});
+					}
+
+					doTheMessage(payload) {
+						this.getLogger().info(payload.msg);
+					}
 				}
 
 				const wkappName = "mainapp";
+				let second = null;
 				builder("body")
 					.withDebugLogging()
 					.withProperties(PROPS)
 					.withScopeItem('i18n', i18n)
+					.withSingleton('service', MyListener, ["$pubSub"])
 					.withImplicit("NoData", TEMPLATE("NoData"))
 					.withImplicit("WkItem", TEMPLATE("WkItem"))
 					.withInitializer(stage => {
 						stage.setComponent(new App());
+						second = stage.get("service");
 					})
 					.build()
 					.start();
@@ -138,6 +162,7 @@
 					</div>
 				</div>
 			</div>
+			<button c:onclick="m().doTheClick()">Do Click!</button>
 		</section>
 	</template>
 
