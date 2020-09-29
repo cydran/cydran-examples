@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>Cydran POC</title>
+
+		<script src="node_modules/cydran/dist/cydran.js"></script>
+		<script type="text/javascript">
+			window.onload = function() {
+
+				const builder = cydran.builder;
+				const Component = cydran.Component;
+
+				const dataSet = () => {
+					return "ABCDE".split("").map((e) => {
+						return { 'key': e };
+					});
+				};
+
+				class App extends Component {
+					constructor(testProp) {
+						super(TEMPLATE(App.name));
+						this.txtField = '';
+						this.myBoolValue = true;
+						this.myArray = dataSet();
+						this.testProp = testProp;
+					}
+
+					toggleBool() {
+						this.myBoolValue = !this.myBoolValue;
+					}
+
+					resetAll() {
+						this.myArray = dataSet();
+						this.txtField = '';
+						this.toggleBool();
+					}
+				}
+
+				const templates = [App.name, 'Whatever'].map((t) => {
+					const tempTemplate = document.querySelector("template[id=" + t + "]").innerHTML.trim();
+					return { "key": t, 'value': tempTemplate };
+				});
+				const TEMPLATE = (key) => {
+					return templates.find((t) => t.key === key).value;
+				};
+
+				const WE = "Whatever";
+				builder("body")
+					.withDebugLogging()
+					.withImplicit(WE, TEMPLATE(WE))
+					.withProperties({
+						"cydran.production.enabled": false,
+						"cydran.dev.test": false
+					})
+					.withDisposer((stage) => {
+						console.warn(`Elvis has left the building!`);
+					})
+					.withPrototype("app", App, ['$prop:cydran.dev.test'])
+					.withInitializer((stage) => {
+						stage.setComponent(new App());
+					})
+					.build()
+					.start();
+			};
+		</script>
+	</head>
+
+	<body />
+
+	<template id="App">
+		<div>
+			<div>
+				<input type="checkbox" c:checked="m().myBoolValue" /> Checked: {{m().myBoolValue}}<br/>
+			</div>
+			<br />
+			<div>
+				<input c:model="m().txtField" type="text" c:enabled="m().myBoolValue" placeholder="{{`Enabled: ${m().myBoolValue}`}}"/><br/>
+			</div>
+			<br />
+			<div>
+				<button c:hidden="m().myBoolValue" c:onclick="m().resetAll()">Reset All</button><br/>
+			</div>
+			<br/>
+			<br/>
+			<button c:onclick="m().toggleBool()" c:enabled="m().myBoolValue">Toggle</button>
+			<br/>
+			<br/>
+			<div c:each="m().myArray" c:each:mode="generated" c:hidden="!m().myBoolValue">
+				<template c:type="empty">
+					<div>empty</div>
+				</template>
+				<template c:type="first">
+					<div>first element</div>
+				</template>
+				<template c:type="after">
+					<div>after element</div>
+				</template>
+				<template c:type="item">
+					<div>{{v().key}}:&nbsp;&nbsp;{{v().id}}</div>
+				</template>
+				<template c:type="alt" c:test="v().key == 'A'">
+					<div style='color:red; font-size: smaller;'>[[v().key]]:&nbsp;&nbsp;[[v().id]]</div>
+				</template>
+				<template c:type="alt" c:test="v().key == 'B'">
+					<div style='color: green; font-size: larger; font-weight: bold;'>[[v().key]]:&nbsp;&nbsp;[[v().id]]</div>
+				</template>
+			</div>
+		</div>
+	</template>
+
+	<template id="Whatever">
+		<div>Yay!</div>
+	</template>
+</html>
